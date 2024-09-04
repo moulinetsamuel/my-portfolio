@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { GeistSans } from "geist/font/sans";
 import "./globals.css";
-import { cn } from "@/lib/utils";
+import { cn } from "@/libs/utils";
 import { Anek_Telugu } from "next/font/google";
+import { ThemeProvider } from "../src/libs/theme-provider";
 
 const AnekTelugu = Anek_Telugu({
   subsets: ["latin"],
@@ -28,7 +29,14 @@ export default function RootLayout({
           "font-sans h-full bg-background text-foreground"
         )}
       >
-        {children}
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   );
