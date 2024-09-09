@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import { GeistSans } from "geist/font/sans";
 import "./globals.css";
-import { cn } from "../libs/utils";
+import { cn } from "../lib/utils";
 import { Anek_Telugu } from "next/font/google";
 import { ThemeProvider } from "../providers/theme-provider";
+import NavBar from "@/components/NavBar";
 
 const AnekTelugu = Anek_Telugu({
   subsets: ["latin"],
@@ -26,7 +27,7 @@ export default function RootLayout({
         className={cn(
           GeistSans.variable,
           AnekTelugu,
-          "font-sans h-full bg-background text-foreground"
+          "font-sans h-full overflow-y-scroll overflow-x-hidden"
         )}
       >
         <ThemeProvider
@@ -35,6 +36,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
+          <NavBar />
           {children}
         </ThemeProvider>
       </body>
