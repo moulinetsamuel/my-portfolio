@@ -22,6 +22,7 @@ const Separator = React.forwardRef<
         orientation === "horizontal"
           ? "h-[1px] w-full"
           : "h-96 w-[1px] mx-auto",
+        "shadow-[0_0_10px_2px_orange] shadow-orange-500", // Lueur néon
         className
       )}
       {...props}
