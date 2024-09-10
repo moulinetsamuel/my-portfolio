@@ -47,6 +47,28 @@
     --destructive-foreground: 0 0% 100%;
     --ring: 23.11 59.8% 40%;
   }
+  /* Animation des météores */
+  @keyframes meteor {
+    0% {
+      transform: translateY(0) translateX(0);
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(100vh) translateX(-200px);
+      opacity: 0;
+    }
+  }
+
+  /* Conteneur des météores */
+  .meteor-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: -1; /* Les météores passent derrière le contenu */
+    pointer-events: none; /* Les interactions ne sont pas bloquées */
+  }
 }
 
 @layer base {
@@ -70,5 +92,9 @@
   .dark .shadow-theme {
     box-shadow: 0 6px 12px -2px hsl(var(--primary) / 0.1),
       0 4px 12px -2px hsl(var(--primary) / 0.06);
+  }
+  /* Animation des météores */
+  .animate-meteor {
+    animation: meteor linear infinite;
   }
 }

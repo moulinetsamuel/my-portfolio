@@ -4,7 +4,7 @@ import "./globals.css";
 import { cn } from "../lib/utils";
 import { Anek_Telugu } from "next/font/google";
 import { ThemeProvider } from "../providers/theme-provider";
-import NavBar from "@/components/NavBar";
+import Meteors from "@/components/magicui/meteors";
 
 const AnekTelugu = Anek_Telugu({
   subsets: ["latin"],
@@ -26,8 +26,8 @@ export default function RootLayout({
       <body
         className={cn(
           GeistSans.variable,
-          AnekTelugu,
-          "font-sans h-full overflow-y-scroll overflow-x-hidden"
+          AnekTelugu.variable,
+          "font-sans h-full overflow-y-scroll overflow-x-hidden relative"
         )}
       >
         <ThemeProvider
@@ -36,7 +36,8 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <NavBar />
+          <Meteors number={75} />
+
           {children}
         </ThemeProvider>
       </body>
