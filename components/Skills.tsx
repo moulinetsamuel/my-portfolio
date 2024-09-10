@@ -1,6 +1,9 @@
 export default function Skills() {
   return (
-    <section id="skills" className="h-screen w-full scroll-mt-20">
+    <section
+      id="skills"
+      className="h-screen w-full flex px-20 items-center justify-center"
+    >
       <h2 className="text-4xl font-bold">Compétences</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mt-10">
         <div>
