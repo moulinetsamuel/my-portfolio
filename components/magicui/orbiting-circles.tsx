@@ -8,6 +8,7 @@ export interface OrbitingCirclesProps {
   delay?: number;
   radius?: number;
   path?: boolean;
+  angle?: number;
 }
 
 export default function OrbitingCircles({
@@ -18,7 +19,12 @@ export default function OrbitingCircles({
   delay = 10,
   radius = 50,
   path = true,
+  angle = 0, // Valeur par défaut de 0 pour l'angle
 }: OrbitingCirclesProps) {
+  // Calcul des coordonnées x et y basées sur l'angle et le rayon
+  const x = Math.cos((angle * Math.PI) / 180) * radius;
+  const y = Math.sin((angle * Math.PI) / 180) * radius;
+
   return (
     <>
       {path && (
@@ -43,6 +49,7 @@ export default function OrbitingCircles({
             "--duration": duration,
             "--radius": radius,
             "--delay": -delay,
+            transform: `translate(${x}px, ${y}px)`, // Appliquer la transformation en fonction de l'angle
           } as React.CSSProperties
         }
         className={cn(
