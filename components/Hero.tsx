@@ -2,7 +2,10 @@ import Image from "next/image";
 
 export default function Hero() {
   return (
-    <section id="about-me" className="h-screen w-full flex justify-evenly">
+    <section
+      id="about-me"
+      className="h-screen w-full flex justify-evenly pt-16"
+    >
       <div className="flex flex-col justify-center items-start">
         <Image
           src="/images/samuel-moulinet.jpg"

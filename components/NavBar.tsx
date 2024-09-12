@@ -28,7 +28,7 @@ export default function NavBar() {
             </Link>
           </nav>
         </div>
-        <Button variant={"outline"} className="flex gap-2 hover">
+        <Button variant={"default"} className="flex gap-2">
           Télécharger mon CV
           <DownloadIcon />
         </Button>

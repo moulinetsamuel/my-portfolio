@@ -84,12 +84,12 @@ export default function Skills() {
   return (
     <section
       id="skills"
-      className="h-screen w-full flex flex-col justify-center items-center"
+      className="h-screen w-full flex flex-col justify-center items-center pt-16"
     >
-      <h2 className="text-4xl font-bold py-20">Mes compétences techniques</h2>
+      <h2 className="text-4xl font-bold pt-16">Compétences techniques</h2>
 
-      <div className="relative flex h-3/4 w-full flex-col items-center justify-center overflow-hidden">
-        {skillWithRadius.map((skill, index) => {
+      <div className="relative flex h-full w-full flex-col items-center justify-center overflow-hidden">
+        {skillWithRadius.map((skill) => {
           const totalIconsInRadius = skillCountPerRadius[skill.radiusIndex];
 
           // Calculer l'angle pour chaque icône
