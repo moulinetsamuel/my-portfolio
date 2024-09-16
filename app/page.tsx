@@ -7,15 +7,30 @@ import { Separator } from "@/components/ui/separator";
 
 export default function Home() {
   return (
-    <main className="h-full w-full">
+    <main className="min-h-screen w-full">
       <div className="flex flex-col">
         <NavBar />
         <Hero />
-        <Separator orientation="vertical" />
+        <div className="h-16 md:h-24 lg:h-32 relative">
+          <Separator
+            orientation="vertical"
+            className="absolute left-1/2 h-full"
+          />
+        </div>
         <Skills />
-        <Separator orientation="vertical" />
+        <div className="h-16 md:h-24 lg:h-32 relative">
+          <Separator
+            orientation="vertical"
+            className="absolute left-1/2 h-full"
+          />
+        </div>
         <Projects />
-        <Separator orientation="vertical" />
+        <div className="h-16 md:h-24 lg:h-32 relative">
+          <Separator
+            orientation="vertical"
+            className="absolute left-1/2 h-full"
+          />
+        </div>
         <Contact />
       </div>
     </main>
