@@ -22,12 +22,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="fr">
+    <html lang="fr" className="h-full">
       <body
         className={cn(
           GeistSans.variable,
           AnekTelugu.variable,
-          "font-sans overflow-y-scroll overflow-x-hidden relative"
+          "font-sans overflow-x-hidden relative min-h-screen flex flex-col"
         )}
       >
         <ThemeProvider
@@ -36,7 +36,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <div className="h-full">
+          <div className="flex-grow">
             <Meteors number={75} />
             {children}
           </div>
