@@ -1,38 +1,36 @@
+"use client";
+
+import { useState, useEffect } from "react";
 import OrbitingCircles from "../magicui/orbiting-circles";
 import Image from "next/image";
+import { SkillIcons, RadiusData } from "@/constants";
 
-type SkillContentProps = {
-  icons: {
-    id: number;
-    name: string;
-    icon_url: string;
-  }[];
-  radiusData: {
-    id: number;
-    radius: number;
-    size: number;
-    max: number;
-    duration: number;
-    reverse?: boolean;
-  }[];
-};
+export default function SkillContent() {
+  const [scale, setScale] = useState(1);
 
-export default function SkillContent({ icons, radiusData }: SkillContentProps) {
-  // Calculer le nombre total maximal d'icônes pouvant être affichées
-  const totalMaxIcons = radiusData.reduce((acc, radius) => acc + radius.max, 0);
+  useEffect(() => {
+    const handleResize = () => {
+      const width = window.innerWidth;
+      if (width < 640) {
+        setScale(0.5);
+      } else if (width < 768) {
+        setScale(0.7);
+      } else if (width < 1024) {
+        setScale(0.85);
+      } else {
+        setScale(1);
+      }
+    };
 
-  // Mélanger les compétences
-  let shuffledSkills = [...icons].sort(() => Math.random() - 0.5);
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
-  // Si le nombre d'icônes dépasse le maximum, couper la liste
-  let removedSkills: {
-    id: number;
-    name: string;
-    icon_url: string;
-  }[] = [];
+  const totalMaxIcons = RadiusData.reduce((acc, radius) => acc + radius.max, 0);
+  let shuffledSkills = [...SkillIcons].sort(() => Math.random() - 0.5);
 
   if (shuffledSkills.length > totalMaxIcons) {
-    removedSkills = shuffledSkills.slice(totalMaxIcons);
     shuffledSkills = shuffledSkills.slice(0, totalMaxIcons);
   }
 
@@ -44,60 +42,51 @@ export default function SkillContent({ icons, radiusData }: SkillContentProps) {
     index: number;
   }[] = [];
 
-  const skillCountPerRadius = radiusData.map(() => 0); // Initialise un compteur pour chaque rayon
-
-  let currentRadiusIndex = 0; // Rayon de départ
+  const skillCountPerRadius = RadiusData.map(() => 0);
+  let currentRadiusIndex = 0;
 
   shuffledSkills.forEach((skill) => {
-    // Trouver un rayon qui n'a pas atteint sa limite, en commençant par le dernier rayon utilisé
     while (
       skillCountPerRadius[currentRadiusIndex] >=
-      radiusData[currentRadiusIndex].max
+      RadiusData[currentRadiusIndex].max
     ) {
-      currentRadiusIndex = (currentRadiusIndex + 1) % radiusData.length; // Passer au rayon suivant en boucle
+      currentRadiusIndex = (currentRadiusIndex + 1) % RadiusData.length;
     }
 
-    // Ajouter la compétence au groupe avec son radiusIndex
     skillWithRadius.push({
       ...skill,
       radiusIndex: currentRadiusIndex,
       index: skillCountPerRadius[currentRadiusIndex],
     });
 
-    // Incrémenter le compteur pour ce rayon
     skillCountPerRadius[currentRadiusIndex]++;
-
-    // Passer au rayon suivant pour la prochaine compétence
-    currentRadiusIndex = (currentRadiusIndex + 1) % radiusData.length;
+    currentRadiusIndex = (currentRadiusIndex + 1) % RadiusData.length;
   });
+
   return (
     <div className="relative flex h-full w-full flex-col items-center justify-center overflow-hidden">
       {skillWithRadius.map((skill) => {
         const totalIconsInRadius = skillCountPerRadius[skill.radiusIndex];
-
-        // Calculer l'angle pour chaque icône
         const angle = (360 / totalIconsInRadius) * skill.index;
-
-        // Calcul du délai basé sur l'index
         const delay =
           (skill.index / totalIconsInRadius) *
-          radiusData[skill.radiusIndex].duration;
+          RadiusData[skill.radiusIndex].duration;
 
         return (
           <OrbitingCircles
             key={skill.id}
             className="border-none bg-transparent"
-            radius={radiusData[skill.radiusIndex].radius}
-            duration={radiusData[skill.radiusIndex].duration}
+            radius={RadiusData[skill.radiusIndex].radius * scale}
+            duration={RadiusData[skill.radiusIndex].duration}
             delay={delay}
-            reverse={radiusData[skill.radiusIndex].reverse}
+            reverse={RadiusData[skill.radiusIndex].reverse}
             angle={angle}
           >
             <Image
               src={`icons/skills${skill.icon_url}`}
               alt={skill.name}
-              width={radiusData[skill.radiusIndex].size}
-              height={radiusData[skill.radiusIndex].size}
+              width={RadiusData[skill.radiusIndex].size * scale}
+              height={RadiusData[skill.radiusIndex].size * scale}
             />
           </OrbitingCircles>
         );

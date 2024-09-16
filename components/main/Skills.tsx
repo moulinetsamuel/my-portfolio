@@ -1,14 +1,17 @@
 import SkillContent from "../contents/SkillContent";
-import { SkillIcons, RadiusData } from "@/constants";
 
 export default function Skills() {
   return (
     <section
       id="skills"
-      className="h-screen w-full flex flex-col justify-center items-center pt-16"
+      className="min-h-screen w-full flex flex-col justify-center items-center py-16 px-4"
     >
-      <h2 className="text-4xl font-bold pt-16">Compétences techniques</h2>
-      <SkillContent icons={SkillIcons} radiusData={RadiusData} />
+      <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-8 md:mb-12 text-center">
+        Compétences techniques
+      </h2>
+      <div className="w-full max-w-4xl h-[60vh] md:h-[70vh]">
+        <SkillContent />
+      </div>
     </section>
   );
 }
