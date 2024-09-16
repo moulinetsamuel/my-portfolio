@@ -2,8 +2,8 @@ import Image from "next/image";
 
 export default function HeroProfil() {
   return (
-    <div className="flex flex-col justify-center items-start">
-      <div className="relative w-64 h-64 mb-5">
+    <div className="flex flex-col justify-center items-center md:items-start mb-8 md:mb-0">
+      <div className="relative w-48 h-48 md:w-64 md:h-64 mb-5">
         <Image
           src="/images/samuel-moulinet.jpg"
           alt="Samuel Moulinet"
@@ -15,9 +15,11 @@ export default function HeroProfil() {
         />
       </div>
 
-      <p className="font-bold mb-4">Moulinet Samuel</p>
-      <p className="mb-2">30 ans</p>
-      <p className="">Nantes, France</p>
+      <p className="font-bold mb-2 md:mb-4 text-lg md:text-xl">
+        Moulinet Samuel
+      </p>
+      <p className="mb-1 md:mb-2 text-sm md:text-base">30 ans</p>
+      <p className="text-sm md:text-base">Nantes, France</p>
     </div>
   );
 }
