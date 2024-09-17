@@ -14,11 +14,11 @@ export default function SkillContent() {
       if (width < 640) {
         setScale(0.5);
       } else if (width < 768) {
-        setScale(0.7);
+        setScale(0.6);
       } else if (width < 1024) {
-        setScale(0.85);
+        setScale(0.62);
       } else {
-        setScale(1);
+        setScale(0.8);
       }
     };
 
