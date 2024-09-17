@@ -3,7 +3,7 @@ import Hero from "@/components/main/Hero";
 import NavBar from "@/components/NavBar";
 import Projects from "@/components/main/Projects";
 import Skills from "@/components/main/Skills";
-import { Separator } from "@/components/ui/separator";
+import SectionDivider from "@/components/SectionDivider";
 
 export default function Home() {
   return (
@@ -11,26 +11,11 @@ export default function Home() {
       <div className="flex flex-col">
         <NavBar />
         <Hero />
-        <div className="h-16 md:h-24 lg:h-32 relative">
-          <Separator
-            orientation="vertical"
-            className="absolute left-1/2 h-full"
-          />
-        </div>
+        <SectionDivider />
         <Skills />
-        <div className="h-16 md:h-24 lg:h-32 relative">
-          <Separator
-            orientation="vertical"
-            className="absolute left-1/2 h-full"
-          />
-        </div>
+        <SectionDivider />
         <Projects />
-        <div className="h-16 md:h-24 lg:h-32 relative">
-          <Separator
-            orientation="vertical"
-            className="absolute left-1/2 h-full"
-          />
-        </div>
+        <SectionDivider />
         <Contact />
       </div>
     </main>
