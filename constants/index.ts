@@ -126,3 +126,10 @@ export const RadiusData = [
     duration: 25,
   },
 ];
+
+export const navItems = [
+  { href: "#about-me", label: "Qui suis-je ?" },
+  { href: "#skills", label: "Compétences" },
+  { href: "#projects", label: "Projets" },
+  { href: "#contact", label: "Contact" },
+];
