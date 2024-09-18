@@ -5,36 +5,40 @@ import { MoonIcon, SunIcon } from "@radix-ui/react-icons";
 import { useTheme } from "next-themes";
 
 import { Button } from "./ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "./ui/dropdown-menu";
 
 export default function ModeToggle() {
-  const { setTheme } = useTheme();
+  const { theme, setTheme } = useTheme();
+  const [isRotating, setIsRotating] = React.useState(false);
+
+  const toggleTheme = () => {
+    setIsRotating(true);
+    setTimeout(() => {
+      setTheme(theme === "dark" ? "light" : "dark");
+      setIsRotating(false);
+    }, 150); // Half of the animation duration
+  };
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="icon">
-          <SunIcon className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-          <MoonIcon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-          <span className="sr-only">Toggle theme</span>
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={() => setTheme("light")}>
-          Light
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme("dark")}>
-          Dark
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme("system")}>
-          System
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <Button
+      variant="outline"
+      size="icon"
+      onClick={toggleTheme}
+      aria-label={`Basculer vers le mode ${
+        theme === "dark" ? "clair" : "sombre"
+      }`}
+      className="relative overflow-hidden"
+    >
+      <div
+        className={`absolute inset-0 flex items-center justify-center transition-transform duration-300 ${
+          isRotating ? "animate-spin" : ""
+        }`}
+      >
+        {theme === "dark" ? (
+          <SunIcon className="h-[1.2rem] w-[1.2rem] transition-all" />
+        ) : (
+          <MoonIcon className="h-[1.2rem] w-[1.2rem] transition-all" />
+        )}
+      </div>
+    </Button>
   );
 }
