@@ -6,8 +6,8 @@ export default function HeroDescription() {
       </h1>
       <div className="flex flex-col gap-3 text-sm md:text-base">
         <p>
-          Hey, je m&rsquo;appelle Samuel et je suis un développeur junior tout
-          juste diplômé de l&rsquo;école O&rsquo;clock.
+          Hey, je m&rsquo;appelle Samuel et je suis un développeur Full-Stack
+          tout juste diplômé de l&rsquo;école O&rsquo;clock.
         </p>
         <p>
           Je suis passionné par le développement web, avec une préférence pour

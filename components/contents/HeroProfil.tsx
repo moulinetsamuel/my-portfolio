@@ -16,7 +16,7 @@ export default function HeroProfil() {
       </div>
 
       <p className="font-bold mb-2 md:mb-4 text-lg md:text-xl">
-        Moulinet Samuel
+        Samuel Moulinet
       </p>
       <p className="mb-1 md:mb-2 text-sm md:text-base">30 ans</p>
       <p className="text-sm md:text-base">Nantes, France</p>
