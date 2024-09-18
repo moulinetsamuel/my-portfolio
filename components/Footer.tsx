@@ -14,6 +14,7 @@ export default function Footer() {
               href="https://www.linkedin.com/in/samuel-moulinet-a48576305/"
               target="_blank"
               rel="noopener noreferrer"
+              aria-label="Profil LinkedIn"
             >
               <Linkedin className="w-6 h-6 text-muted-foreground hover:text-primary transition-colors" />
             </Link>
@@ -21,6 +22,7 @@ export default function Footer() {
               href="https://github.com/moulinetsamuel"
               target="_blank"
               rel="noopener noreferrer"
+              aria-label="Profil GitHub"
             >
               <Github className="w-6 h-6 text-muted-foreground hover:text-primary transition-colors" />
             </Link>

@@ -5,6 +5,7 @@ import { cn } from "../lib/utils";
 import { Anek_Telugu } from "next/font/google";
 import { ThemeProvider } from "../providers/theme-provider";
 import Meteors from "@/components/magicui/meteors";
+import { Toaster } from "@/components/ui/toaster";
 
 const AnekTelugu = Anek_Telugu({
   subsets: ["latin"],
@@ -40,6 +41,7 @@ export default function RootLayout({
             <Meteors number={75} />
             {children}
           </div>
+          <Toaster />
         </ThemeProvider>
       </body>
     </html>
