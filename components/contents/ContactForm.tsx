@@ -1,73 +1,80 @@
 "use client";
 
 import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { submitContactForm } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
+import { ContactFormData, contactSchema } from "@/lib/schemas/contactSchema";
 
 export default function ContactForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm<ContactFormData>({
+    resolver: zodResolver(contactSchema),
+  });
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const onSubmit = async (data: ContactFormData) => {
     setIsSubmitting(true);
 
-    // Ici, vous enverriez normalement les données du formulaire à votre serveur
-    // Pour l'instant, nous allons simplement simuler une soumission
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    try {
+      await submitContactForm(data);
 
-    toast({
-      title: "Message envoyé !",
-      description:
-        "Merci pour votre message. Je vous répondrai dès que possible.",
-    });
-
-    setIsSubmitting(false);
-    event.currentTarget.reset();
+      toast({
+        title: "Message envoyé !",
+        description:
+          "Merci pour votre message. Je vous répondrai dès que possible.",
+      });
+      reset();
+    } catch (error) {
+      console.error("Erreur lors de l'envoi du message:", error);
+      toast({
+        title: "Erreur",
+        description:
+          "Une erreur est survenue lors de l'envoi du message. Veuillez réessayer.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-8">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
       <div className="space-y-2">
         <Label htmlFor="name">Nom</Label>
-        <Input
-          id="name"
-          name="name"
-          placeholder="Votre nom - Entreprise"
-          required
-        />
+        <Input autoComplete="off" id="name" {...register("name")} />
+        {errors.name && (
+          <p className="text-red-500 text-sm">{errors.name.message}</p>
+        )}
       </div>
       <div className="space-y-2">
         <Label htmlFor="email">Email</Label>
         <Input
+          autoComplete="off"
           id="email"
-          name="email"
           type="email"
-          placeholder="votre@email.com"
-          required
+          {...register("email")}
         />
+        {errors.email && (
+          <p className="text-red-500 text-sm">{errors.email.message}</p>
+        )}
       </div>
       <div className="space-y-2">
         <Label htmlFor="message">Message</Label>
-        <Textarea
-          id="message"
-          name="message"
-          placeholder="Votre message"
-          required
-        />
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor="attachment">Pièce jointe (optionnel)</Label>
-        <Input
-          id="attachment"
-          name="attachment"
-          type="file"
-          accept=".pdf,.doc,.docx"
-          placeholder=".pdf, .doc, .docx"
-        />
+        <Textarea id="message" {...register("message")} />
+        {errors.message && (
+          <p className="text-red-500 text-sm">{errors.message.message}</p>
+        )}
       </div>
       <Button type="submit" disabled={isSubmitting}>
         {isSubmitting ? "Envoi en cours..." : "Envoyer"}
