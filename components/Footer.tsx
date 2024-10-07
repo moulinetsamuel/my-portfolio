@@ -1,7 +1,22 @@
+"use client";
+
 import { Github, Linkedin, Lock } from "lucide-react";
 import Link from "next/link";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 export default function Footer() {
+  const { data: session } = useSession();
+  const router = useRouter();
+
+  const handleAdminAccess = () => {
+    if (session) {
+      router.push("/dashboard");
+    } else {
+      router.push("/admin-login");
+    }
+  };
+
   return (
     <footer className="mt-auto w-full border-t bg-background">
       <div className="container mx-auto px-4 py-6">
@@ -26,13 +41,13 @@ export default function Footer() {
             >
               <Github className="size-6 text-muted-foreground transition-colors hover:text-primary" />
             </Link>
-            <Link
-              href="/admin-login"
+            <button
+              onClick={handleAdminAccess}
               aria-label="Accès administrateur"
               className="opacity-10 transition-opacity duration-300 hover:opacity-100"
             >
               <Lock className="size-6 text-muted-foreground transition-colors hover:text-primary" />
-            </Link>
+            </button>
           </div>
         </div>
       </div>

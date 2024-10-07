@@ -5,13 +5,10 @@ import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import NavLinkDashboard from "./NavLinkDashboard";
+import { Home, LogOut } from "lucide-react";
 
 export default function DashboardNav() {
   const pathname = usePathname();
-
-  const handleLogout = async () => {
-    await signOut({ callbackUrl: "/" });
-  };
 
   return (
     <nav className="border-b">
@@ -44,8 +41,18 @@ export default function DashboardNav() {
               </NavLinkDashboard>
             </div>
           </div>
-          <div className="flex items-center">
-            <Button variant="ghost" onClick={handleLogout}>
+          <div className="flex items-center space-x-2">
+            <Link href="/">
+              <Button variant="ghost">
+                <Home className="mr-2 size-4" />
+                Retour au Portfolio
+              </Button>
+            </Link>
+            <Button
+              variant="ghost"
+              onClick={() => signOut({ callbackUrl: "/" })}
+            >
+              <LogOut className="mr-2 size-4" />
               Déconnexion
             </Button>
           </div>
