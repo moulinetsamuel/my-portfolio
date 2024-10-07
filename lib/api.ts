@@ -7,13 +7,13 @@ export async function submitContactForm(
   formData: ContactFormData
 ): Promise<void> {
   try {
-    const response = await fetch(GOOGLE_APPS_SCRIPT_URL, {
+    await fetch(GOOGLE_APPS_SCRIPT_URL, {
       method: "POST",
       mode: "no-cors",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(formData),
     });
-  } catch (error) {
+  } catch {
     throw new Error("Erreur lors de l'envoi du message");
   }
 }

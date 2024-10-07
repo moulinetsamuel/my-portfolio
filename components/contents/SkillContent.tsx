@@ -64,7 +64,7 @@ export default function SkillContent() {
   });
 
   return (
-    <div className="relative flex h-full w-full flex-col items-center justify-center overflow-hidden">
+    <div className="relative flex size-full flex-col items-center justify-center overflow-hidden">
       {skillWithRadius.map((skill) => {
         const totalIconsInRadius = skillCountPerRadius[skill.radiusIndex];
         const angle = (360 / totalIconsInRadius) * skill.index;

@@ -1,7 +1,7 @@
 export default function HeroDescription() {
   return (
-    <div className="flex flex-col justify-center items-center md:items-start text-center md:text-left max-w-xl lg:max-w-2xl">
-      <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6 md:mb-8 lg:mb-10 text-primary">
+    <div className="flex max-w-xl flex-col items-center justify-center text-center md:items-start md:text-left lg:max-w-2xl">
+      <h1 className="mb-6 text-3xl font-bold text-primary md:mb-8 md:text-4xl lg:mb-10 lg:text-5xl">
         Développeur Full Stack
       </h1>
       <div className="flex flex-col gap-3 text-sm md:text-base">

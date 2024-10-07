@@ -8,9 +8,9 @@ export default function DashboardNav() {
   return (
     <nav className="border-b">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16">
+        <div className="flex h-16 justify-between">
           <div className="flex">
-            <div className="flex-shrink-0 flex items-center">
+            <div className="flex shrink-0 items-center">
               <Link href="/dashboard" className="text-xl font-bold">
                 Dashboard
               </Link>

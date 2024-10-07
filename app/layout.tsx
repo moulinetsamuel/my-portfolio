@@ -37,7 +37,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <div className="flex-grow">
+          <div className="grow">
             <Meteors number={75} />
             {children}
           </div>

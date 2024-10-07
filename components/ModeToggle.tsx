@@ -34,9 +34,9 @@ export default function ModeToggle() {
         }`}
       >
         {theme === "dark" ? (
-          <SunIcon className="h-[1.2rem] w-[1.2rem] transition-all" />
+          <SunIcon className="size-[1.2rem] transition-all" />
         ) : (
-          <MoonIcon className="h-[1.2rem] w-[1.2rem] transition-all" />
+          <MoonIcon className="size-[1.2rem] transition-all" />
         )}
       </div>
     </Button>

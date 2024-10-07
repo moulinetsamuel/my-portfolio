@@ -54,7 +54,7 @@ export default function ContactForm() {
         <Label htmlFor="name">Nom</Label>
         <Input autoComplete="off" id="name" {...register("name")} />
         {errors.name && (
-          <p className="text-red-500 text-sm">{errors.name.message}</p>
+          <p className="text-sm text-red-500">{errors.name.message}</p>
         )}
       </div>
       <div className="space-y-2">
@@ -66,14 +66,14 @@ export default function ContactForm() {
           {...register("email")}
         />
         {errors.email && (
-          <p className="text-red-500 text-sm">{errors.email.message}</p>
+          <p className="text-sm text-red-500">{errors.email.message}</p>
         )}
       </div>
       <div className="space-y-2">
         <Label htmlFor="message">Message</Label>
         <Textarea id="message" {...register("message")} />
         {errors.message && (
-          <p className="text-red-500 text-sm">{errors.message.message}</p>
+          <p className="text-sm text-red-500">{errors.message.message}</p>
         )}
       </div>
       <Button type="submit" disabled={isSubmitting}>

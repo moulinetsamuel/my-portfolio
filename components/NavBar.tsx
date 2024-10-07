@@ -33,7 +33,7 @@ export default function NavBar() {
 
   const mainNavigation = useMemo(
     () => (
-      <nav className="hidden md:flex items-center gap-6 lg:gap-10">
+      <nav className="hidden items-center gap-6 md:flex lg:gap-10">
         {navItems.map((item) => (
           <NavLink key={item.href} href={item.href} label={item.label} />
         ))}
@@ -43,21 +43,21 @@ export default function NavBar() {
   );
 
   return (
-    <header className="w-full h-[65px] fixed top-0 shadow-theme flex backdrop-blur-md items-center z-50 px-4 sm:px-10">
-      <div className="w-full h-full flex flex-row items-center justify-between m-auto">
-        <div className="flex justify-between h-full items-center gap-5">
+    <header className="shadow-theme fixed top-0 z-50 flex h-[65px] w-full items-center px-4 backdrop-blur-md sm:px-10">
+      <div className="m-auto flex size-full flex-row items-center justify-between">
+        <div className="flex h-full items-center justify-between gap-5">
           <ModeToggle />
           {mainNavigation}
         </div>
         <div className="flex items-center gap-4">
           <Button
             variant={"default"}
-            className="hidden sm:flex gap-2"
+            className="hidden gap-2 sm:flex"
             onClick={handleDownloadCV}
             aria-label="Télécharger mon CV"
           >
             Télécharger mon CV
-            <DownloadIcon className="h-4 w-4" />
+            <DownloadIcon className="size-4" />
           </Button>
           <Sheet
             open={isOpen}
@@ -71,12 +71,12 @@ export default function NavBar() {
                 aria-label={isOpen ? "Fermer le menu" : "Ouvrir le menu"}
               >
                 <HamburgerMenuIcon
-                  className={`h-[1.2rem] w-[1.2rem] transition-all ${
+                  className={`size-[1.2rem] transition-all ${
                     isOpen ? "rotate-90 scale-0" : "rotate-0 scale-100"
                   }`}
                 />
                 <Cross1Icon
-                  className={`absolute h-[1.2rem] w-[1.2rem] transition-all ${
+                  className={`absolute size-[1.2rem] transition-all ${
                     isOpen ? "rotate-0 scale-100" : "rotate-90 scale-0"
                   }`}
                 />
@@ -90,7 +90,7 @@ export default function NavBar() {
                   Cliquez sur une section pour y accéder.
                 </SheetDescription>
               </SheetHeader>
-              <nav className="flex flex-col gap-4 mt-8">
+              <nav className="mt-8 flex flex-col gap-4">
                 {navItems.map((item) => (
                   <NavLink
                     key={item.href}
@@ -101,12 +101,12 @@ export default function NavBar() {
                 ))}
                 <Button
                   variant={"default"}
-                  className="flex gap-2 mt-4 sm:hidden"
+                  className="mt-4 flex gap-2 sm:hidden"
                   onClick={handleDownloadCV}
                   aria-label="Télécharger mon CV"
                 >
                   Télécharger mon CV
-                  <DownloadIcon className="h-4 w-4" />
+                  <DownloadIcon className="size-4" />
                 </Button>
               </nav>
             </SheetContent>

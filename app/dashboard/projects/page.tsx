@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 export default function ProjectsPage() {
   return (
     <div>
-      <h1 className="text-3xl font-bold mb-6">Gestion des projets</h1>
+      <h1 className="mb-6 text-3xl font-bold">Gestion des projets</h1>
       <form className="space-y-4">
         <div>
           <Label htmlFor="project-title">Titre du projet</Label>

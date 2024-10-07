@@ -6,7 +6,7 @@ import { Slider } from "@/components/ui/slider";
 export default function SkillsPage() {
   return (
     <div>
-      <h1 className="text-3xl font-bold mb-6">Gestion des compétences</h1>
+      <h1 className="mb-6 text-3xl font-bold">Gestion des compétences</h1>
       <form className="space-y-4">
         <div>
           <Label htmlFor="skill-name">Nom de la compétence</Label>

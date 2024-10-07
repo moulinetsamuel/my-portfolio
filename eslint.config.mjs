@@ -31,6 +31,20 @@ export default [
     ignores: [".next/"],
   },
   ...fixupConfigRules(compat.extends("plugin:@next/next/core-web-vitals")),
+  // Linter Options
+  {
+    linterOptions: {
+      reportUnusedDisableDirectives: true, // Use this instead of the old option
+    },
+  },
+  // Ajouter la version de React ici
+  {
+    settings: {
+      react: {
+        version: "detect", // Automatiquement détecte la version de React
+      },
+    },
+  },
   // Rules config
   {
     rules: {
