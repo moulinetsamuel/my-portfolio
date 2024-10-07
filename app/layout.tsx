@@ -6,6 +6,7 @@ import { Anek_Telugu } from "next/font/google";
 import { ThemeProvider } from "../providers/theme-provider";
 import Meteors from "@/components/magicui/meteors";
 import { Toaster } from "@/components/ui/toaster";
+import { NextAuthProvider } from "@/providers/next-auth-provider";
 
 const AnekTelugu = Anek_Telugu({
   subsets: ["latin"],
@@ -31,18 +32,20 @@ export default function RootLayout({
           "font-sans overflow-x-hidden relative min-h-screen flex flex-col"
         )}
       >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="dark"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <div className="grow">
-            <Meteors number={75} />
-            {children}
-          </div>
-          <Toaster />
-        </ThemeProvider>
+        <NextAuthProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="dark"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <div className="grow">
+              <Meteors number={75} />
+              {children}
+            </div>
+            <Toaster />
+          </ThemeProvider>
+        </NextAuthProvider>
       </body>
     </html>
   );

@@ -1,9 +1,17 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { signOut } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import NavLinkDashboard from "./NavLinkDashboard";
 
 export default function DashboardNav() {
-  const pathname = "/dashboard"; // Simulated current path
+  const pathname = usePathname();
+
+  const handleLogout = async () => {
+    await signOut({ callbackUrl: "/" });
+  };
 
   return (
     <nav className="border-b">
@@ -37,7 +45,9 @@ export default function DashboardNav() {
             </div>
           </div>
           <div className="flex items-center">
-            <Button variant="ghost">Déconnexion</Button>
+            <Button variant="ghost" onClick={handleLogout}>
+              Déconnexion
+            </Button>
           </div>
         </div>
       </div>

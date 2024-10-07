@@ -1,4 +1,4 @@
-import { Github, Linkedin } from "lucide-react";
+import { Github, Linkedin, Lock } from "lucide-react";
 import Link from "next/link";
 
 export default function Footer() {
@@ -25,6 +25,13 @@ export default function Footer() {
               aria-label="Profil GitHub"
             >
               <Github className="size-6 text-muted-foreground transition-colors hover:text-primary" />
+            </Link>
+            <Link
+              href="/admin-login"
+              aria-label="Accès administrateur"
+              className="opacity-10 transition-opacity duration-300 hover:opacity-100"
+            >
+              <Lock className="size-6 text-muted-foreground transition-colors hover:text-primary" />
             </Link>
           </div>
         </div>
