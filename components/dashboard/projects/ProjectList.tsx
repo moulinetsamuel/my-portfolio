@@ -1,13 +1,5 @@
-import { Project, Skill } from "@/types/portfolio";
+import type { ProjectListProps } from "@/types/portfolio";
 import ProjectCard from "./ProjectCard";
-
-type ProjectListProps = {
-  projects: Project[];
-  skills: Skill[];
-  onUpdateProject: (project: Project) => void;
-  onDeleteProject: (id: number) => void;
-  onAddNewSkill: (skillName: string) => Skill;
-};
 
 export default function ProjectList({
   projects,

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Project, Skill } from "@/types/portfolio";
+import type { ProjectCardProps } from "@/types/portfolio";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -20,15 +20,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import ProjectForm from "./ProjectForm";
-
-type ProjectCardProps = {
-  project: Project;
-  skills: Skill[];
-  onUpdate: (project: Project) => void;
-  onDelete: (id: number) => void;
-  onAddNewSkill: (skillName: string) => Skill;
-};
+import ProjectForm from "@/components/dashboard/projects/ProjectForm";
 
 export default function ProjectCard({
   project,

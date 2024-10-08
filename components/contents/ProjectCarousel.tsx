@@ -14,18 +14,7 @@ import { Github, ExternalLink } from "lucide-react";
 import Image from "next/image";
 import { SkillIcons } from "@/constants";
 import { type CarouselApi } from "@/components/ui/carousel";
-
-type ProjectsProps = {
-  projects: {
-    id: number;
-    title: string;
-    description: string;
-    image: string;
-    stack: number[];
-    siteUrl: string;
-    repoUrl: string;
-  }[];
-};
+import type { ProjectsProps } from "@/types/portfolio";
 
 export default function ProjectCarousel({ projects }: ProjectsProps) {
   const [api, setApi] = useState<CarouselApi>();

@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Skill } from "@/types/portfolio";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,13 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
-type SkillSelectorProps = {
-  selectedSkills: number[];
-  allSkills: Skill[];
-  onSkillChange: (updatedSkills: number[]) => void;
-  onAddNewSkill: (skillName: string) => Skill;
-};
+import type { SkillSelectorProps } from "@/types/portfolio";
 
 export default function SkillSelector({
   selectedSkills,

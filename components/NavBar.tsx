@@ -24,7 +24,7 @@ export default function NavBar() {
 
   const handleDownloadCV = useCallback(() => {
     const link = document.createElement("a");
-    link.href = "/Cv/CV_SAMUEL_MOULINET_2024.pdf";
+    link.href = "/cv/CV_SAMUEL_MOULINET_2024.pdf";
     link.download = "CV_SAMUEL_MOULINET_2024.pdf";
     document.body.appendChild(link);
     link.click();

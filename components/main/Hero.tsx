@@ -1,5 +1,5 @@
-import HeroProfil from "../contents/HeroProfil";
-import HeroDescription from "../contents/HeroDescription";
+import HeroProfil from "@/components/contents/HeroProfil";
+import HeroDescription from "@/components/contents/HeroDescription";
 
 export default function Hero() {
   return (

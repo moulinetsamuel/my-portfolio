@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import ProjectList from "@/components/dashboard/projects/ProjectList";
 import ProjectForm from "@/components/dashboard/projects/ProjectForm";
-import { Project, Skill } from "@/types/portfolio";
+import type { Project, Skill } from "@/types/portfolio";
 
 // TODO: Remplacer ces données mockées par des appels à l'API une fois qu'elle sera prête
 const ProjectsData: Project[] = [

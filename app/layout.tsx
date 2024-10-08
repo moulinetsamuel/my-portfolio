@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { GeistSans } from "geist/font/sans";
 import "./globals.css";
-import { cn } from "../lib/utils";
+import { cn } from "@/lib/utils";
 import { Anek_Telugu } from "next/font/google";
-import { ThemeProvider } from "../providers/theme-provider";
+import { ThemeProvider } from "@/providers/theme-provider";
 import Meteors from "@/components/magicui/meteors";
 import { Toaster } from "@/components/ui/toaster";
 import { NextAuthProvider } from "@/providers/next-auth-provider";

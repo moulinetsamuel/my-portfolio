@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
 import { Button } from "@/components/ui/button";
-import NavLinkDashboard from "./NavLinkDashboard";
+import NavLinkDashboard from "@/components/dashboard/NavLinkDashboard";
 import { Home, LogOut } from "lucide-react";
 
 export default function DashboardNav() {

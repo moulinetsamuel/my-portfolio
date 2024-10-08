@@ -1,4 +1,4 @@
-import SkillContent from "../contents/SkillContent";
+import SkillContent from "@/components/contents/SkillContent";
 
 export default function Skills() {
   return (

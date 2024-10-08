@@ -1,17 +1,10 @@
 import { useState } from "react";
-import { Project, Skill } from "@/types/portfolio";
+import type { Project, ProjectFormProps } from "@/types/portfolio";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import SkillSelector from "@/components/dashboard/SkillSelector";
-
-type ProjectFormProps = {
-  project?: Project;
-  onSave: (project: Omit<Project, "id">) => void;
-  skills: Skill[];
-  onAddNewSkill: (skillName: string) => Skill;
-};
 
 export default function ProjectForm({
   project,

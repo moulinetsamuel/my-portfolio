@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import OrbitingCircles from "../magicui/orbiting-circles";
+import OrbitingCircles from "@/components/magicui/orbiting-circles";
 import Image from "next/image";
 import { SkillIcons, RadiusData } from "@/constants";
 
