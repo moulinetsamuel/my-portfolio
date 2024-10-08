@@ -1,14 +1,7 @@
 import Link from "next/link";
+import type { NavLinkProps } from "@/types/portfolio";
 
-export default function NavLink({
-  href,
-  label,
-  onClick,
-}: {
-  href: string;
-  label: string;
-  onClick?: () => void;
-}) {
+export default function NavLink({ href, label, onClick }: NavLinkProps) {
   return (
     <Link href={href} className="group relative" onClick={onClick}>
       {label}

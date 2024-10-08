@@ -1,14 +1,11 @@
 import Link from "next/link";
+import type { NavLinkDashboardProps } from "@/types/portfolio";
 
-export default function NavLink({
+export default function NavLinkDashboard({
   href,
   current,
   children,
-}: {
-  href: string;
-  current: boolean;
-  children: React.ReactNode;
-}) {
+}: NavLinkDashboardProps) {
   return (
     <Link
       href={href}
