@@ -58,7 +58,7 @@ export default function ProjectForm({
         />
       </div>
       <div>
-        <Label htmlFor="image">URL de l'image</Label>
+        <Label htmlFor="image">URL de l&apos;image</Label>
         <Input
           id="image"
           name="image"

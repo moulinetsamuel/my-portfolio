@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -9,6 +8,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import SkillForm from "@/components/dashboard/skills/SkillForm";
 import type { SkillSelectorProps } from "@/types/portfolio";
 
 export default function SkillSelector({
@@ -17,7 +24,7 @@ export default function SkillSelector({
   onSkillChange,
   onAddNewSkill,
 }: SkillSelectorProps) {
-  const [newSkill, setNewSkill] = useState("");
+  const [isAddingSkill, setIsAddingSkill] = useState(false);
 
   const handleSkillChange = (skillId: number) => {
     const updatedSkills = selectedSkills.includes(skillId)
@@ -26,12 +33,10 @@ export default function SkillSelector({
     onSkillChange(updatedSkills);
   };
 
-  const handleAddNewSkill = () => {
-    if (newSkill.trim()) {
-      const addedSkill = onAddNewSkill(newSkill.trim());
-      onSkillChange([...selectedSkills, addedSkill.id]);
-      setNewSkill("");
-    }
+  const handleAddNewSkill = (newSkill: string) => {
+    const addedSkill = onAddNewSkill(newSkill);
+    onSkillChange([...selectedSkills, addedSkill.id]);
+    setIsAddingSkill(false);
   };
 
   return (
@@ -66,16 +71,19 @@ export default function SkillSelector({
             ))}
         </SelectContent>
       </Select>
-      <div className="mt-2 flex gap-2">
-        <Input
-          placeholder="Nouvelle compétence"
-          value={newSkill}
-          onChange={(e) => setNewSkill(e.target.value)}
-        />
-        <Button type="button" onClick={handleAddNewSkill}>
-          Ajouter
-        </Button>
-      </div>
+      <Dialog open={isAddingSkill} onOpenChange={setIsAddingSkill}>
+        <DialogTrigger asChild>
+          <Button type="button" variant="outline" className="mt-2">
+            Ajouter une nouvelle compétence
+          </Button>
+        </DialogTrigger>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Ajouter une nouvelle compétence</DialogTitle>
+          </DialogHeader>
+          <SkillForm onSave={handleAddNewSkill} />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

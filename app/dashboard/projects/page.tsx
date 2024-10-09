@@ -39,14 +39,9 @@ export default function ProjectsPage() {
     setProjects(projects.filter((project) => project.id !== id));
   };
 
-  // TODO: Implémenter l'ajout de compétence via l'API
-  const handleAddNewSkill = (skillName: string) => {
-    const newSkill = {
-      id: Math.max(...skills.map((s) => s.id)) + 1,
-      name: skillName,
-    };
-    setSkills([...skills, newSkill]);
-    return newSkill;
+  const handleAddNewSkill = (newSkill: Omit<Skill, "id">) => {
+    // TODO: Implémenter l'ajout via l'API
+    setSkills((prev) => [...prev, { ...newSkill, id: Date.now() }]);
   };
 
   return (
