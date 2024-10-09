@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/carousel";
 import { Github, ExternalLink } from "lucide-react";
 import Image from "next/image";
-import { SkillIcons } from "@/constants";
+import { SkillsData } from "@/constants";
 import { type CarouselApi } from "@/components/ui/carousel";
 import type { ProjectsProps } from "@/types/portfolio";
 
@@ -52,7 +52,7 @@ export default function ProjectCarousel({ projects }: ProjectsProps) {
                   <div className="grid gap-6 md:grid-cols-2">
                     <div className="relative aspect-video overflow-hidden rounded-lg">
                       <Image
-                        src={project.image}
+                        src={project.imagePath}
                         alt={project.title}
                         fill
                         sizes="(max-width: 768px) 100vw, 50vw"
@@ -70,13 +70,13 @@ export default function ProjectCarousel({ projects }: ProjectsProps) {
                         </p>
                         <div className="mb-4 flex flex-wrap gap-3">
                           {project.stack.map((techId) => {
-                            const skill = SkillIcons.find(
+                            const skill = SkillsData.find(
                               (s) => s.id === techId
                             );
                             return skill ? (
                               <Image
                                 key={skill.id}
-                                src={`icons/skills${skill.icon_url}`}
+                                src={`icons/skills${skill.iconPath}`}
                                 alt={skill.name}
                                 width={30}
                                 height={30}

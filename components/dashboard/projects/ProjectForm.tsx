@@ -16,7 +16,7 @@ export default function ProjectForm({
     project || {
       title: "",
       description: "",
-      image: "",
+      imagePath: "",
       stack: [],
       siteUrl: "",
       repoUrl: "",
@@ -63,7 +63,7 @@ export default function ProjectForm({
           id="image"
           name="image"
           type="url"
-          value={formData.image}
+          value={formData.imagePath}
           onChange={handleInputChange}
           required
         />

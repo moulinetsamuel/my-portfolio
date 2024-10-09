@@ -13,6 +13,24 @@ export type NavLinkProps = {
 export type Skill = {
   id: number;
   name: string;
+  iconPath?: string;
+};
+
+export type SkillListProps = {
+  skills: Skill[];
+  onUpdateSkill: (skill: Skill) => void;
+  onDeleteSkill: (id: number) => void;
+};
+
+export type SkillFormProps = {
+  skill?: Skill;
+  onSave: (skill: Omit<Skill, "id">) => void;
+};
+
+export type SkillCardProps = {
+  skill: Skill;
+  onUpdate: (skill: Skill) => void;
+  onDelete: (id: number) => void;
 };
 
 export type SkillSelectorProps = {
@@ -26,7 +44,7 @@ export type Project = {
   id: number;
   title: string;
   description: string;
-  image: string;
+  imagePath: string;
   stack: number[];
   siteUrl: string;
   repoUrl: string;

@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import OrbitingCircles from "@/components/magicui/orbiting-circles";
 import Image from "next/image";
-import { SkillIcons, RadiusData } from "@/constants";
+import { SkillsData, RadiusData } from "@/constants";
 
 export default function SkillContent() {
   const [scale, setScale] = useState(1);
@@ -28,7 +28,7 @@ export default function SkillContent() {
   }, []);
 
   const totalMaxIcons = RadiusData.reduce((acc, radius) => acc + radius.max, 0);
-  let shuffledSkills = [...SkillIcons].sort(() => Math.random() - 0.5);
+  let shuffledSkills = [...SkillsData].sort(() => Math.random() - 0.5);
 
   if (shuffledSkills.length > totalMaxIcons) {
     shuffledSkills = shuffledSkills.slice(0, totalMaxIcons);
@@ -38,7 +38,7 @@ export default function SkillContent() {
     radiusIndex: number;
     id: number;
     name: string;
-    icon_url: string;
+    iconPath: string;
     index: number;
   }[] = [];
 
@@ -83,7 +83,7 @@ export default function SkillContent() {
             angle={angle}
           >
             <Image
-              src={`icons/skills${skill.icon_url}`}
+              src={`icons/skills${skill.iconPath}`}
               alt={skill.name}
               width={RadiusData[skill.radiusIndex].size * scale}
               height={RadiusData[skill.radiusIndex].size * scale}
