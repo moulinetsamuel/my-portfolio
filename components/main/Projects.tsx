@@ -1,5 +1,5 @@
-import ProjectCarousel from "@/components/contents/ProjectCarousel";
-import { ProjectsData } from "@/constants";
+import ProjectCarousel from '@/components/contents/ProjectCarousel';
+import { ProjectsData } from '@/constants';
 
 export default function Projects() {
   return (

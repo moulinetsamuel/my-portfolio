@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -9,8 +9,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import type { DeleteCVDialogProps } from "@/types/portfolio";
+} from '@/components/ui/alert-dialog';
+import type { DeleteCVDialogProps } from '@/types/portfolio';
 
 export default function DeleteCVDialog({ onDelete }: DeleteCVDialogProps) {
   return (
@@ -20,12 +20,10 @@ export default function DeleteCVDialog({ onDelete }: DeleteCVDialogProps) {
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>
-            Êtes-vous sûr de vouloir supprimer le CV ?
-          </AlertDialogTitle>
+          <AlertDialogTitle>Êtes-vous sûr de vouloir supprimer le CV ?</AlertDialogTitle>
           <AlertDialogDescription>
-            Cette action ne peut pas être annulée. Vous devrez télécharger un
-            nouveau CV pour le remplacer.
+            Cette action ne peut pas être annulée. Vous devrez télécharger un nouveau CV
+            pour le remplacer.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

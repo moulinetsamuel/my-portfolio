@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import OrbitingCircles from "@/components/magicui/orbiting-circles";
-import Image from "next/image";
-import { SkillsData, RadiusData } from "@/constants";
+import { useState, useEffect } from 'react';
+import OrbitingCircles from '@/components/magicui/orbiting-circles';
+import Image from 'next/image';
+import { SkillsData, RadiusData } from '@/constants';
 
 export default function SkillContent() {
   const [scale, setScale] = useState(1);
@@ -23,8 +23,8 @@ export default function SkillContent() {
     };
 
     handleResize();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   const totalMaxIcons = RadiusData.reduce((acc, radius) => acc + radius.max, 0);
@@ -47,8 +47,7 @@ export default function SkillContent() {
 
   shuffledSkills.forEach((skill) => {
     while (
-      skillCountPerRadius[currentRadiusIndex] >=
-      RadiusData[currentRadiusIndex].max
+      skillCountPerRadius[currentRadiusIndex] >= RadiusData[currentRadiusIndex].max
     ) {
       currentRadiusIndex = (currentRadiusIndex + 1) % RadiusData.length;
     }
@@ -69,8 +68,7 @@ export default function SkillContent() {
         const totalIconsInRadius = skillCountPerRadius[skill.radiusIndex];
         const angle = (360 / totalIconsInRadius) * skill.index;
         const delay =
-          (skill.index / totalIconsInRadius) *
-          RadiusData[skill.radiusIndex].duration;
+          (skill.index / totalIconsInRadius) * RadiusData[skill.radiusIndex].duration;
 
         return (
           <OrbitingCircles

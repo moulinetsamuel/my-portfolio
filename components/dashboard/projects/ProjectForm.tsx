@@ -1,10 +1,10 @@
-import { useState } from "react";
-import type { Project, ProjectFormProps } from "@/types/portfolio";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import SkillSelector from "@/components/dashboard/SkillSelector";
+import { useState } from 'react';
+import type { Project, ProjectFormProps } from '@/types/portfolio';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import SkillSelector from '@/components/dashboard/SkillSelector';
 
 export default function ProjectForm({
   project,
@@ -12,19 +12,19 @@ export default function ProjectForm({
   skills,
   onAddNewSkill,
 }: ProjectFormProps) {
-  const [formData, setFormData] = useState<Omit<Project, "id">>(
+  const [formData, setFormData] = useState<Omit<Project, 'id'>>(
     project || {
-      title: "",
-      description: "",
-      imagePath: "",
+      title: '',
+      description: '',
+      imagePath: '',
       stack: [],
-      siteUrl: "",
-      repoUrl: "",
-    }
+      siteUrl: '',
+      repoUrl: '',
+    },
   );
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });

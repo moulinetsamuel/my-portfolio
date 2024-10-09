@@ -1,5 +1,5 @@
-import type { CurrentCVProps } from "@/types/portfolio";
-import DeleteCVDialog from "@/components/dashboard/cv/DeleteCvDialog";
+import type { CurrentCVProps } from '@/types/portfolio';
+import DeleteCVDialog from '@/components/dashboard/cv/DeleteCvDialog';
 
 export default function CurrentCV({ cv, onDelete }: CurrentCVProps) {
   return (

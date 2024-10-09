@@ -1,41 +1,41 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import { signIn, useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Home } from "lucide-react";
+import { useState, useEffect } from 'react';
+import { signIn, useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Home } from 'lucide-react';
 
 export default function AdminLoginPage() {
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
   const router = useRouter();
   const { data: session, status } = useSession();
 
   useEffect(() => {
     if (session) {
-      router.push("/dashboard");
+      router.push('/dashboard');
     }
   }, [session, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const result = await signIn("credentials", {
+    const result = await signIn('credentials', {
       password,
       redirect: false,
     });
 
     if (result?.error) {
-      setError("Mot de passe incorrect");
+      setError('Mot de passe incorrect');
     } else {
-      router.push("/dashboard");
+      router.push('/dashboard');
     }
   };
 
-  if (status === "loading") {
+  if (status === 'loading') {
     return <div>Chargement...</div>;
   }
 

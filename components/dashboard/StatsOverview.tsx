@@ -1,11 +1,11 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Eye, Download, Mail } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Eye, Download, Mail } from 'lucide-react';
 
 export default function StatsOverview() {
   const stats = [
-    { title: "Visites totales", value: 1234, icon: Eye },
-    { title: "Téléchargements CV", value: 56, icon: Download },
-    { title: "Messages reçus", value: 23, icon: Mail },
+    { title: 'Visites totales', value: 1234, icon: Eye },
+    { title: 'Téléchargements CV', value: 56, icon: Download },
+    { title: 'Messages reçus', value: 23, icon: Mail },
   ];
 
   return (

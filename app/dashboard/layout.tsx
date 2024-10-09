@@ -1,4 +1,4 @@
-import DashboardNav from "@/components/dashboard/DashboardNav";
+import DashboardNav from '@/components/dashboard/DashboardNav';
 
 export default function Component({ children }: { children: React.ReactNode }) {
   return (

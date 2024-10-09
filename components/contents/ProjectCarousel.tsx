@@ -1,20 +1,20 @@
-"use client";
+'use client';
 
-import { useState, useEffect, useCallback } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { useState, useEffect, useCallback } from 'react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import {
   Carousel,
   CarouselContent,
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
-} from "@/components/ui/carousel";
-import { Github, ExternalLink } from "lucide-react";
-import Image from "next/image";
-import { SkillsData } from "@/constants";
-import { type CarouselApi } from "@/components/ui/carousel";
-import type { ProjectsProps } from "@/types/portfolio";
+} from '@/components/ui/carousel';
+import { Github, ExternalLink } from 'lucide-react';
+import Image from 'next/image';
+import { SkillsData } from '@/constants';
+import { type CarouselApi } from '@/components/ui/carousel';
+import type { ProjectsProps } from '@/types/portfolio';
 
 export default function ProjectCarousel({ projects }: ProjectsProps) {
   const [api, setApi] = useState<CarouselApi>();
@@ -29,7 +29,7 @@ export default function ProjectCarousel({ projects }: ProjectsProps) {
     setCount(api.scrollSnapList().length);
     setCurrent(api.selectedScrollSnap() + 1);
 
-    api.on("select", () => {
+    api.on('select', () => {
       setCurrent(api.selectedScrollSnap() + 1);
     });
   }, [api]);
@@ -38,7 +38,7 @@ export default function ProjectCarousel({ projects }: ProjectsProps) {
     (index: number) => {
       api?.scrollTo(index);
     },
-    [api]
+    [api],
   );
 
   return (
@@ -56,7 +56,7 @@ export default function ProjectCarousel({ projects }: ProjectsProps) {
                         alt={project.title}
                         fill
                         sizes="(max-width: 768px) 100vw, 50vw"
-                        style={{ objectFit: "cover" }}
+                        style={{ objectFit: 'cover' }}
                         className="transition-transform duration-300 hover:scale-105"
                       />
                     </div>
@@ -65,14 +65,10 @@ export default function ProjectCarousel({ projects }: ProjectsProps) {
                         <h3 className="mb-2 text-xl font-bold md:text-2xl">
                           {project.title}
                         </h3>
-                        <p className="mb-4 text-sm md:text-base">
-                          {project.description}
-                        </p>
+                        <p className="mb-4 text-sm md:text-base">{project.description}</p>
                         <div className="mb-4 flex flex-wrap gap-3">
                           {project.stack.map((techId) => {
-                            const skill = SkillsData.find(
-                              (s) => s.id === techId
-                            );
+                            const skill = SkillsData.find((s) => s.id === techId);
                             return skill ? (
                               <Image
                                 key={skill.id}
@@ -127,8 +123,8 @@ export default function ProjectCarousel({ projects }: ProjectsProps) {
             onClick={() => goToSlide(index)}
             className={`mx-1 size-3 rounded-full transition-all duration-300 ${
               index === current - 1
-                ? "scale-125 bg-primary"
-                : "bg-gray-300 hover:bg-gray-400 dark:bg-gray-600 dark:hover:bg-gray-500"
+                ? 'scale-125 bg-primary'
+                : 'bg-gray-300 hover:bg-gray-400 dark:bg-gray-600 dark:hover:bg-gray-500'
             }`}
             aria-label={`Aller au projet ${index + 1} sur ${count}`}
           />

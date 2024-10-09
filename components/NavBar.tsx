@@ -1,13 +1,9 @@
-"use client";
+'use client';
 
-import { useState, useCallback, useMemo } from "react";
-import ModeToggle from "./ModeToggle";
-import { Button } from "./ui/button";
-import {
-  DownloadIcon,
-  HamburgerMenuIcon,
-  Cross1Icon,
-} from "@radix-ui/react-icons";
+import { useState, useCallback, useMemo } from 'react';
+import ModeToggle from './ModeToggle';
+import { Button } from './ui/button';
+import { DownloadIcon, HamburgerMenuIcon, Cross1Icon } from '@radix-ui/react-icons';
 import {
   Sheet,
   SheetContent,
@@ -15,17 +11,17 @@ import {
   SheetHeader,
   SheetTitle,
   SheetDescription,
-} from "@/components/ui/sheet";
-import NavLink from "./NavLink";
-import { navItems } from "@/constants";
+} from '@/components/ui/sheet';
+import NavLink from './NavLink';
+import { navItems } from '@/constants';
 
 export default function NavBar() {
   const [isOpen, setIsOpen] = useState(false);
 
   const handleDownloadCV = useCallback(() => {
-    const link = document.createElement("a");
-    link.href = "/cv/CV_SAMUEL_MOULINET_2024.pdf";
-    link.download = "CV_SAMUEL_MOULINET_2024.pdf";
+    const link = document.createElement('a');
+    link.href = '/cv/CV_SAMUEL_MOULINET_2024.pdf';
+    link.download = 'CV_SAMUEL_MOULINET_2024.pdf';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -39,7 +35,7 @@ export default function NavBar() {
         ))}
       </nav>
     ),
-    []
+    [],
   );
 
   return (
@@ -51,7 +47,7 @@ export default function NavBar() {
         </div>
         <div className="flex items-center gap-4">
           <Button
-            variant={"default"}
+            variant={'default'}
             className="hidden gap-2 sm:flex"
             onClick={handleDownloadCV}
             aria-label="Télécharger mon CV"
@@ -59,25 +55,22 @@ export default function NavBar() {
             Télécharger mon CV
             <DownloadIcon className="size-4" />
           </Button>
-          <Sheet
-            open={isOpen}
-            onOpenChange={(open: boolean) => setIsOpen(open)}
-          >
+          <Sheet open={isOpen} onOpenChange={(open: boolean) => setIsOpen(open)}>
             <SheetTrigger asChild>
               <Button
                 variant="outline"
                 size="icon"
                 className="md:hidden"
-                aria-label={isOpen ? "Fermer le menu" : "Ouvrir le menu"}
+                aria-label={isOpen ? 'Fermer le menu' : 'Ouvrir le menu'}
               >
                 <HamburgerMenuIcon
                   className={`size-[1.2rem] transition-all ${
-                    isOpen ? "rotate-90 scale-0" : "rotate-0 scale-100"
+                    isOpen ? 'rotate-90 scale-0' : 'rotate-0 scale-100'
                   }`}
                 />
                 <Cross1Icon
                   className={`absolute size-[1.2rem] transition-all ${
-                    isOpen ? "rotate-0 scale-100" : "rotate-90 scale-0"
+                    isOpen ? 'rotate-0 scale-100' : 'rotate-90 scale-0'
                   }`}
                 />
               </Button>
@@ -86,8 +79,8 @@ export default function NavBar() {
               <SheetHeader>
                 <SheetTitle className="sr-only">Menu de navigation</SheetTitle>
                 <SheetDescription className="sr-only">
-                  Retrouvez ici les différentes sections de mon portfolio.
-                  Cliquez sur une section pour y accéder.
+                  Retrouvez ici les différentes sections de mon portfolio. Cliquez sur une
+                  section pour y accéder.
                 </SheetDescription>
               </SheetHeader>
               <nav className="mt-8 flex flex-col gap-4">
@@ -100,7 +93,7 @@ export default function NavBar() {
                   />
                 ))}
                 <Button
-                  variant={"default"}
+                  variant={'default'}
                   className="mt-4 flex gap-2 sm:hidden"
                   onClick={handleDownloadCV}
                   aria-label="Télécharger mon CV"

@@ -1,12 +1,12 @@
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import type { SkillFormProps, Skill } from "@/types/portfolio";
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import type { SkillFormProps, Skill } from '@/types/portfolio';
 
 export default function SkillForm({ skill, onSave }: SkillFormProps) {
-  const [formData, setFormData] = useState<Omit<Skill, "id">>(
-    skill || { name: "", iconPath: "" }
+  const [formData, setFormData] = useState<Omit<Skill, 'id'>>(
+    skill || { name: '', iconPath: '' },
   );
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -25,7 +25,7 @@ export default function SkillForm({ skill, onSave }: SkillFormProps) {
     if (file) {
       // Ici, vous devrez implémenter la logique pour télécharger le fichier
       // et obtenir le chemin où il sera stocké
-      console.log("File to upload:", file);
+      console.log('File to upload:', file);
       // setFormData(prev => ({ ...prev, iconPath: '/chemin/vers/icone.svg' }))
     }
   };

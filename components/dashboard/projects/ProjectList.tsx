@@ -1,5 +1,5 @@
-import type { ProjectListProps } from "@/types/portfolio";
-import ProjectCard from "./ProjectCard";
+import type { ProjectListProps } from '@/types/portfolio';
+import ProjectCard from './ProjectCard';
 
 export default function ProjectList({
   projects,

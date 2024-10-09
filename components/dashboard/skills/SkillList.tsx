@@ -1,5 +1,5 @@
-import SkillCard from "@/components/dashboard/skills/SkillCard";
-import type { SkillListProps } from "@/types/portfolio";
+import SkillCard from '@/components/dashboard/skills/SkillCard';
+import type { SkillListProps } from '@/types/portfolio';
 
 export default function SkillList({
   skills,

@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils";
+import { cn } from '@/lib/utils';
 
 export interface OrbitingCirclesProps {
   className?: string;
@@ -46,17 +46,17 @@ export default function OrbitingCircles({
       <div
         style={
           {
-            "--duration": duration,
-            "--radius": radius,
-            "--delay": -delay,
+            '--duration': duration,
+            '--radius': radius,
+            '--delay': -delay,
             transform: `translate(${x}px, ${y}px)`, // Appliquer la transformation en fonction de l'angle
             zIndex: 1,
           } as React.CSSProperties
         }
         className={cn(
-          "absolute flex size-full transform-gpu animate-orbit items-center justify-center rounded-full border bg-black/10 [animation-delay:calc(var(--delay)*1000ms)] ",
-          { "[animation-direction:reverse]": reverse },
-          className
+          'absolute flex size-full transform-gpu animate-orbit items-center justify-center rounded-full border bg-black/10 [animation-delay:calc(var(--delay)*1000ms)] ',
+          { '[animation-direction:reverse]': reverse },
+          className,
         )}
       >
         {children}

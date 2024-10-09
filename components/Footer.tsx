@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { Github, Linkedin, Lock } from "lucide-react";
-import Link from "next/link";
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { Github, Linkedin, Lock } from 'lucide-react';
+import Link from 'next/link';
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 
 export default function Footer() {
   const { data: session } = useSession();
@@ -11,9 +11,9 @@ export default function Footer() {
 
   const handleAdminAccess = () => {
     if (session) {
-      router.push("/dashboard");
+      router.push('/dashboard');
     } else {
-      router.push("/admin-login");
+      router.push('/admin-login');
     }
   };
 

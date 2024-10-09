@@ -1,14 +1,14 @@
-import { useState } from "react";
-import type { ProjectCardProps } from "@/types/portfolio";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState } from 'react';
+import type { ProjectCardProps } from '@/types/portfolio';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
+} from '@/components/ui/dialog';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -19,8 +19,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import ProjectForm from "@/components/dashboard/projects/ProjectForm";
+} from '@/components/ui/alert-dialog';
+import ProjectForm from '@/components/dashboard/projects/ProjectForm';
 
 export default function ProjectCard({
   project,
@@ -40,10 +40,8 @@ export default function ProjectCard({
         <div>
           <p>{project.description}</p>
           <p>
-            Technologies :{" "}
-            {project.stack
-              .map((id) => skills.find((s) => s.id === id)?.name)
-              .join(", ")}
+            Technologies :{' '}
+            {project.stack.map((id) => skills.find((s) => s.id === id)?.name).join(', ')}
           </p>
           {/* TODO: Ajouter l'affichage de l'image du projet */}
         </div>

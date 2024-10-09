@@ -1,6 +1,6 @@
-import NextAuth, { NextAuthOptions, User } from "next-auth";
-import CredentialsProvider from "next-auth/providers/credentials";
-import { NextApiRequest } from "next";
+import NextAuth, { NextAuthOptions, User } from 'next-auth';
+import CredentialsProvider from 'next-auth/providers/credentials';
+import { NextApiRequest } from 'next';
 
 // Définir une interface personnalisée pour l'utilisateur
 interface CustomUser extends User {
@@ -8,13 +8,13 @@ interface CustomUser extends User {
 }
 
 // Étendre les types par défaut de NextAuth
-declare module "next-auth" {
+declare module 'next-auth' {
   interface Session {
     user: CustomUser;
   }
 }
 
-declare module "next-auth/jwt" {
+declare module 'next-auth/jwt' {
   interface JWT {
     role?: string;
   }
@@ -32,24 +32,24 @@ const LOCKOUT_TIME = 15 * 60 * 1000; // 15 minutes
 const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
-      name: "Credentials",
+      name: 'Credentials',
       credentials: {
-        password: { label: "Password", type: "password" },
+        password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials, req): Promise<CustomUser | null> {
         const ip =
-          ((req as NextApiRequest).headers["x-forwarded-for"] as string) ||
+          ((req as NextApiRequest).headers['x-forwarded-for'] as string) ||
           ((req as NextApiRequest).socket.remoteAddress as string);
 
         // Vérifier si l'IP est verrouillée
         if (loginAttempts[ip] && loginAttempts[ip].lockedUntil > Date.now()) {
-          throw new Error("Trop de tentatives. Réessayez plus tard.");
+          throw new Error('Trop de tentatives. Réessayez plus tard.');
         }
 
         if (credentials?.password === process.env.ADMIN_PASSWORD) {
           // Réinitialiser les tentatives en cas de succès
           loginAttempts[ip] = { attempts: 0, lockedUntil: 0 };
-          return { id: "1", name: "Admin", role: "admin" };
+          return { id: '1', name: 'Admin', role: 'admin' };
         }
 
         // Incrémenter les tentatives en cas d'échec
@@ -60,12 +60,10 @@ const authOptions: NextAuthOptions = {
 
         if (loginAttempts[ip].attempts >= MAX_ATTEMPTS) {
           loginAttempts[ip].lockedUntil = Date.now() + LOCKOUT_TIME;
-          throw new Error(
-            "Trop de tentatives. Compte verrouillé pendant 15 minutes."
-          );
+          throw new Error('Trop de tentatives. Compte verrouillé pendant 15 minutes.');
         }
 
-        throw new Error("Mot de passe incorrect");
+        throw new Error('Mot de passe incorrect');
       },
     }),
   ],
@@ -84,10 +82,10 @@ const authOptions: NextAuthOptions = {
     },
   },
   pages: {
-    signIn: "/admin-login",
+    signIn: '/admin-login',
   },
   session: {
-    strategy: "jwt",
+    strategy: 'jwt',
     maxAge: 30 * 24 * 60 * 60, // 30 jours
   },
 };

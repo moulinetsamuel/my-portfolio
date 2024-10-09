@@ -1,4 +1,4 @@
-import Image from "next/image";
+import Image from 'next/image';
 
 export default function HeroProfil() {
   return (
@@ -11,13 +11,11 @@ export default function HeroProfil() {
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           className="rounded-full object-cover"
           priority
-          style={{ objectPosition: "center 20%" }}
+          style={{ objectPosition: 'center 20%' }}
         />
       </div>
 
-      <p className="mb-2 text-lg font-bold md:mb-4 md:text-xl">
-        Samuel Moulinet
-      </p>
+      <p className="mb-2 text-lg font-bold md:mb-4 md:text-xl">Samuel Moulinet</p>
       <p className="mb-1 text-sm md:mb-2 md:text-base">30 ans</p>
       <p className="text-sm md:text-base">Nantes, France</p>
     </div>

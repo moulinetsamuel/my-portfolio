@@ -1,14 +1,14 @@
-import { useState } from "react";
-import Image from "next/image";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState } from 'react';
+import Image from 'next/image';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
+} from '@/components/ui/dialog';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -19,15 +19,11 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import type { SkillCardProps } from "@/types/portfolio";
-import SkillForm from "@/components/dashboard/skills/SkillForm";
+} from '@/components/ui/alert-dialog';
+import type { SkillCardProps } from '@/types/portfolio';
+import SkillForm from '@/components/dashboard/skills/SkillForm';
 
-export default function SkillCard({
-  skill,
-  onUpdate,
-  onDelete,
-}: SkillCardProps) {
+export default function SkillCard({ skill, onUpdate, onDelete }: SkillCardProps) {
   const [isEditing, setIsEditing] = useState(false);
 
   return (

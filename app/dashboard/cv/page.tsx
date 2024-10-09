@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import type { CV } from "@/types/portfolio";
-import CVManager from "@/components/dashboard/cv/CvManager";
+import { useState, useEffect } from 'react';
+import type { CV } from '@/types/portfolio';
+import CVManager from '@/components/dashboard/cv/CvManager';
 
 export default function CVPage() {
   const [cv, setCV] = useState<CV | null>(null);
@@ -11,7 +11,7 @@ export default function CVPage() {
     // TODO: Remplacer ceci par un appel à l'API pour récupérer les données du CV
     setCV({
       id: 1,
-      filePath: "/cv/CV_SAMUEL_MOULINET_2024.pdf",
+      filePath: '/cv/CV_SAMUEL_MOULINET_2024.pdf',
       uploadDate: new Date().toISOString(),
     });
   }, []);
@@ -21,9 +21,9 @@ export default function CVPage() {
       // TODO: Appel API pour supprimer le CV
       // await deleteCV(cv.id);
       setCV(null);
-      console.log("CV supprimé");
+      console.log('CV supprimé');
     } catch (error) {
-      console.error("Erreur lors de la suppression du CV:", error);
+      console.error('Erreur lors de la suppression du CV:', error);
     }
   };
 
@@ -34,13 +34,13 @@ export default function CVPage() {
         // Simuler le téléchargement et la mise à jour du CV
         const newCV: CV = {
           id: Date.now(),
-          filePath: "/cv/CV_SAMUEL_MOULINET_2024.pdf", // On garde le même nom de fichier pour la simulation
+          filePath: '/cv/CV_SAMUEL_MOULINET_2024.pdf', // On garde le même nom de fichier pour la simulation
           uploadDate: new Date().toISOString(),
         };
         setCV(newCV);
-        console.log("Nouveau CV téléchargé:", file.name);
+        console.log('Nouveau CV téléchargé:', file.name);
       } catch (error) {
-        console.error("Erreur lors du téléchargement du CV:", error);
+        console.error('Erreur lors du téléchargement du CV:', error);
       }
     }
   };

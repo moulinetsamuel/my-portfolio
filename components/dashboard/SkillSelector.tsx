@@ -1,22 +1,22 @@
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from '@/components/ui/select';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import SkillForm from "@/components/dashboard/skills/SkillForm";
-import type { SkillSelectorProps } from "@/types/portfolio";
+} from '@/components/ui/dialog';
+import SkillForm from '@/components/dashboard/skills/SkillForm';
+import type { SkillSelectorProps } from '@/types/portfolio';
 
 export default function SkillSelector({
   selectedSkills,

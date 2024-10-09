@@ -1,18 +1,18 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import ProjectList from "@/components/dashboard/projects/ProjectList";
-import ProjectForm from "@/components/dashboard/projects/ProjectForm";
-import { SkillsData, ProjectsData } from "@/constants";
-import type { Project, Skill } from "@/types/portfolio";
+} from '@/components/ui/dialog';
+import ProjectList from '@/components/dashboard/projects/ProjectList';
+import ProjectForm from '@/components/dashboard/projects/ProjectForm';
+import { SkillsData, ProjectsData } from '@/constants';
+import type { Project, Skill } from '@/types/portfolio';
 
 export default function ProjectsPage() {
   // TODO: Remplacer ces états locaux par des appels à l'API et des mises à jour de la base de données
@@ -20,7 +20,7 @@ export default function ProjectsPage() {
   const [skills, setSkills] = useState<Skill[]>(SkillsData);
 
   // TODO: Implémenter l'ajout de projet via l'API
-  const handleAddProject = (newProject: Omit<Project, "id">) => {
+  const handleAddProject = (newProject: Omit<Project, 'id'>) => {
     setProjects([
       ...projects,
       { ...newProject, id: Math.max(...projects.map((p) => p.id)) + 1 },
@@ -29,9 +29,7 @@ export default function ProjectsPage() {
 
   // TODO: Implémenter la mise à jour de projet via l'API
   const handleUpdateProject = (updatedProject: Project) => {
-    setProjects(
-      projects.map((p) => (p.id === updatedProject.id ? updatedProject : p))
-    );
+    setProjects(projects.map((p) => (p.id === updatedProject.id ? updatedProject : p)));
   };
 
   // TODO: Implémenter la suppression de projet via l'API
@@ -39,7 +37,7 @@ export default function ProjectsPage() {
     setProjects(projects.filter((project) => project.id !== id));
   };
 
-  const handleAddNewSkill = (newSkill: Omit<Skill, "id">) => {
+  const handleAddNewSkill = (newSkill: Omit<Skill, 'id'>) => {
     // TODO: Implémenter l'ajout via l'API
     setSkills((prev) => [...prev, { ...newSkill, id: Date.now() }]);
   };

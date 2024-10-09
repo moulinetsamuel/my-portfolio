@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { signOut } from "next-auth/react";
-import { Button } from "@/components/ui/button";
-import NavLinkDashboard from "@/components/dashboard/NavLinkDashboard";
-import { Home, LogOut } from "lucide-react";
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { signOut } from 'next-auth/react';
+import { Button } from '@/components/ui/button';
+import NavLinkDashboard from '@/components/dashboard/NavLinkDashboard';
+import { Home, LogOut } from 'lucide-react';
 
 export default function DashboardNav() {
   const pathname = usePathname();
@@ -23,19 +23,19 @@ export default function DashboardNav() {
             <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
               <NavLinkDashboard
                 href="/dashboard/cv"
-                current={pathname === "/dashboard/cv"}
+                current={pathname === '/dashboard/cv'}
               >
                 Gestion du CV
               </NavLinkDashboard>
               <NavLinkDashboard
                 href="/dashboard/projects"
-                current={pathname === "/dashboard/projects"}
+                current={pathname === '/dashboard/projects'}
               >
                 Gestion des projets
               </NavLinkDashboard>
               <NavLinkDashboard
                 href="/dashboard/skills"
-                current={pathname === "/dashboard/skills"}
+                current={pathname === '/dashboard/skills'}
               >
                 Gestion des compétences
               </NavLinkDashboard>
@@ -48,10 +48,7 @@ export default function DashboardNav() {
                 Retour au Portfolio
               </Button>
             </Link>
-            <Button
-              variant="ghost"
-              onClick={() => signOut({ callbackUrl: "/" })}
-            >
+            <Button variant="ghost" onClick={() => signOut({ callbackUrl: '/' })}>
               <LogOut className="mr-2 size-4" />
               Déconnexion
             </Button>

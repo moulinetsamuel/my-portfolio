@@ -1,18 +1,18 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
+import { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import SkillList from "@/components/dashboard/skills/SkillList";
-import SkillForm from "@/components/dashboard/skills/SkillForm";
-import { SkillsData } from "@/constants";
-import type { Skill } from "@/types/portfolio";
+} from '@/components/ui/dialog';
+import SkillList from '@/components/dashboard/skills/SkillList';
+import SkillForm from '@/components/dashboard/skills/SkillForm';
+import { SkillsData } from '@/constants';
+import type { Skill } from '@/types/portfolio';
 
 export default function SkillsPage() {
   const [skills, setSkills] = useState<Skill[]>(SkillsData);
@@ -22,7 +22,7 @@ export default function SkillsPage() {
     // fetchSkills().then(setSkills)
   }, []);
 
-  const handleAddSkill = (newSkill: Omit<Skill, "id">) => {
+  const handleAddSkill = (newSkill: Omit<Skill, 'id'>) => {
     // TODO: Implémenter l'ajout via l'API
     setSkills((prev) => [...prev, { ...newSkill, id: Date.now() }]);
   };
@@ -30,7 +30,7 @@ export default function SkillsPage() {
   const handleUpdateSkill = (updatedSkill: Skill) => {
     // TODO: Implémenter la mise à jour via l'API
     setSkills((prev) =>
-      prev.map((skill) => (skill.id === updatedSkill.id ? updatedSkill : skill))
+      prev.map((skill) => (skill.id === updatedSkill.id ? updatedSkill : skill)),
     );
   };
 

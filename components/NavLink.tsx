@@ -1,5 +1,5 @@
-import Link from "next/link";
-import type { NavLinkProps } from "@/types/portfolio";
+import Link from 'next/link';
+import type { NavLinkProps } from '@/types/portfolio';
 
 export default function NavLink({ href, label, onClick }: NavLinkProps) {
   return (

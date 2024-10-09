@@ -1,4 +1,4 @@
-import StatsOverview from "@/components/dashboard/StatsOverview";
+import StatsOverview from '@/components/dashboard/StatsOverview';
 
 export default function DashboardHome() {
   return (

@@ -24,7 +24,7 @@ export type SkillListProps = {
 
 export type SkillFormProps = {
   skill?: Skill;
-  onSave: (skill: Omit<Skill, "id">) => void;
+  onSave: (skill: Omit<Skill, 'id'>) => void;
 };
 
 export type SkillCardProps = {
@@ -64,7 +64,7 @@ export type ProjectCardProps = {
 
 export type ProjectFormProps = {
   project?: Project;
-  onSave: (project: Omit<Project, "id">) => void;
+  onSave: (project: Omit<Project, 'id'>) => void;
   skills: Skill[];
   onAddNewSkill: (skillName: string) => Skill;
 };
