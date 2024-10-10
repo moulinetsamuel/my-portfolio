@@ -1,0 +1,35 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Project {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String
+  imagePath   String
+  siteUrl     String
+  repoUrl     String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  skills      Skill[]
+}
+
+model Skill {
+  id        Int       @id @default(autoincrement())
+  name      String    @unique
+  iconPath  String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  projects  Project[]
+}
+
+model CV {
+  id        Int      @id @default(autoincrement())
+  filePath  String
+  uploadedAt DateTime @default(now())
+}
