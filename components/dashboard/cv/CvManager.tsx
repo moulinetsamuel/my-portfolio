@@ -3,15 +3,15 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import CurrentCV from '@/components/dashboard/cv/CurrentCv';
 import CVUploader from '@/components/dashboard/cv/CvUploader';
 
-export default function CVManager({ cv, onDelete, onUpload }: CVManagerProps) {
+export default function CVManager({ cv, onUpload, isUploading }: CVManagerProps) {
   return (
     <Card className="mb-8">
       <CardHeader>
         <CardTitle>CV PDF actuel</CardTitle>
       </CardHeader>
       <CardContent>
-        {cv ? <CurrentCV cv={cv} onDelete={onDelete} /> : <p>Aucun CV PDF téléchargé</p>}
-        <CVUploader onUpload={onUpload} hasExistingCV={!!cv} />
+        {cv ? <CurrentCV cv={cv} /> : <p className="mb-4">Aucun CV PDF téléchargé</p>}
+        <CVUploader onUpload={onUpload} hasExistingCV={!!cv} isUploading={isUploading} />
       </CardContent>
     </Card>
   );

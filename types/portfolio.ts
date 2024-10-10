@@ -76,12 +76,11 @@ export type ProjectListProps = {
 export type CV = {
   id: number;
   filePath: string;
-  uploadDate: string;
+  uploadedAt: string;
 };
 
 export type CurrentCVProps = {
   cv: CV;
-  onDelete: () => Promise<void>;
 };
 
 export type DeleteCVDialogProps = {
@@ -89,12 +88,13 @@ export type DeleteCVDialogProps = {
 };
 
 export type CVUploaderProps = {
-  onUpload: (e: React.ChangeEvent<HTMLInputElement>) => Promise<void>;
+  onUpload: (file: File) => void;
   hasExistingCV: boolean;
+  isUploading: boolean;
 };
 
 export type CVManagerProps = {
   cv: CV | null;
-  onDelete: () => Promise<void>;
-  onUpload: (e: React.ChangeEvent<HTMLInputElement>) => Promise<void>;
+  onUpload: (file: File) => void;
+  isUploading: boolean;
 };

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback, useMemo } from 'react';
+import useSWR from 'swr';
 import ModeToggle from './ModeToggle';
 import { Button } from './ui/button';
 import { DownloadIcon, HamburgerMenuIcon, Cross1Icon } from '@radix-ui/react-icons';
@@ -14,18 +15,26 @@ import {
 } from '@/components/ui/sheet';
 import NavLink from './NavLink';
 import { navItems } from '@/constants';
+import { getCV } from '@/lib/api';
+import type { CV } from '@/types/portfolio';
 
 export default function NavBar() {
   const [isOpen, setIsOpen] = useState(false);
+  const { data: cv } = useSWR<CV | null>('/api/cv', getCV);
 
   const handleDownloadCV = useCallback(() => {
-    const link = document.createElement('a');
-    link.href = '/cv/CV_SAMUEL_MOULINET_2024.pdf';
-    link.download = 'CV_SAMUEL_MOULINET_2024.pdf';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  }, []);
+    if (cv && cv.filePath) {
+      const link = document.createElement('a');
+      link.href = cv.filePath;
+      link.download = cv.filePath.split('/').pop() || 'CV.pdf';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } else {
+      console.error('CV file path not available');
+      // Vous pouvez ajouter ici une notification pour l'utilisateur
+    }
+  }, [cv]);
 
   const mainNavigation = useMemo(
     () => (
@@ -50,6 +59,7 @@ export default function NavBar() {
             variant={'default'}
             className="hidden gap-2 sm:flex"
             onClick={handleDownloadCV}
+            disabled={!cv}
             aria-label="Télécharger mon CV"
           >
             Télécharger mon CV
@@ -96,6 +106,7 @@ export default function NavBar() {
                   variant={'default'}
                   className="mt-4 flex gap-2 sm:hidden"
                   onClick={handleDownloadCV}
+                  disabled={!cv}
                   aria-label="Télécharger mon CV"
                 >
                   Télécharger mon CV

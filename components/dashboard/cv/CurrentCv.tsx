@@ -1,7 +1,6 @@
 import type { CurrentCVProps } from '@/types/portfolio';
-import DeleteCVDialog from '@/components/dashboard/cv/DeleteCvDialog';
 
-export default function CurrentCV({ cv, onDelete }: CurrentCVProps) {
+export default function CurrentCV({ cv }: CurrentCVProps) {
   return (
     <div className="space-y-4">
       <div>
@@ -14,10 +13,9 @@ export default function CurrentCV({ cv, onDelete }: CurrentCVProps) {
           Voir le CV PDF actuel
         </a>
         <p className="mt-1 text-sm text-gray-500">
-          Téléchargé le : {new Date(cv.uploadDate).toLocaleDateString()}
+          Téléchargé le : {new Date(cv.uploadedAt).toLocaleDateString()}
         </p>
       </div>
-      <DeleteCVDialog onDelete={onDelete} />
     </div>
   );
 }

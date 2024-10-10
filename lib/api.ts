@@ -37,3 +37,25 @@ export const deleteProject = (id: number) =>
   fetch(`/api/projects?id=${id}`, { method: 'DELETE' }).then((res) => res.json());
 
 export const getSkills = () => fetch('/api/skills').then((res) => res.json());
+
+export const getCV = async () => {
+  const response = await fetch('/api/cv');
+  if (!response.ok) {
+    throw new Error('Failed to fetch CV');
+  }
+  const data = await response.json();
+  return data || null; // Retourne null si aucun CV n'est trouvé
+};
+
+export const uploadCV = async (file: File) => {
+  const formData = new FormData();
+  formData.append('file', file);
+  const response = await fetch('/api/cv', {
+    method: 'POST',
+    body: formData,
+  });
+  if (!response.ok) {
+    throw new Error('Failed to upload CV');
+  }
+  return response.json();
+};
