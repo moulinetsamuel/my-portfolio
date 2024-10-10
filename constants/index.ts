@@ -102,31 +102,6 @@ export const ProjectsData = [
   },
 ];
 
-export const RadiusData = [
-  {
-    id: 1,
-    radius: 100,
-    size: 50,
-    max: 5,
-    duration: 25,
-  },
-  {
-    id: 2,
-    radius: 200,
-    size: 70,
-    max: 10,
-    duration: 25,
-    reverse: true,
-  },
-  {
-    id: 3,
-    radius: 300,
-    size: 90,
-    max: 15,
-    duration: 25,
-  },
-];
-
 export const navItems = [
   { href: '#about-me', label: 'Qui suis-je ?' },
   { href: '#skills', label: 'Compétences' },

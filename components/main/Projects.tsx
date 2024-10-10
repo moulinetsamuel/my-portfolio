@@ -1,5 +1,4 @@
 import ProjectCarousel from '@/components/contents/ProjectCarousel';
-import { ProjectsData } from '@/constants';
 
 export default function Projects() {
   return (
@@ -11,7 +10,7 @@ export default function Projects() {
         Réalisations
       </h2>
       <div className="w-full max-w-5xl">
-        <ProjectCarousel projects={ProjectsData} />
+        <ProjectCarousel />
       </div>
     </section>
   );

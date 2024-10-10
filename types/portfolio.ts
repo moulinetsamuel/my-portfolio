@@ -13,7 +13,7 @@ export type NavLinkProps = {
 export type Skill = {
   id: number;
   name: string;
-  iconPath?: string;
+  iconPath: string;
 };
 
 export type SkillListProps = {
@@ -45,13 +45,9 @@ export type Project = {
   title: string;
   description: string;
   imagePath: string;
-  stack: number[];
+  skills: Skill[];
   siteUrl: string;
   repoUrl: string;
-};
-
-export type ProjectsProps = {
-  projects: Project[];
 };
 
 export type ProjectCardProps = {

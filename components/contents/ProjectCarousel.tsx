@@ -12,11 +12,13 @@ import {
 } from '@/components/ui/carousel';
 import { Github, ExternalLink } from 'lucide-react';
 import Image from 'next/image';
-import { SkillsData } from '@/constants';
 import { type CarouselApi } from '@/components/ui/carousel';
-import type { ProjectsProps } from '@/types/portfolio';
+import useSWR from 'swr';
+import { getProjects } from '@/lib/api';
+import type { Project } from '@/types/portfolio';
 
-export default function ProjectCarousel({ projects }: ProjectsProps) {
+export default function ProjectCarousel() {
+  const { data: projects, error } = useSWR<Project[]>('/api/projects', getProjects);
   const [api, setApi] = useState<CarouselApi>();
   const [current, setCurrent] = useState(0);
   const [count, setCount] = useState(0);
@@ -40,6 +42,22 @@ export default function ProjectCarousel({ projects }: ProjectsProps) {
     },
     [api],
   );
+
+  if (error) {
+    return (
+      <div className="text-center text-red-500 dark:text-red-400">
+        Erreur de chargement des projets
+      </div>
+    );
+  }
+
+  if (!projects) {
+    return (
+      <div className="text-center text-gray-500 dark:text-gray-400">
+        Chargement des projets...
+      </div>
+    );
+  }
 
   return (
     <div className="relative">
@@ -67,19 +85,16 @@ export default function ProjectCarousel({ projects }: ProjectsProps) {
                         </h3>
                         <p className="mb-4 text-sm md:text-base">{project.description}</p>
                         <div className="mb-4 flex flex-wrap gap-3">
-                          {project.stack.map((techId) => {
-                            const skill = SkillsData.find((s) => s.id === techId);
-                            return skill ? (
-                              <Image
-                                key={skill.id}
-                                src={`icons/skills${skill.iconPath}`}
-                                alt={skill.name}
-                                width={30}
-                                height={30}
-                                className="transition-transform hover:scale-110"
-                              />
-                            ) : null;
-                          })}
+                          {project.skills.map((skill) => (
+                            <Image
+                              key={skill.id}
+                              src={`icons/skills${skill.iconPath}`}
+                              alt={skill.name}
+                              width={30}
+                              height={30}
+                              className="transition-transform hover:scale-110"
+                            />
+                          ))}
                         </div>
                       </div>
                       <div className="flex flex-col justify-start gap-4 sm:flex-row">

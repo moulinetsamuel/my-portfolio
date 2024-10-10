@@ -7,6 +7,7 @@ import { ThemeProvider } from '@/providers/theme-provider';
 import Meteors from '@/components/magicui/meteors';
 import { Toaster } from '@/components/ui/toaster';
 import { NextAuthProvider } from '@/providers/next-auth-provider';
+import { SWRProvider } from '@/providers/swr-provider';
 
 const AnekTelugu = Anek_Telugu({
   subsets: ['latin'],
@@ -39,11 +40,13 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            <div className="grow">
-              <Meteors number={75} />
-              {children}
-            </div>
-            <Toaster />
+            <SWRProvider>
+              <div className="grow">
+                <Meteors number={75} />
+                {children}
+              </div>
+              <Toaster />
+            </SWRProvider>
           </ThemeProvider>
         </NextAuthProvider>
       </body>
