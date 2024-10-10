@@ -16,21 +16,26 @@ export type Skill = {
   iconPath: string;
 };
 
-export type SkillListProps = {
-  skills: Skill[];
-  onUpdateSkill: (skill: Skill) => void;
-  onDeleteSkill: (id: number) => void;
-};
-
 export type SkillFormProps = {
   skill?: Skill;
-  onSave: (skill: Omit<Skill, 'id'>) => void;
+  onSave: (name: string, icon: File) => void;
+};
+
+export type SkillEditFormProps = {
+  skill: Skill;
+  onSave: (id: number, name: string, icon?: File) => void;
 };
 
 export type SkillCardProps = {
   skill: Skill;
-  onUpdate: (skill: Skill) => void;
+  onUpdate: (id: number, name: string, icon?: File) => void;
   onDelete: (id: number) => void;
+};
+
+export type SkillListProps = {
+  skills: Skill[];
+  onUpdateSkill: (id: number, name: string, icon?: File) => void;
+  onDeleteSkill: (id: number) => void;
 };
 
 export type SkillSelectorProps = {
@@ -81,10 +86,6 @@ export type CV = {
 
 export type CurrentCVProps = {
   cv: CV;
-};
-
-export type DeleteCVDialogProps = {
-  onDelete: () => Promise<void>;
 };
 
 export type CVUploaderProps = {

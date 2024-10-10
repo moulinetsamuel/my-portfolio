@@ -21,7 +21,7 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import type { SkillCardProps } from '@/types/portfolio';
-import SkillForm from '@/components/dashboard/skills/SkillForm';
+import SkillEditForm from '@/components/dashboard/skills/SkillEditForm';
 
 export default function SkillCard({ skill, onUpdate, onDelete }: SkillCardProps) {
   const [isEditing, setIsEditing] = useState(false);
@@ -31,7 +31,7 @@ export default function SkillCard({ skill, onUpdate, onDelete }: SkillCardProps)
       <CardHeader>
         <CardTitle className="flex items-center">
           <Image
-            src={`/icons/skills${skill.iconPath}`}
+            src={skill.iconPath}
             alt={skill.name}
             width={24}
             height={24}
@@ -50,10 +50,10 @@ export default function SkillCard({ skill, onUpdate, onDelete }: SkillCardProps)
               <DialogHeader>
                 <DialogTitle>Modifier la compétence</DialogTitle>
               </DialogHeader>
-              <SkillForm
+              <SkillEditForm
                 skill={skill}
-                onSave={(updatedSkill) => {
-                  onUpdate({ ...updatedSkill, id: skill.id });
+                onSave={(id, name, icon) => {
+                  onUpdate(id, name, icon);
                   setIsEditing(false);
                 }}
               />

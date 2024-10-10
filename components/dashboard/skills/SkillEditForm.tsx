@@ -4,10 +4,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
-import type { SkillFormProps } from '@/types/portfolio';
+import type { SkillEditFormProps } from '@/types/portfolio';
 
-export default function SkillForm({ skill, onSave }: SkillFormProps) {
-  const [name, setName] = useState(skill?.name || '');
+export default function SkillEditForm({ skill, onSave }: SkillEditFormProps) {
+  const [name, setName] = useState(skill.name);
   const [file, setFile] = useState<File | null>(null);
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
@@ -22,9 +22,7 @@ export default function SkillForm({ skill, onSave }: SkillFormProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (file) {
-      onSave(name, file);
-    }
+    onSave(skill.id, name, file || undefined);
   };
 
   return (
