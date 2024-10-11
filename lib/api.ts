@@ -18,6 +18,24 @@ export async function submitContactForm(formData: ContactFormData): Promise<void
 
 export const getProjects = () => fetch('/api/projects').then((res) => res.json());
 
+export const getProject = (id: number) =>
+  fetch(`/api/projects/${id}`).then((res) => res.json());
+
+export const createProject = (projectData: FormData) =>
+  fetch('/api/projects', {
+    method: 'POST',
+    body: projectData,
+  }).then((res) => res.json());
+
+export const updateProject = (id: number, projectData: FormData) =>
+  fetch(`/api/projects/${id}`, {
+    method: 'PUT',
+    body: projectData,
+  }).then((res) => res.json());
+
+export const deleteProject = (id: number) =>
+  fetch(`/api/projects/${id}`, { method: 'DELETE' }).then((res) => res.json());
+
 export const getSkills = () => fetch('/api/skills').then((res) => res.json());
 
 export const createSkill = async (name: string, icon: File) => {
