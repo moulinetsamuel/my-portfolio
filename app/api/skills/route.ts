@@ -19,6 +19,7 @@ export async function POST(request: Request) {
     const name = data.get('name') as string;
     const file = data.get('icon') as File;
 
+    // TODO: use zod to validate data
     if (!name || !file) {
       return NextResponse.json({ error: 'Name and icon are required' }, { status: 400 });
     }

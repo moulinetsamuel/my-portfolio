@@ -39,10 +39,10 @@ export type SkillListProps = {
 };
 
 export type SkillSelectorProps = {
+  skills: Skill[];
   selectedSkills: number[];
-  allSkills: Skill[];
-  onSkillChange: (updatedSkills: number[]) => void;
-  onAddNewSkill: (skillName: string) => Skill;
+  onSkillsChange: (skills: number[]) => void;
+  onAddSkill: (name: string, icon: File) => Promise<void>;
 };
 
 export type Project = {
@@ -55,27 +55,27 @@ export type Project = {
   repoUrl: string;
 };
 
+export type ProjectFormProps = {
+  project?: Project;
+  skills: Skill[];
+  onSave: (projectData: FormData) => Promise<void>;
+  onAddSkill: (name: string, icon: File) => Promise<void>;
+};
+
 export type ProjectCardProps = {
   project: Project;
   skills: Skill[];
-  onUpdate: (project: Project) => void;
-  onDelete: (id: number) => void;
-  onAddNewSkill: (skillName: string) => Skill;
-};
-
-export type ProjectFormProps = {
-  project?: Project;
-  onSave: (project: Omit<Project, 'id'>) => void;
-  skills: Skill[];
-  onAddNewSkill: (skillName: string) => Skill;
+  onUpdate: (formData: FormData) => Promise<void>;
+  onDelete: (id: number) => Promise<void>;
+  onAddSkill: (name: string, icon: File) => Promise<void>;
 };
 
 export type ProjectListProps = {
   projects: Project[];
   skills: Skill[];
-  onUpdateProject: (project: Project) => void;
-  onDeleteProject: (id: number) => void;
-  onAddNewSkill: (skillName: string) => Skill;
+  onUpdateProject: (formData: FormData) => Promise<void>;
+  onDeleteProject: (id: number) => Promise<void>;
+  onAddSkill: (name: string, icon: File) => Promise<void>;
 };
 
 export type CV = {

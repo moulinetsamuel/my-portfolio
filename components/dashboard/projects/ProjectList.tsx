@@ -1,15 +1,15 @@
+import ProjectCard from '@/components/dashboard/projects/ProjectCard';
 import type { ProjectListProps } from '@/types/portfolio';
-import ProjectCard from './ProjectCard';
 
 export default function ProjectList({
   projects,
   skills,
   onUpdateProject,
   onDeleteProject,
-  onAddNewSkill,
+  onAddSkill,
 }: ProjectListProps) {
   return (
-    <div className="space-y-4">
+    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
       {projects.map((project) => (
         <ProjectCard
           key={project.id}
@@ -17,7 +17,7 @@ export default function ProjectList({
           skills={skills}
           onUpdate={onUpdateProject}
           onDelete={onDeleteProject}
-          onAddNewSkill={onAddNewSkill}
+          onAddSkill={onAddSkill}
         />
       ))}
     </div>

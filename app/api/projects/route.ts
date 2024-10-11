@@ -25,22 +25,27 @@ export async function POST(request: Request) {
     const skillIds = JSON.parse(formData.get('skillIds') as string);
     const image = formData.get('image') as File;
 
-    let imagePath = '';
-    if (image) {
-      const bytes = await image.arrayBuffer();
-      const buffer = Buffer.from(bytes);
-
-      const filename = `${Date.now()}-${image.name}`;
-      imagePath = `/images/projects/${filename}`;
-      const fullPath = path.join(process.cwd(), 'public', imagePath);
-      await writeFile(fullPath, buffer);
+    // TODO: utiliser zod pour valider les données
+    if (!title || !description || !siteUrl || !repoUrl || !skillIds || !image) {
+      return NextResponse.json(
+        {
+          error: 'Title, description, siteUrl, repoUrl, skillIds, and image are required',
+        },
+        { status: 400 },
+      );
     }
+    const bytes = await image.arrayBuffer();
+    const buffer = Buffer.from(bytes);
+
+    const filename = `${Date.now()}-${title}.png`;
+    const imagePath = path.join(process.cwd(), 'public', 'images', 'projects', filename);
+    await writeFile(imagePath, buffer);
 
     const project = await prisma.project.create({
       data: {
         title,
         description,
-        imagePath,
+        imagePath: `/images/projects/${filename}`,
         siteUrl,
         repoUrl,
         skills: {

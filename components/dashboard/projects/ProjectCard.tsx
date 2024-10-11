@@ -1,7 +1,5 @@
-import { useState } from 'react';
-import type { ProjectCardProps } from '@/types/portfolio';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Dialog,
   DialogContent,
@@ -20,37 +18,44 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import Image from 'next/image';
 import ProjectForm from '@/components/dashboard/projects/ProjectForm';
+import type { ProjectCardProps } from '@/types/portfolio';
 
 export default function ProjectCard({
   project,
   skills,
   onUpdate,
   onDelete,
-  onAddNewSkill,
+  onAddSkill,
 }: ProjectCardProps) {
-  const [isEditing, setIsEditing] = useState(false);
-
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>{project.title}</CardTitle>
-      </CardHeader>
-      <CardContent className="flex items-center justify-between">
-        <div>
-          <p>{project.description}</p>
-          <p>
-            Technologies :{' '}
-            {project.stack.map((id) => skills.find((s) => s.id === id)?.name).join(', ')}
-          </p>
-          {/* TODO: Ajouter l'affichage de l'image du projet */}
+      <CardContent className="p-4">
+        <div className="aspect-video relative mb-4">
+          <Image
+            src={project.imagePath}
+            alt={project.title}
+            layout="fill"
+            objectFit="cover"
+          />
         </div>
-        <div>
-          <Dialog open={isEditing} onOpenChange={setIsEditing}>
+        <h3 className="text-xl font-bold mb-2">{project.title}</h3>
+        <p className="text-sm mb-4">{project.description}</p>
+        <div className="flex flex-wrap gap-2 mb-4">
+          {project.skills.map((skill) => (
+            <span
+              key={skill.id}
+              className="bg-primary text-primary-foreground text-xs px-2 py-1 rounded"
+            >
+              {skill.name}
+            </span>
+          ))}
+        </div>
+        <div className="flex justify-between">
+          <Dialog>
             <DialogTrigger asChild>
-              <Button variant="outline" className="mr-2">
-                Modifier
-              </Button>
+              <Button variant="outline">Modifier</Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
@@ -58,12 +63,9 @@ export default function ProjectCard({
               </DialogHeader>
               <ProjectForm
                 project={project}
-                onSave={(updatedProject) => {
-                  onUpdate({ ...updatedProject, id: project.id });
-                  setIsEditing(false);
-                }}
                 skills={skills}
-                onAddNewSkill={onAddNewSkill}
+                onSave={onUpdate}
+                onAddSkill={onAddSkill}
               />
             </DialogContent>
           </Dialog>
@@ -78,7 +80,8 @@ export default function ProjectCard({
                   Êtes-vous sûr de vouloir supprimer ce projet ?
                 </AlertDialogTitle>
                 <AlertDialogDescription>
-                  Cette action ne peut pas être annulée.
+                  Cette action ne peut pas être annulée. Cela supprimera définitivement le
+                  projet et toutes les données associées.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>

@@ -36,30 +36,34 @@ export async function PUT(request: Request, { params }: { params: { id: string }
       select: { imagePath: true },
     });
 
-    let imagePath = existingProject?.imagePath || '';
+    if (!existingProject) {
+      return NextResponse.json({ error: 'Project not found' }, { status: 404 });
+    }
+
+    let imagePath = existingProject.imagePath;
 
     if (image) {
       // Delete old image if it exists
-      if (existingProject?.imagePath) {
-        const oldImagePath = path.join(
-          process.cwd(),
-          'public',
-          existingProject.imagePath,
-        );
-        await unlink(oldImagePath).catch(() => {});
-      }
+
+      const oldImagePath = path.join(process.cwd(), 'public', existingProject.imagePath);
+      await unlink(oldImagePath);
 
       // Save new image
       const bytes = await image.arrayBuffer();
       const buffer = Buffer.from(bytes);
-
-      const filename = `${Date.now()}-${image.name}`;
+      const filename = `${Date.now()}-${title}.png`;
+      const newImagePath = path.join(
+        process.cwd(),
+        'public',
+        'images',
+        'projects',
+        filename,
+      );
+      await writeFile(newImagePath, buffer);
       imagePath = `/images/projects/${filename}`;
-      const fullPath = path.join(process.cwd(), 'public', imagePath);
-      await writeFile(fullPath, buffer);
     }
 
-    const project = await prisma.project.update({
+    const updatedProject = await prisma.project.update({
       where: { id: Number(params.id) },
       data: {
         title,
@@ -74,7 +78,7 @@ export async function PUT(request: Request, { params }: { params: { id: string }
       include: { skills: true },
     });
 
-    return NextResponse.json(project);
+    return NextResponse.json(updatedProject);
   } catch (error) {
     console.error('Error updating project:', error);
     return NextResponse.json({ error: 'Error updating project' }, { status: 500 });
@@ -88,10 +92,13 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
       select: { imagePath: true },
     });
 
-    if (project?.imagePath) {
-      const imagePath = path.join(process.cwd(), 'public', project.imagePath);
-      await unlink(imagePath).catch(() => {});
+    if (!project) {
+      return NextResponse.json({ error: 'Project not found' }, { status: 404 });
     }
+
+    // Delete image file
+    const imagePath = path.join(process.cwd(), 'public', project.imagePath);
+    await unlink(imagePath);
 
     await prisma.project.delete({
       where: { id: Number(params.id) },

@@ -88,7 +88,7 @@ export default function ProjectCarousel() {
                           {project.skills.map((skill) => (
                             <Image
                               key={skill.id}
-                              src={`icons/skills${skill.iconPath}`}
+                              src={skill.iconPath}
                               alt={skill.name}
                               width={30}
                               height={30}

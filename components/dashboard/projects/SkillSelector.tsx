@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import {
@@ -19,50 +19,39 @@ import SkillForm from '@/components/dashboard/skills/SkillForm';
 import type { SkillSelectorProps } from '@/types/portfolio';
 
 export default function SkillSelector({
+  skills,
   selectedSkills,
-  allSkills,
-  onSkillChange,
-  onAddNewSkill,
+  onSkillsChange,
+  onAddSkill,
 }: SkillSelectorProps) {
-  const [isAddingSkill, setIsAddingSkill] = useState(false);
-
-  const handleSkillChange = (skillId: number) => {
-    const updatedSkills = selectedSkills.includes(skillId)
-      ? selectedSkills.filter((id) => id !== skillId)
-      : [...selectedSkills, skillId];
-    onSkillChange(updatedSkills);
-  };
-
-  const handleAddNewSkill = (newSkill: string) => {
-    const addedSkill = onAddNewSkill(newSkill);
-    onSkillChange([...selectedSkills, addedSkill.id]);
-    setIsAddingSkill(false);
-  };
-
   return (
     <div>
       <Label>Compétences</Label>
       <div className="mb-2 flex flex-wrap gap-2">
         {selectedSkills.map((skillId) => {
-          const skill = allSkills.find((s) => s.id === skillId);
+          const skill = skills.find((s) => s.id === skillId);
           return skill ? (
             <Button
               key={skill.id}
               type="button"
-              variant="default"
-              onClick={() => handleSkillChange(skill.id)}
+              variant="secondary"
+              onClick={() =>
+                onSkillsChange(selectedSkills.filter((id) => id !== skill.id))
+              }
             >
               {skill.name} ✕
             </Button>
           ) : null;
         })}
       </div>
-      <Select onValueChange={(value) => handleSkillChange(Number(value))}>
+      <Select
+        onValueChange={(value) => onSkillsChange([...selectedSkills, parseInt(value)])}
+      >
         <SelectTrigger>
           <SelectValue placeholder="Sélectionner une compétence" />
         </SelectTrigger>
         <SelectContent>
-          {allSkills
+          {skills
             .filter((skill) => !selectedSkills.includes(skill.id))
             .map((skill) => (
               <SelectItem key={skill.id} value={skill.id.toString()}>
@@ -71,7 +60,8 @@ export default function SkillSelector({
             ))}
         </SelectContent>
       </Select>
-      <Dialog open={isAddingSkill} onOpenChange={setIsAddingSkill}>
+
+      <Dialog>
         <DialogTrigger asChild>
           <Button type="button" variant="outline" className="mt-2">
             Ajouter une nouvelle compétence
@@ -81,7 +71,7 @@ export default function SkillSelector({
           <DialogHeader>
             <DialogTitle>Ajouter une nouvelle compétence</DialogTitle>
           </DialogHeader>
-          <SkillForm onSave={handleAddNewSkill} />
+          <SkillForm onSave={onAddSkill} />
         </DialogContent>
       </Dialog>
     </div>
