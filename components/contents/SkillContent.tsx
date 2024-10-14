@@ -4,8 +4,8 @@ import { useState, useEffect, useCallback } from 'react';
 import useSWR from 'swr';
 import OrbitingCircles from '@/components/magicui/orbiting-circles';
 import Image from 'next/image';
-import { getSkills } from '@/lib/api';
-import type { Skill } from '@/types/portfolio';
+import { getSkills } from '@/lib/api/skills';
+import type { Skill } from '@/lib/schemas/skillSchema';
 import { Info } from 'lucide-react';
 import { RadiusData } from '@/constants';
 

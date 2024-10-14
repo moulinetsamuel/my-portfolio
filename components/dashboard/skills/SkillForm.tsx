@@ -4,7 +4,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
-import type { SkillFormProps } from '@/types/portfolio';
+import type { Skill } from '@/lib/schemas/skillSchema';
+import { DialogClose } from '@/components/ui/dialog';
+
+interface SkillFormProps {
+  skill?: Skill;
+  onSave: (formData: FormData) => Promise<void>;
+}
 
 export default function SkillForm({ skill, onSave }: SkillFormProps) {
   const [name, setName] = useState(skill?.name || '');
@@ -20,11 +26,14 @@ export default function SkillForm({ skill, onSave }: SkillFormProps) {
     multiple: false,
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const formData = new FormData();
+    formData.append('name', name);
     if (file) {
-      onSave(name, file);
+      formData.append('icon', file);
     }
+    await onSave(formData);
   };
 
   return (
@@ -65,9 +74,18 @@ export default function SkillForm({ skill, onSave }: SkillFormProps) {
           <p className="mt-2 text-sm text-gray-500">Icône actuelle : {skill.iconPath}</p>
         )}
       </div>
-      <Button type="submit" disabled={!name || (!skill && !file)}>
-        {skill ? 'Mettre à jour' : 'Ajouter'} la compétence
-      </Button>
+      <div className="flex justify-end space-x-2">
+        <DialogClose asChild>
+          <Button type="button" variant="outline">
+            Annuler
+          </Button>
+        </DialogClose>
+        <DialogClose asChild>
+          <Button type="submit" disabled={!name}>
+            {skill ? 'Mettre à jour' : 'Ajouter'} la compétence
+          </Button>
+        </DialogClose>
+      </div>
     </form>
   );
 }

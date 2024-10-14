@@ -1,5 +1,11 @@
 import SkillCard from '@/components/dashboard/skills/SkillCard';
-import type { SkillListProps } from '@/types/portfolio';
+import type { Skill } from '@/lib/schemas/skillSchema';
+
+interface SkillListProps {
+  skills: Skill[];
+  onUpdateSkill: (id: number, formData: FormData) => Promise<void>;
+  onDeleteSkill: (id: number) => Promise<void>;
+}
 
 export default function SkillList({
   skills,

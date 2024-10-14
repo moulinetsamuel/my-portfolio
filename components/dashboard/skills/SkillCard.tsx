@@ -20,8 +20,14 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import type { SkillCardProps } from '@/types/portfolio';
-import SkillEditForm from '@/components/dashboard/skills/SkillEditForm';
+import type { Skill } from '@/lib/schemas/skillSchema';
+import SkillForm from '@/components/dashboard/skills/SkillForm';
+
+interface SkillCardProps {
+  skill: Skill;
+  onUpdate: (id: number, formData: FormData) => Promise<void>;
+  onDelete: (id: number) => Promise<void>;
+}
 
 export default function SkillCard({ skill, onUpdate, onDelete }: SkillCardProps) {
   const [isEditing, setIsEditing] = useState(false);
@@ -50,10 +56,10 @@ export default function SkillCard({ skill, onUpdate, onDelete }: SkillCardProps)
               <DialogHeader>
                 <DialogTitle>Modifier la compétence</DialogTitle>
               </DialogHeader>
-              <SkillEditForm
+              <SkillForm
                 skill={skill}
-                onSave={(id, name, icon) => {
-                  onUpdate(id, name, icon);
+                onSave={async (formData) => {
+                  await onUpdate(skill.id, formData);
                   setIsEditing(false);
                 }}
               />

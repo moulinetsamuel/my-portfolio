@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import useSWR from 'swr';
 import { Button } from '@/components/ui/button';
 import {
@@ -12,23 +11,32 @@ import {
 } from '@/components/ui/dialog';
 import SkillList from '@/components/dashboard/skills/SkillList';
 import SkillForm from '@/components/dashboard/skills/SkillForm';
-import { getSkills, createSkill, updateSkill, deleteSkill } from '@/lib/api';
-import type { Skill } from '@/types/portfolio';
+import { getSkills, createSkill, updateSkill, deleteSkill } from '@/lib/api/skills';
+import type { Skill } from '@/lib/schemas/skillSchema';
 import { useToast } from '@/hooks/use-toast';
 
 export default function SkillsPage() {
   const { data: skills, error, mutate } = useSWR<Skill[]>('/api/skills', getSkills);
-  const [isAddingSkill, setIsAddingSkill] = useState(false);
   const { toast } = useToast();
 
-  if (error) return <div>Erreur de chargement des compétences</div>;
-  if (!skills) return <div>Chargement des compétences...</div>;
-
-  const handleAddSkill = async (name: string, icon: File) => {
+  if (error) {
+    return (
+      <div className="text-center text-red-500 dark:text-red-400">
+        Erreur de chargement des compétences
+      </div>
+    );
+  }
+  if (!skills) {
+    return (
+      <div className="text-center text-gray-500 dark:text-gray-400">
+        Chargement des compétences...
+      </div>
+    );
+  }
+  const handleAddSkill = async (formData: FormData) => {
     try {
-      const createdSkill = await createSkill(name, icon);
+      const createdSkill = await createSkill(formData);
       await mutate([...skills, createdSkill], false);
-      setIsAddingSkill(false);
       toast({ title: 'Compétence ajoutée avec succès' });
     } catch (error) {
       console.error("Erreur lors de l'ajout de la compétence:", error);
@@ -36,9 +44,9 @@ export default function SkillsPage() {
     }
   };
 
-  const handleUpdateSkill = async (id: number, name: string, icon?: File) => {
+  const handleUpdateSkill = async (id: number, formData: FormData) => {
     try {
-      const updatedSkill = await updateSkill(id, name, icon);
+      const updatedSkill = await updateSkill(id, formData);
       await mutate(
         skills.map((skill) => (skill.id === id ? updatedSkill : skill)),
         false,
@@ -74,7 +82,7 @@ export default function SkillsPage() {
     <div className="container mx-auto p-4">
       <h1 className="mb-6 text-3xl font-bold">Gestion des compétences</h1>
 
-      <Dialog open={isAddingSkill} onOpenChange={setIsAddingSkill}>
+      <Dialog>
         <DialogTrigger asChild>
           <Button className="mb-4">Ajouter une compétence</Button>
         </DialogTrigger>
