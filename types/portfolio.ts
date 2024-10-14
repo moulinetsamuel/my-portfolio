@@ -77,25 +77,3 @@ export type ProjectListProps = {
   onDeleteProject: (id: number) => Promise<void>;
   onAddSkill: (name: string, icon: File) => Promise<void>;
 };
-
-export type CV = {
-  id: number;
-  filePath: string;
-  uploadedAt: string;
-};
-
-export type CurrentCVProps = {
-  cv: CV;
-};
-
-export type CVUploaderProps = {
-  onUpload: (file: File) => void;
-  hasExistingCV: boolean;
-  isUploading: boolean;
-};
-
-export type CVManagerProps = {
-  cv: CV | null;
-  onUpload: (file: File) => void;
-  isUploading: boolean;
-};

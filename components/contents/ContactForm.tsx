@@ -3,11 +3,11 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import emailjs from '@emailjs/browser';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { submitContactForm } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
 import { ContactFormData, contactSchema } from '@/lib/schemas/contactSchema';
 
@@ -27,7 +27,12 @@ export default function ContactForm() {
     setIsSubmitting(true);
 
     try {
-      await submitContactForm(data);
+      await emailjs.send(
+        process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID!,
+        process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID!,
+        data,
+        process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY,
+      );
 
       toast({
         title: 'Message envoyé !',

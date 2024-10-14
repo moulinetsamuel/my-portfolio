@@ -2,7 +2,12 @@ import React, { useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import type { CVUploaderProps } from '@/types/portfolio';
+
+interface CVUploaderProps {
+  onUpload: (file: File) => Promise<void>;
+  hasExistingCV: boolean;
+  isUploading: boolean;
+}
 
 export default function CVUploader({
   onUpload,
@@ -19,7 +24,6 @@ export default function CVUploader({
     onDrop,
     accept: { 'application/pdf': ['.pdf'] },
     multiple: false,
-    noClick: true,
   });
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {

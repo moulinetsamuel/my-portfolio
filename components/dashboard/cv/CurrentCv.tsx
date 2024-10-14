@@ -1,4 +1,8 @@
-import type { CurrentCVProps } from '@/types/portfolio';
+import type { CV } from '@/lib/schemas/cvSchemas';
+
+interface CurrentCVProps {
+  cv: CV;
+}
 
 export default function CurrentCV({ cv }: CurrentCVProps) {
   return (

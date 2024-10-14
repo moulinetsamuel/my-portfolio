@@ -2,20 +2,22 @@
 
 import { useState } from 'react';
 import useSWR from 'swr';
-import { getCV, uploadCV } from '@/lib/api';
-import type { CV } from '@/types/portfolio';
+import { getCV, uploadCV } from '@/lib/api/cv';
+import type { CV } from '@/lib/schemas/cvSchemas';
 import CVManager from '@/components/dashboard/cv/CvManager';
 import { useToast } from '@/hooks/use-toast';
 
 export default function CVPage() {
-  const { data: cv, error, mutate } = useSWR<CV>('/api/cv', getCV);
+  const { data: cv, error, mutate } = useSWR<CV | null>('/api/cv', getCV);
   const [isUploading, setIsUploading] = useState(false);
   const { toast } = useToast();
 
   const handleUploadCV = async (file: File) => {
     setIsUploading(true);
     try {
-      await uploadCV(file);
+      const formData = new FormData();
+      formData.append('file', file);
+      await uploadCV(formData);
       await mutate();
       toast({
         title: 'CV téléchargé avec succès',
@@ -33,26 +35,23 @@ export default function CVPage() {
     }
   };
 
-  if (error) {
-    return (
-      <div className="text-center text-red-500 dark:text-red-400">
-        Erreur de chargement du CV
-      </div>
-    );
-  }
-
-  if (cv === undefined) {
-    return (
-      <div className="text-center text-gray-500 dark:text-gray-400">
-        Chargement du CV...
-      </div>
-    );
-  }
+  const isLoading = !error && cv === undefined;
+  const noCV = error && error.status === 404;
 
   return (
     <div className="container mx-auto p-4">
       <h1 className="mb-6 text-3xl font-bold">Gestion du CV</h1>
-      <CVManager cv={cv} onUpload={handleUploadCV} isUploading={isUploading} />
+      {isLoading ? (
+        <div className="text-center text-gray-500 dark:text-gray-400">
+          Chargement du CV...
+        </div>
+      ) : (
+        <CVManager
+          cv={noCV ? null : cv}
+          onUpload={handleUploadCV}
+          isUploading={isUploading}
+        />
+      )}
     </div>
   );
 }
