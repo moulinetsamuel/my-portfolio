@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -8,22 +10,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
-import SkillForm from '@/components/dashboard/skills/SkillForm';
-import type { SkillSelectorProps } from '@/types/portfolio';
+import useSkillStore from '@/store/useSkillStore';
+
+interface SkillSelectorProps {
+  selectedSkills: number[];
+  onSkillsChange: (selectedSkills: number[]) => void;
+}
 
 export default function SkillSelector({
-  skills,
   selectedSkills,
   onSkillsChange,
-  onAddSkill,
 }: SkillSelectorProps) {
+  const { skills } = useSkillStore();
+
   return (
     <div>
       <Label>Compétences</Label>
@@ -45,7 +44,9 @@ export default function SkillSelector({
         })}
       </div>
       <Select
-        onValueChange={(value) => onSkillsChange([...selectedSkills, parseInt(value)])}
+        onValueChange={(value) =>
+          onSkillsChange([...selectedSkills, parseInt(value, 10)])
+        }
       >
         <SelectTrigger>
           <SelectValue placeholder="Sélectionner une compétence" />
@@ -60,20 +61,6 @@ export default function SkillSelector({
             ))}
         </SelectContent>
       </Select>
-
-      <Dialog>
-        <DialogTrigger asChild>
-          <Button type="button" variant="outline" className="mt-2">
-            Ajouter une nouvelle compétence
-          </Button>
-        </DialogTrigger>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Ajouter une nouvelle compétence</DialogTitle>
-          </DialogHeader>
-          <SkillForm onSave={onAddSkill} />
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }

@@ -3,8 +3,9 @@ import { API_URLS } from '@/lib/api/URLs';
 import type { Skill, SkillApiResponse } from '@/lib/schemas/skillSchema';
 
 // Fonction pour récupérer toutes les compétences
-export const getSkills = (): Promise<Skill[]> =>
-  fetchWithErrorHandling(API_URLS.SKILLS.GET);
+export const getSkills = (): Promise<Skill[]> => {
+  return fetchWithErrorHandling(API_URLS.SKILLS.GET);
+};
 
 // Fonction pour créer une nouvelle compétence
 export const createSkill = (formData: FormData): Promise<SkillApiResponse> =>

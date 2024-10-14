@@ -13,15 +13,17 @@ import {
 import { Github, ExternalLink } from 'lucide-react';
 import Image from 'next/image';
 import { type CarouselApi } from '@/components/ui/carousel';
-import useSWR from 'swr';
-import { getProjects } from '@/lib/api';
-import type { Project } from '@/types/portfolio';
+import useProjectStore from '@/store/useProjectStore';
 
 export default function ProjectCarousel() {
-  const { data: projects, error } = useSWR<Project[]>('/api/projects', getProjects);
+  const { projects, isLoading, error, fetchProjects } = useProjectStore();
   const [api, setApi] = useState<CarouselApi>();
   const [current, setCurrent] = useState(0);
   const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    fetchProjects();
+  }, [fetchProjects]);
 
   useEffect(() => {
     if (!api) {
@@ -51,7 +53,7 @@ export default function ProjectCarousel() {
     );
   }
 
-  if (!projects) {
+  if (isLoading) {
     return (
       <div className="text-center text-gray-500 dark:text-gray-400">
         Chargement des projets...

@@ -1,21 +1,24 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import useSWR from 'swr';
 import OrbitingCircles from '@/components/magicui/orbiting-circles';
 import Image from 'next/image';
-import { getSkills } from '@/lib/api/skills';
 import type { Skill } from '@/lib/schemas/skillSchema';
 import { Info } from 'lucide-react';
 import { RadiusData } from '@/constants';
+import useSkillStore from '@/store/useSkillStore';
 
 export default function SkillContent() {
-  const { data: skills, error } = useSWR<Skill[]>('/api/skills', getSkills);
+  const { skills, isLoading, error, fetchSkills } = useSkillStore();
   const [scale, setScale] = useState(1);
   const [distributedSkills, setDistributedSkills] = useState<
     (Skill & { radiusIndex: number; index: number })[]
   >([]);
   const [hasMoreSkills, setHasMoreSkills] = useState(false);
+
+  useEffect(() => {
+    fetchSkills();
+  }, [fetchSkills]);
 
   const handleResize = useCallback(() => {
     const width = window.innerWidth;
@@ -72,7 +75,7 @@ export default function SkillContent() {
     );
   }
 
-  if (!skills) {
+  if (isLoading) {
     return (
       <div className="text-center text-gray-500 dark:text-gray-400">
         Chargement des compétences...

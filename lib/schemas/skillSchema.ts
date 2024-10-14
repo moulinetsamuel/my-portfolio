@@ -36,14 +36,8 @@ export const createSkillSchema = skillSchema.omit({
   updatedAt: true,
 });
 
-// Type inféré pour la création d'une compétence
-export type CreateSkill = z.infer<typeof createSkillSchema>;
-
 // Schéma pour la mise à jour d'une compétence existante
 export const updateSkillSchema = createSkillSchema.partial();
-
-// Type inféré pour la mise à jour d'une compétence
-export type UpdateSkill = z.infer<typeof updateSkillSchema>;
 
 // Schéma pour la réponse de l'API après la création ou la mise à jour d'une compétence
 export const skillApiResponseSchema = skillSchema.extend({

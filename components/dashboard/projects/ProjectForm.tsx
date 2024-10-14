@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { Button } from '@/components/ui/button';
@@ -6,23 +8,38 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
 import SkillSelector from '@/components/dashboard/projects/SkillSelector';
-import type { ProjectFormProps } from '@/types/portfolio';
-import { DialogClose } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import SkillForm from '@/components/dashboard/skills/SkillForm';
+import useProjectStore from '@/store/useProjectStore';
+import useSkillStore from '@/store/useSkillStore';
+import { useToast } from '@/hooks/use-toast';
+import type { Project } from '@/lib/schemas/projectSchema';
 
-export default function ProjectForm({
-  project,
-  skills,
-  onSave,
-  onAddSkill,
-}: ProjectFormProps) {
+interface ProjectFormProps {
+  project?: Project;
+  onClose: () => void;
+}
+
+export default function ProjectForm({ project, onClose }: ProjectFormProps) {
   const [title, setTitle] = useState(project?.title || '');
   const [description, setDescription] = useState(project?.description || '');
   const [siteUrl, setSiteUrl] = useState(project?.siteUrl || '');
   const [repoUrl, setRepoUrl] = useState(project?.repoUrl || '');
   const [selectedSkills, setSelectedSkills] = useState<number[]>(
-    project?.skills.map((s) => s.id) || [],
+    project?.skills?.map((s) => s.id) || [],
   );
   const [image, setImage] = useState<File | null>(null);
+  const [isSkillDialogOpen, setIsSkillDialogOpen] = useState(false);
+
+  const { addProject, updateProject } = useProjectStore();
+  const { fetchSkills } = useSkillStore();
+  const { toast } = useToast();
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     setImage(acceptedFiles[0]);
@@ -34,7 +51,7 @@ export default function ProjectForm({
     multiple: false,
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const formData = new FormData();
     if (project) {
@@ -48,7 +65,35 @@ export default function ProjectForm({
     if (image) {
       formData.append('image', image);
     }
-    onSave(formData);
+
+    try {
+      if (project) {
+        await updateProject(project.id, formData);
+        toast({
+          title: 'Succès',
+          description: 'Le projet a été mis à jour avec succès.',
+        });
+      } else {
+        await addProject(formData);
+        toast({
+          title: 'Succès',
+          description: 'Le projet a été ajouté avec succès.',
+        });
+      }
+      onClose();
+    } catch (error) {
+      console.error('Error saving project:', error);
+      toast({
+        title: 'Erreur',
+        description: `Impossible de ${project ? 'mettre à jour' : 'ajouter'} le projet.`,
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleSkillAdded = async () => {
+    await fetchSkills();
+    setIsSkillDialogOpen(false);
   };
 
   return (
@@ -120,22 +165,31 @@ export default function ProjectForm({
           </p>
         )}
       </div>
-      <SkillSelector
-        skills={skills}
-        selectedSkills={selectedSkills}
-        onSkillsChange={setSelectedSkills}
-        onAddSkill={onAddSkill}
-      />
+      <div>
+        <SkillSelector
+          selectedSkills={selectedSkills}
+          onSkillsChange={setSelectedSkills}
+        />
+        <Dialog open={isSkillDialogOpen} onOpenChange={setIsSkillDialogOpen}>
+          <DialogTrigger asChild>
+            <Button type="button" variant="outline" className="mt-2">
+              Ajouter une nouvelle compétence
+            </Button>
+          </DialogTrigger>
+          <DialogContent onInteractOutside={(e) => e.preventDefault()}>
+            <DialogHeader>
+              <DialogTitle>Ajouter une nouvelle compétence</DialogTitle>
+            </DialogHeader>
+            <SkillForm onSkillAdded={handleSkillAdded} />
+          </DialogContent>
+        </Dialog>
+      </div>
       <div className="flex justify-end space-x-2">
-        <DialogClose asChild>
-          <Button type="button" variant="outline">
-            Annuler
-          </Button>
-        </DialogClose>
-        <DialogClose asChild>
-          <Button type="submit">{project ? 'Mettre à jour' : 'Ajouter'} le projet</Button>
-        </DialogClose>
-      </div>{' '}
+        <Button type="button" variant="outline" onClick={onClose}>
+          Annuler
+        </Button>
+        <Button type="submit">{project ? 'Mettre à jour' : 'Ajouter'} le projet</Button>
+      </div>
     </form>
   );
 }

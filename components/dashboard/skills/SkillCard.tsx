@@ -22,15 +22,30 @@ import {
 } from '@/components/ui/alert-dialog';
 import type { Skill } from '@/lib/schemas/skillSchema';
 import SkillForm from '@/components/dashboard/skills/SkillForm';
+import useSkillStore from '@/store/useSkillStore';
+import { useToast } from '@/hooks/use-toast';
 
 interface SkillCardProps {
   skill: Skill;
-  onUpdate: (id: number, formData: FormData) => Promise<void>;
-  onDelete: (id: number) => Promise<void>;
 }
 
-export default function SkillCard({ skill, onUpdate, onDelete }: SkillCardProps) {
+export default function SkillCard({ skill }: SkillCardProps) {
   const [isEditing, setIsEditing] = useState(false);
+  const { deleteSkill } = useSkillStore();
+  const { toast } = useToast();
+
+  const handleDelete = async () => {
+    try {
+      await deleteSkill(skill.id);
+      toast({ title: 'Compétence supprimée avec succès' });
+    } catch (error) {
+      console.error('Erreur lors de la suppression de la compétence:', error);
+      toast({
+        title: 'Erreur lors de la suppression de la compétence',
+        variant: 'destructive',
+      });
+    }
+  };
 
   return (
     <Card>
@@ -52,17 +67,11 @@ export default function SkillCard({ skill, onUpdate, onDelete }: SkillCardProps)
             <DialogTrigger asChild>
               <Button variant="outline">Modifier</Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent onInteractOutside={(e) => e.preventDefault()}>
               <DialogHeader>
                 <DialogTitle>Modifier la compétence</DialogTitle>
               </DialogHeader>
-              <SkillForm
-                skill={skill}
-                onSave={async (formData) => {
-                  await onUpdate(skill.id, formData);
-                  setIsEditing(false);
-                }}
-              />
+              <SkillForm skill={skill} onSkillAdded={() => setIsEditing(false)} />
             </DialogContent>
           </Dialog>
 
@@ -81,9 +90,7 @@ export default function SkillCard({ skill, onUpdate, onDelete }: SkillCardProps)
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>Annuler</AlertDialogCancel>
-                <AlertDialogAction onClick={() => onDelete(skill.id)}>
-                  Supprimer
-                </AlertDialogAction>
+                <AlertDialogAction onClick={handleDelete}>Supprimer</AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>

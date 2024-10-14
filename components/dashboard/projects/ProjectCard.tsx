@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
@@ -20,15 +21,36 @@ import {
 } from '@/components/ui/alert-dialog';
 import Image from 'next/image';
 import ProjectForm from '@/components/dashboard/projects/ProjectForm';
-import type { ProjectCardProps } from '@/types/portfolio';
+import useProjectStore from '@/store/useProjectStore';
+import { useToast } from '@/hooks/use-toast';
+import type { Project } from '@/lib/schemas/projectSchema';
 
-export default function ProjectCard({
-  project,
-  skills,
-  onUpdate,
-  onDelete,
-  onAddSkill,
-}: ProjectCardProps) {
+interface ProjectCardProps {
+  project: Project;
+}
+
+export default function ProjectCard({ project }: ProjectCardProps) {
+  const [isEditing, setIsEditing] = useState(false);
+  const { deleteProject } = useProjectStore();
+  const { toast } = useToast();
+
+  const handleDelete = async () => {
+    try {
+      await deleteProject(project.id);
+      toast({
+        title: 'Succès',
+        description: 'Le projet a été supprimé avec succès.',
+      });
+    } catch (error) {
+      console.error('Error deleting project:', error);
+      toast({
+        title: 'Erreur',
+        description: 'Impossible de supprimer le projet.',
+        variant: 'destructive',
+      });
+    }
+  };
+
   return (
     <Card>
       <CardContent className="p-4">
@@ -53,20 +75,15 @@ export default function ProjectCard({
           ))}
         </div>
         <div className="flex justify-between">
-          <Dialog>
+          <Dialog open={isEditing} onOpenChange={setIsEditing}>
             <DialogTrigger asChild>
               <Button variant="outline">Modifier</Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent onInteractOutside={(e) => e.preventDefault()}>
               <DialogHeader>
                 <DialogTitle>Modifier le projet</DialogTitle>
               </DialogHeader>
-              <ProjectForm
-                project={project}
-                skills={skills}
-                onSave={onUpdate}
-                onAddSkill={onAddSkill}
-              />
+              <ProjectForm project={project} onClose={() => setIsEditing(false)} />
             </DialogContent>
           </Dialog>
 
@@ -86,9 +103,7 @@ export default function ProjectCard({
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>Annuler</AlertDialogCancel>
-                <AlertDialogAction onClick={() => onDelete(project.id)}>
-                  Supprimer
-                </AlertDialogAction>
+                <AlertDialogAction onClick={handleDelete}>Supprimer</AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>

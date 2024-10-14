@@ -36,9 +36,6 @@ export const cvUploadSchema = z.object({
     }),
 });
 
-// Type inféré pour l'upload de CV
-export type CVUpload = z.infer<typeof cvUploadSchema>;
-
 // Schéma pour la réponse de l'API après l'upload
 export const cvApiResponseSchema = cvSchema.extend({
   message: z.string({

@@ -4,17 +4,20 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
+import useSkillStore from '@/store/useSkillStore';
+import { useToast } from '@/hooks/use-toast';
 import type { Skill } from '@/lib/schemas/skillSchema';
-import { DialogClose } from '@/components/ui/dialog';
 
 interface SkillFormProps {
   skill?: Skill;
-  onSave: (formData: FormData) => Promise<void>;
+  onSkillAdded: () => void;
 }
 
-export default function SkillForm({ skill, onSave }: SkillFormProps) {
+export default function SkillForm({ skill, onSkillAdded }: SkillFormProps) {
   const [name, setName] = useState(skill?.name || '');
   const [file, setFile] = useState<File | null>(null);
+  const { addSkill, updateSkill } = useSkillStore();
+  const { toast } = useToast();
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     setFile(acceptedFiles[0]);
@@ -33,7 +36,23 @@ export default function SkillForm({ skill, onSave }: SkillFormProps) {
     if (file) {
       formData.append('icon', file);
     }
-    await onSave(formData);
+
+    try {
+      if (skill) {
+        await updateSkill(skill.id, formData);
+        toast({ title: 'Compétence mise à jour avec succès' });
+      } else {
+        await addSkill(formData);
+        toast({ title: 'Compétence ajoutée avec succès' });
+      }
+      onSkillAdded();
+    } catch (error) {
+      console.error("Erreur lors de l'opération sur la compétence:", error);
+      toast({
+        title: `Erreur lors de ${skill ? 'la mise à jour' : "l'ajout"} de la compétence`,
+        variant: 'destructive',
+      });
+    }
   };
 
   return (
@@ -75,16 +94,12 @@ export default function SkillForm({ skill, onSave }: SkillFormProps) {
         )}
       </div>
       <div className="flex justify-end space-x-2">
-        <DialogClose asChild>
-          <Button type="button" variant="outline">
-            Annuler
-          </Button>
-        </DialogClose>
-        <DialogClose asChild>
-          <Button type="submit" disabled={!name}>
-            {skill ? 'Mettre à jour' : 'Ajouter'} la compétence
-          </Button>
-        </DialogClose>
+        <Button type="button" variant="outline" onClick={onSkillAdded}>
+          Annuler
+        </Button>
+        <Button type="submit" disabled={!name}>
+          {skill ? 'Mettre à jour' : 'Ajouter'} la compétence
+        </Button>
       </div>
     </form>
   );
