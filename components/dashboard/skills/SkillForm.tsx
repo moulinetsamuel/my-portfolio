@@ -1,27 +1,46 @@
-import React, { useState, useCallback } from 'react';
+import React, { useCallback } from 'react';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useDropzone } from 'react-dropzone';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
+import { DialogClose } from '@/components/ui/dialog';
 import useSkillStore from '@/store/useSkillStore';
 import { useToast } from '@/hooks/use-toast';
+import { skillFormSchema, type SkillFormData } from '@/lib/schemas/skillSchema';
 import type { Skill } from '@/lib/schemas/skillSchema';
 
 interface SkillFormProps {
   skill?: Skill;
-  onSkillAdded: () => void;
+  onClose: () => void;
 }
 
-export default function SkillForm({ skill, onSkillAdded }: SkillFormProps) {
-  const [name, setName] = useState(skill?.name || '');
-  const [file, setFile] = useState<File | null>(null);
+export default function SkillForm({ skill, onClose }: SkillFormProps) {
+  const {
+    control,
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { errors },
+  } = useForm<SkillFormData>({
+    resolver: zodResolver(skillFormSchema),
+    defaultValues: {
+      name: skill?.name || '',
+      icon: null,
+    },
+  });
+
   const { addSkill, updateSkill } = useSkillStore();
   const { toast } = useToast();
 
-  const onDrop = useCallback((acceptedFiles: File[]) => {
-    setFile(acceptedFiles[0]);
-  }, []);
+  const onDrop = useCallback(
+    (acceptedFiles: File[]) => {
+      setValue('icon', acceptedFiles[0], { shouldValidate: true });
+    },
+    [setValue],
+  );
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -29,12 +48,13 @@ export default function SkillForm({ skill, onSkillAdded }: SkillFormProps) {
     multiple: false,
   });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const watchIcon = watch('icon');
+
+  const onSubmit = async (data: SkillFormData) => {
     const formData = new FormData();
-    formData.append('name', name);
-    if (file) {
-      formData.append('icon', file);
+    formData.append('name', data.name);
+    if (data.icon) {
+      formData.append('icon', data.icon);
     }
 
     try {
@@ -45,7 +65,7 @@ export default function SkillForm({ skill, onSkillAdded }: SkillFormProps) {
         await addSkill(formData);
         toast({ title: 'Compétence ajoutée avec succès' });
       }
-      onSkillAdded();
+      onClose();
     } catch (error) {
       console.error("Erreur lors de l'opération sur la compétence:", error);
       toast({
@@ -56,14 +76,20 @@ export default function SkillForm({ skill, onSkillAdded }: SkillFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <div>
         <Label htmlFor="name">Nom de la compétence</Label>
-        <Input
-          id="name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          required
+        <Controller
+          name="name"
+          control={control}
+          render={({ field }) => (
+            <>
+              <Input {...field} id="name" />
+              {errors.name && (
+                <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>
+              )}
+            </>
+          )}
         />
       </div>
       <div>
@@ -77,8 +103,8 @@ export default function SkillForm({ skill, onSkillAdded }: SkillFormProps) {
               }`}
             >
               <input {...getInputProps()} />
-              {file ? (
-                <p>Fichier sélectionné : {file.name}</p>
+              {watchIcon ? (
+                <p>Fichier sélectionné : {watchIcon.name}</p>
               ) : (
                 <p>
                   {skill
@@ -89,17 +115,20 @@ export default function SkillForm({ skill, onSkillAdded }: SkillFormProps) {
             </div>
           </CardContent>
         </Card>
-        {skill && !file && (
+        {errors.icon && (
+          <p className="text-red-500 text-sm mt-1">{errors.icon.message}</p>
+        )}
+        {skill && !watchIcon && (
           <p className="mt-2 text-sm text-gray-500">Icône actuelle : {skill.iconPath}</p>
         )}
       </div>
       <div className="flex justify-end space-x-2">
-        <Button type="button" variant="outline" onClick={onSkillAdded}>
-          Annuler
-        </Button>
-        <Button type="submit" disabled={!name}>
-          {skill ? 'Mettre à jour' : 'Ajouter'} la compétence
-        </Button>
+        <DialogClose asChild>
+          <Button type="button" variant="outline">
+            Annuler
+          </Button>
+        </DialogClose>
+        <Button type="submit">{skill ? 'Mettre à jour' : 'Ajouter'} la compétence</Button>
       </div>
     </form>
   );

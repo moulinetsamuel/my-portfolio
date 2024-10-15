@@ -2,13 +2,7 @@ import { useState } from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -47,6 +41,10 @@ export default function SkillCard({ skill }: SkillCardProps) {
     }
   };
 
+  const handleCloseEditDialog = () => {
+    setIsEditing(false);
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -63,15 +61,16 @@ export default function SkillCard({ skill }: SkillCardProps) {
       </CardHeader>
       <CardContent>
         <div className="mt-4 flex justify-end space-x-2">
+          <Button variant="outline" onClick={() => setIsEditing(true)}>
+            Modifier
+          </Button>
+
           <Dialog open={isEditing} onOpenChange={setIsEditing}>
-            <DialogTrigger asChild>
-              <Button variant="outline">Modifier</Button>
-            </DialogTrigger>
-            <DialogContent onInteractOutside={(e) => e.preventDefault()}>
+            <DialogContent>
               <DialogHeader>
                 <DialogTitle>Modifier la compétence</DialogTitle>
               </DialogHeader>
-              <SkillForm skill={skill} onSkillAdded={() => setIsEditing(false)} />
+              <SkillForm skill={skill} onClose={handleCloseEditDialog} />
             </DialogContent>
           </Dialog>
 

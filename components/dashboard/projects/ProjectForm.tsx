@@ -23,10 +23,9 @@ import type { Project } from '@/lib/schemas/projectSchema';
 
 interface ProjectFormProps {
   project?: Project;
-  onClose: () => void;
 }
 
-export default function ProjectForm({ project, onClose }: ProjectFormProps) {
+export default function ProjectForm({ project }: ProjectFormProps) {
   const [title, setTitle] = useState(project?.title || '');
   const [description, setDescription] = useState(project?.description || '');
   const [siteUrl, setSiteUrl] = useState(project?.siteUrl || '');
@@ -35,7 +34,6 @@ export default function ProjectForm({ project, onClose }: ProjectFormProps) {
     project?.skills?.map((s) => s.id) || [],
   );
   const [image, setImage] = useState<File | null>(null);
-  const [isSkillDialogOpen, setIsSkillDialogOpen] = useState(false);
 
   const { addProject, updateProject } = useProjectStore();
   const { fetchSkills } = useSkillStore();
@@ -54,9 +52,6 @@ export default function ProjectForm({ project, onClose }: ProjectFormProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const formData = new FormData();
-    if (project) {
-      formData.append('id', project.id.toString());
-    }
     formData.append('title', title);
     formData.append('description', description);
     formData.append('siteUrl', siteUrl);
@@ -68,6 +63,7 @@ export default function ProjectForm({ project, onClose }: ProjectFormProps) {
 
     try {
       if (project) {
+        formData.append('id', project.id.toString());
         await updateProject(project.id, formData);
         toast({
           title: 'Succès',
@@ -80,7 +76,6 @@ export default function ProjectForm({ project, onClose }: ProjectFormProps) {
           description: 'Le projet a été ajouté avec succès.',
         });
       }
-      onClose();
     } catch (error) {
       console.error('Error saving project:', error);
       toast({
@@ -89,11 +84,6 @@ export default function ProjectForm({ project, onClose }: ProjectFormProps) {
         variant: 'destructive',
       });
     }
-  };
-
-  const handleSkillAdded = async () => {
-    await fetchSkills();
-    setIsSkillDialogOpen(false);
   };
 
   return (
@@ -170,7 +160,7 @@ export default function ProjectForm({ project, onClose }: ProjectFormProps) {
           selectedSkills={selectedSkills}
           onSkillsChange={setSelectedSkills}
         />
-        <Dialog open={isSkillDialogOpen} onOpenChange={setIsSkillDialogOpen}>
+        <Dialog>
           <DialogTrigger asChild>
             <Button type="button" variant="outline" className="mt-2">
               Ajouter une nouvelle compétence
@@ -180,7 +170,7 @@ export default function ProjectForm({ project, onClose }: ProjectFormProps) {
             <DialogHeader>
               <DialogTitle>Ajouter une nouvelle compétence</DialogTitle>
             </DialogHeader>
-            <SkillForm onSkillAdded={handleSkillAdded} />
+            <SkillForm />
           </DialogContent>
         </Dialog>
       </div>

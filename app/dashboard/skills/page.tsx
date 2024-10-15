@@ -2,13 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import SkillList from '@/components/dashboard/skills/SkillList';
 import SkillForm from '@/components/dashboard/skills/SkillForm';
 import useSkillStore from '@/store/useSkillStore';
@@ -36,19 +30,23 @@ export default function SkillsPage() {
     );
   }
 
+  const handleCloseAddSkillDialog = () => {
+    setIsAddingSkill(false);
+  };
+
   return (
     <div className="container mx-auto p-4">
       <h1 className="mb-6 text-3xl font-bold">Gestion des compétences</h1>
+      <Button className="mb-4" onClick={() => setIsAddingSkill(true)}>
+        Ajouter une compétence
+      </Button>
 
       <Dialog open={isAddingSkill} onOpenChange={setIsAddingSkill}>
-        <DialogTrigger asChild>
-          <Button className="mb-4">Ajouter une compétence</Button>
-        </DialogTrigger>
-        <DialogContent onInteractOutside={(e) => e.preventDefault()}>
+        <DialogContent>
           <DialogHeader>
             <DialogTitle>Ajouter une nouvelle compétence</DialogTitle>
           </DialogHeader>
-          <SkillForm onSkillAdded={() => setIsAddingSkill(false)} />
+          <SkillForm onClose={handleCloseAddSkillDialog} />
         </DialogContent>
       </Dialog>
 
