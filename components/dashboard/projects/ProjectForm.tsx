@@ -1,6 +1,8 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
+import React, { useCallback } from 'react';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useDropzone } from 'react-dropzone';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,40 +10,49 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
 import SkillSelector from '@/components/dashboard/projects/SkillSelector';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import SkillForm from '@/components/dashboard/skills/SkillForm';
 import useProjectStore from '@/store/useProjectStore';
 import useSkillStore from '@/store/useSkillStore';
 import { useToast } from '@/hooks/use-toast';
+import { projectFormSchema, type ProjectFormData } from '@/lib/schemas/projectSchema';
 import type { Project } from '@/lib/schemas/projectSchema';
 
 interface ProjectFormProps {
   project?: Project;
+  onClose: () => void;
 }
 
-export default function ProjectForm({ project }: ProjectFormProps) {
-  const [title, setTitle] = useState(project?.title || '');
-  const [description, setDescription] = useState(project?.description || '');
-  const [siteUrl, setSiteUrl] = useState(project?.siteUrl || '');
-  const [repoUrl, setRepoUrl] = useState(project?.repoUrl || '');
-  const [selectedSkills, setSelectedSkills] = useState<number[]>(
-    project?.skills?.map((s) => s.id) || [],
-  );
-  const [image, setImage] = useState<File | null>(null);
+export default function ProjectForm({ project, onClose }: ProjectFormProps) {
+  const {
+    control,
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { errors },
+  } = useForm<ProjectFormData>({
+    resolver: zodResolver(projectFormSchema),
+    defaultValues: {
+      title: project?.title || '',
+      description: project?.description || '',
+      siteUrl: project?.siteUrl || '',
+      repoUrl: project?.repoUrl || '',
+      skillIds: project?.skills?.map((s) => s.id) || [],
+      image: null,
+    },
+  });
 
+  const [isAddingSkill, setIsAddingSkill] = React.useState(false);
   const { addProject, updateProject } = useProjectStore();
   const { fetchSkills } = useSkillStore();
   const { toast } = useToast();
 
-  const onDrop = useCallback((acceptedFiles: File[]) => {
-    setImage(acceptedFiles[0]);
-  }, []);
+  const onDrop = useCallback(
+    (acceptedFiles: File[]) => {
+      setValue('image', acceptedFiles[0], { shouldValidate: true });
+    },
+    [setValue],
+  );
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -49,21 +60,21 @@ export default function ProjectForm({ project }: ProjectFormProps) {
     multiple: false,
   });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const watchImage = watch('image');
+
+  const onSubmit = async (data: ProjectFormData) => {
     const formData = new FormData();
-    formData.append('title', title);
-    formData.append('description', description);
-    formData.append('siteUrl', siteUrl);
-    formData.append('repoUrl', repoUrl);
-    formData.append('skillIds', JSON.stringify(selectedSkills));
-    if (image) {
-      formData.append('image', image);
+    formData.append('title', data.title);
+    formData.append('description', data.description);
+    formData.append('siteUrl', data.siteUrl);
+    formData.append('repoUrl', data.repoUrl);
+    formData.append('skillIds', JSON.stringify(data.skillIds));
+    if (data.image) {
+      formData.append('image', data.image);
     }
 
     try {
       if (project) {
-        formData.append('id', project.id.toString());
         await updateProject(project.id, formData);
         toast({
           title: 'Succès',
@@ -76,6 +87,7 @@ export default function ProjectForm({ project }: ProjectFormProps) {
           description: 'Le projet a été ajouté avec succès.',
         });
       }
+      onClose();
     } catch (error) {
       console.error('Error saving project:', error);
       toast({
@@ -87,43 +99,65 @@ export default function ProjectForm({ project }: ProjectFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <div>
         <Label htmlFor="title">Titre</Label>
-        <Input
-          id="title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          required
+        <Controller
+          name="title"
+          control={control}
+          render={({ field }) => (
+            <>
+              <Input {...field} id="title" />
+              {errors.title && (
+                <p className="text-red-500 text-sm mt-1">{errors.title.message}</p>
+              )}
+            </>
+          )}
         />
       </div>
       <div>
         <Label htmlFor="description">Description</Label>
-        <Textarea
-          id="description"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          required
+        <Controller
+          name="description"
+          control={control}
+          render={({ field }) => (
+            <>
+              <Textarea {...field} id="description" />
+              {errors.description && (
+                <p className="text-red-500 text-sm mt-1">{errors.description.message}</p>
+              )}
+            </>
+          )}
         />
       </div>
       <div>
         <Label htmlFor="siteUrl">URL du site</Label>
-        <Input
-          id="siteUrl"
-          type="url"
-          value={siteUrl}
-          onChange={(e) => setSiteUrl(e.target.value)}
-          required
+        <Controller
+          name="siteUrl"
+          control={control}
+          render={({ field }) => (
+            <>
+              <Input {...field} id="siteUrl" type="url" />
+              {errors.siteUrl && (
+                <p className="text-red-500 text-sm mt-1">{errors.siteUrl.message}</p>
+              )}
+            </>
+          )}
         />
       </div>
       <div>
         <Label htmlFor="repoUrl">URL du dépôt GitHub</Label>
-        <Input
-          id="repoUrl"
-          type="url"
-          value={repoUrl}
-          onChange={(e) => setRepoUrl(e.target.value)}
-          required
+        <Controller
+          name="repoUrl"
+          control={control}
+          render={({ field }) => (
+            <>
+              <Input {...field} id="repoUrl" type="url" />
+              {errors.repoUrl && (
+                <p className="text-red-500 text-sm mt-1">{errors.repoUrl.message}</p>
+              )}
+            </>
+          )}
         />
       </div>
       <div>
@@ -137,8 +171,8 @@ export default function ProjectForm({ project }: ProjectFormProps) {
               }`}
             >
               <input {...getInputProps()} />
-              {image ? (
-                <p>Fichier sélectionné : {image.name}</p>
+              {watchImage ? (
+                <p>Fichier sélectionné : {watchImage.name}</p>
               ) : (
                 <p>
                   {project
@@ -149,28 +183,48 @@ export default function ProjectForm({ project }: ProjectFormProps) {
             </div>
           </CardContent>
         </Card>
-        {project && !image && (
+        {errors.image && (
+          <p className="text-red-500 text-sm mt-1">{errors.image.message}</p>
+        )}
+        {project && !watchImage && (
           <p className="mt-2 text-sm text-gray-500">
             Image actuelle : {project.imagePath}
           </p>
         )}
       </div>
       <div>
-        <SkillSelector
-          selectedSkills={selectedSkills}
-          onSkillsChange={setSelectedSkills}
+        <Controller
+          name="skillIds"
+          control={control}
+          render={({ field }) => (
+            <SkillSelector
+              selectedSkills={field.value}
+              onSkillsChange={(skills) => field.onChange(skills)}
+            />
+          )}
         />
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button type="button" variant="outline" className="mt-2">
-              Ajouter une nouvelle compétence
-            </Button>
-          </DialogTrigger>
-          <DialogContent onInteractOutside={(e) => e.preventDefault()}>
+        {errors.skillIds && (
+          <p className="text-red-500 text-sm mt-1">{errors.skillIds.message}</p>
+        )}
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => setIsAddingSkill(true)}
+          className="mt-2"
+        >
+          Ajouter une nouvelle compétence
+        </Button>
+        <Dialog open={isAddingSkill} onOpenChange={setIsAddingSkill}>
+          <DialogContent>
             <DialogHeader>
               <DialogTitle>Ajouter une nouvelle compétence</DialogTitle>
             </DialogHeader>
-            <SkillForm />
+            <SkillForm
+              onClose={() => {
+                setIsAddingSkill(false);
+                fetchSkills();
+              }}
+            />
           </DialogContent>
         </Dialog>
       </div>
@@ -178,6 +232,7 @@ export default function ProjectForm({ project }: ProjectFormProps) {
         <Button type="button" variant="outline" onClick={onClose}>
           Annuler
         </Button>
+
         <Button type="submit">{project ? 'Mettre à jour' : 'Ajouter'} le projet</Button>
       </div>
     </form>

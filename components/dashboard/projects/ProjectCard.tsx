@@ -1,13 +1,7 @@
 import { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -51,6 +45,10 @@ export default function ProjectCard({ project }: ProjectCardProps) {
     }
   };
 
+  const handleCloseEditDialog = () => {
+    setIsEditing(false);
+  };
+
   return (
     <Card>
       <CardContent className="p-4">
@@ -75,15 +73,15 @@ export default function ProjectCard({ project }: ProjectCardProps) {
           ))}
         </div>
         <div className="flex justify-between">
+          <Button variant="outline" onClick={() => setIsEditing(true)}>
+            Modifier
+          </Button>
           <Dialog open={isEditing} onOpenChange={setIsEditing}>
-            <DialogTrigger asChild>
-              <Button variant="outline">Modifier</Button>
-            </DialogTrigger>
-            <DialogContent onInteractOutside={(e) => e.preventDefault()}>
+            <DialogContent>
               <DialogHeader>
                 <DialogTitle>Modifier le projet</DialogTitle>
               </DialogHeader>
-              <ProjectForm project={project} onClose={() => setIsEditing(false)} />
+              <ProjectForm project={project} onClose={handleCloseEditDialog} />
             </DialogContent>
           </Dialog>
 
