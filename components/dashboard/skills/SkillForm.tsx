@@ -9,15 +9,15 @@ import { Card, CardContent } from '@/components/ui/card';
 import { DialogClose } from '@/components/ui/dialog';
 import useSkillStore from '@/store/useSkillStore';
 import { useToast } from '@/hooks/use-toast';
-import { skillFormSchema, type SkillFormData } from '@/lib/schemas/skillSchema';
-import type { Skill } from '@/lib/schemas/skillSchema';
+import { skillFormSchema, type SkillFormData } from '@/lib/schemas/skill/skillSchema';
+import type { Skill } from '@/lib/schemas/skill/skillSchema';
 
 interface SkillFormProps {
   skill?: Skill;
-  onClose: () => void;
+  onCloseSkillForm: () => void;
 }
 
-export default function SkillForm({ skill, onClose }: SkillFormProps) {
+export default function SkillForm({ skill, onCloseSkillForm }: SkillFormProps) {
   const {
     control,
     handleSubmit,
@@ -65,7 +65,7 @@ export default function SkillForm({ skill, onClose }: SkillFormProps) {
         await addSkill(formData);
         toast({ title: 'Compétence ajoutée avec succès' });
       }
-      onClose();
+      onCloseSkillForm();
     } catch (error) {
       console.error("Erreur lors de l'opération sur la compétence:", error);
       toast({

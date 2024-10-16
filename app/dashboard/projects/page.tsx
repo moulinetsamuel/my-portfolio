@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import ProjectForm from '@/components/dashboard/projects/ProjectForm';
@@ -10,16 +10,8 @@ import useSkillStore from '@/store/useSkillStore';
 
 export default function ProjectsPage() {
   const [isAddProjectDialogOpen, setIsAddProjectDialogOpen] = useState(false);
-  const {
-    fetchProjects,
-    isLoading: projectsLoading,
-    error: projectsError,
-  } = useProjectStore();
+  const { isLoading: projectsLoading, error: projectsError } = useProjectStore();
   const { isLoading: skillsLoading, error: skillsError } = useSkillStore();
-
-  useEffect(() => {
-    fetchProjects();
-  }, [fetchProjects]);
 
   if (projectsError || skillsError) {
     return (
@@ -55,7 +47,7 @@ export default function ProjectsPage() {
           <DialogHeader>
             <DialogTitle>Ajouter un projet</DialogTitle>
           </DialogHeader>
-          <ProjectForm onClose={handleCloseAddProjectDialog} />
+          <ProjectForm onCloseProjectForm={handleCloseAddProjectDialog} />
         </DialogContent>
       </Dialog>
 

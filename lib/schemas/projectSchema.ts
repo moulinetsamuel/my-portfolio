@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { skillSchema } from './skillSchema';
+import { skillSchema } from './skill/skillSchema';
 
 // Schéma pour un projet individuel
 export const projectSchema = z.object({

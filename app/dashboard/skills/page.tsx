@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import SkillList from '@/components/dashboard/skills/SkillList';
@@ -15,21 +15,6 @@ export default function SkillsPage() {
     fetchSkills();
   }, [fetchSkills]);
 
-  if (error) {
-    return (
-      <div className="text-center text-red-500 dark:text-red-400">
-        Erreur de chargement des compétences
-      </div>
-    );
-  }
-  if (isLoading) {
-    return (
-      <div className="text-center text-gray-500 dark:text-gray-400">
-        Chargement des compétences...
-      </div>
-    );
-  }
-
   const handleCloseAddSkillDialog = () => {
     setIsAddingSkill(false);
   };
@@ -37,20 +22,33 @@ export default function SkillsPage() {
   return (
     <div className="container mx-auto p-4">
       <h1 className="mb-6 text-3xl font-bold">Gestion des compétences</h1>
-      <Button className="mb-4" onClick={() => setIsAddingSkill(true)}>
-        Ajouter une compétence
-      </Button>
 
-      <Dialog open={isAddingSkill} onOpenChange={setIsAddingSkill}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Ajouter une nouvelle compétence</DialogTitle>
-          </DialogHeader>
-          <SkillForm onClose={handleCloseAddSkillDialog} />
-        </DialogContent>
-      </Dialog>
+      {error && (
+        <div className="text-center text-red-500 dark:text-red-400 mb-4">{error}</div>
+      )}
 
-      <SkillList />
+      {isLoading ? (
+        <div className="text-center text-gray-500 dark:text-gray-400">
+          Chargement des compétences...
+        </div>
+      ) : (
+        <>
+          <Button className="mb-4" onClick={() => setIsAddingSkill(true)}>
+            Ajouter une compétence
+          </Button>
+
+          <Dialog open={isAddingSkill} onOpenChange={setIsAddingSkill}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Ajouter une nouvelle compétence</DialogTitle>
+              </DialogHeader>
+              <SkillForm onCloseSkillForm={handleCloseAddSkillDialog} />
+            </DialogContent>
+          </Dialog>
+
+          <SkillList />
+        </>
+      )}
     </div>
   );
 }

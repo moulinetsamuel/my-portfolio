@@ -1,120 +1,124 @@
+import {
+  SkillApiError,
+  skillApiErrorSchema,
+  SkillApiResponse,
+  skillApiResponseSchema,
+} from '@/lib/schemas/skill/skillApiResponseSchema';
+import { Skill, skillSchema } from '@/lib/schemas/skill/skillSchema';
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { z } from 'zod';
-import {
-  createSkillSchema,
-  skillApiResponseSchema,
-  skillSchema,
-} from '@/lib/schemas/skillSchema';
-import { writeFile } from 'fs/promises';
+import { skillFormSchema } from '@/lib/schemas/skill/skillFormSchema';
 import path from 'path';
+import { unlink, writeFile } from 'fs/promises';
+import { Prisma } from '@prisma/client';
 
-// GET /api/skills (Récupérer toutes les compétences)
-export async function GET() {
+export async function GET(): Promise<NextResponse<Skill[] | SkillApiError>> {
   try {
-    // Récupérer toutes les compétences de la base de données
     const skills = await prisma.skill.findMany();
 
-    // Si aucune compétence n'est trouvée, retourner une réponse 404
     if (skills.length === 0) {
       return NextResponse.json([]);
     }
 
-    // Valider les compétences récupérées avec le schéma de compétence
     const validatedSkills = z.array(skillSchema).parse(skills);
 
-    // Retourner les compétences validées
     return NextResponse.json(validatedSkills);
   } catch (error) {
-    if (error instanceof z.ZodError) {
-      // TODO: Utiliser un logger
-      console.error('Erreur de validation Zod:', error.errors);
-      return NextResponse.json(
-        { error: 'Erreur de validation des données des compétences' },
-        { status: 400 },
-      );
-    }
-
     // TODO: Utiliser un logger
     console.error('Erreur lors de la récupération des compétences:', error);
-    return NextResponse.json(
-      { error: 'Erreur lors de la récupération des compétences' },
-      { status: 500 },
-    );
+
+    if (error instanceof z.ZodError) {
+      const validationError = skillApiErrorSchema.parse({
+        message: 'Erreur de validation des données des compétences',
+      });
+      return NextResponse.json(validationError, { status: 500 });
+    }
+
+    const serverError = skillApiErrorSchema.parse({
+      message: 'Erreur lors de la récupération des compétences',
+    });
+    return NextResponse.json(serverError, { status: 500 });
   }
 }
 
 // POST /api/skills (Créer une nouvelle compétence)
-export async function POST(request: Request) {
+export async function POST(
+  request: Request,
+): Promise<NextResponse<SkillApiResponse | SkillApiError>> {
   try {
     const formData = await request.formData();
-    const name = formData.get('name') as string;
-    const icon = formData.get('icon') as File;
+    const validatedData = skillFormSchema.parse({
+      name: formData.get('name'),
+      icon: formData.get('icon'),
+    });
+    const { name, icon } = validatedData;
 
-    if (!name || !icon) {
-      return NextResponse.json(
-        { error: "Le nom et l'icône sont requis" },
-        { status: 400 },
-      );
-    }
-
-    // Valider le nom de la compétence
-    const validatedData = createSkillSchema.omit({ iconPath: true }).parse({ name });
-
-    // Vérifier le type de fichier
-    if (icon.type !== 'image/svg+xml') {
-      return NextResponse.json(
-        { error: "L'icône doit être au format SVG" },
-        { status: 400 },
-      );
-    }
-
-    // Générer un nom de fichier unique
-    const fileName = `${Date.now()}_${name.toLowerCase().replace(/\s+/g, '_')}.svg`;
+    const fileName = `${Date.now()}-${name.toLowerCase().replace(/\s+/g, '_')}.svg`;
     const filePath = path.join(process.cwd(), 'public', 'icons', 'skills', fileName);
 
-    // Lire le contenu du fichier
-    const fileBuffer = await icon.arrayBuffer();
+    // Utilisation d'une transaction Prisma
+    const newSkill = await prisma.$transaction(async (tx) => {
+      // Écriture du fichier
+      const arrayBuffer = await icon.arrayBuffer();
+      const buffer = Buffer.from(arrayBuffer);
+      await writeFile(filePath, buffer);
 
-    // Écrire le fichier
-    await writeFile(filePath, Buffer.from(fileBuffer));
+      try {
+        // Création de la compétence dans la base de données
+        const skill = await tx.skill.create({
+          data: {
+            name: name,
+            iconPath: `/icons/skills/${fileName}`,
+          },
+        });
 
-    // Créer la nouvelle compétence dans la base de données
-    const newSkill = await prisma.skill.create({
-      data: {
-        name: validatedData.name,
-        iconPath: `/icons/skills/${fileName}`,
-      },
+        return skill;
+      } catch (dbError) {
+        // Si l'enregistrement en base de données échoue, supprimez le fichier
+        await unlink(filePath);
+
+        // Vérifiez si l'erreur est due à un nom en double
+        if (
+          dbError instanceof Prisma.PrismaClientKnownRequestError &&
+          dbError.code === 'P2002'
+        ) {
+          throw new Error('Une compétence avec ce nom existe déjà');
+        }
+        throw dbError;
+      }
     });
 
-    // Valider la réponse avec le schéma de réponse API
+    // Validation de la réponse
     const response = skillApiResponseSchema.parse({
       ...newSkill,
-      message: 'Compétence créée avec succès',
+      message: 'Compétence ajoutée avec succès',
     });
 
-    // Retourner la réponse validée avec un statut 201 (Created)
     return NextResponse.json(response, { status: 201 });
   } catch (error) {
+    // TODO: Utiliser un logger
+    console.error("Erreur lors de l'ajout de la compétence:", error);
+
     if (error instanceof z.ZodError) {
-      console.error('Erreur de validation Zod:', error.errors);
-      return NextResponse.json(
-        { error: 'Données invalides pour la création de la compétence' },
-        { status: 400 },
-      );
+      const validationError = skillApiErrorSchema.parse({
+        message: 'Erreur de validation des données de la compétence',
+      });
+      return NextResponse.json(validationError, { status: 400 });
+    }
+    if (
+      error instanceof Error &&
+      error.message === 'Une compétence avec ce nom existe déjà'
+    ) {
+      const duplicateError = skillApiErrorSchema.parse({
+        message: error.message,
+      });
+      return NextResponse.json(duplicateError, { status: 409 }); // 409 Conflict
     }
 
-    if (error instanceof Error && error.message.includes('Unique constraint failed')) {
-      return NextResponse.json(
-        { error: 'Une compétence avec ce nom existe déjà' },
-        { status: 409 },
-      );
-    }
-
-    console.error('Erreur lors de la création de la compétence:', error);
-    return NextResponse.json(
-      { error: 'Erreur lors de la création de la compétence' },
-      { status: 500 },
-    );
+    const serverError = skillApiErrorSchema.parse({
+      message: "Erreur lors de l'ajout de la compétence",
+    });
+    return NextResponse.json(serverError, { status: 500 });
   }
 }

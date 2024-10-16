@@ -20,10 +20,10 @@ import type { Project } from '@/lib/schemas/projectSchema';
 
 interface ProjectFormProps {
   project?: Project;
-  onClose: () => void;
+  onCloseProjectForm: () => void;
 }
 
-export default function ProjectForm({ project, onClose }: ProjectFormProps) {
+export default function ProjectForm({ project, onCloseProjectForm }: ProjectFormProps) {
   const {
     control,
     handleSubmit,
@@ -87,7 +87,7 @@ export default function ProjectForm({ project, onClose }: ProjectFormProps) {
           description: 'Le projet a été ajouté avec succès.',
         });
       }
-      onClose();
+      onCloseProjectForm();
     } catch (error) {
       console.error('Error saving project:', error);
       toast({
@@ -206,12 +206,7 @@ export default function ProjectForm({ project, onClose }: ProjectFormProps) {
         {errors.skillIds && (
           <p className="text-red-500 text-sm mt-1">{errors.skillIds.message}</p>
         )}
-        <Button
-          type="button"
-          variant="outline"
-          onClick={() => setIsAddingSkill(true)}
-          className="mt-2"
-        >
+        <Button variant="outline" onClick={() => setIsAddingSkill(true)} className="mt-2">
           Ajouter une nouvelle compétence
         </Button>
         <Dialog open={isAddingSkill} onOpenChange={setIsAddingSkill}>
@@ -220,7 +215,7 @@ export default function ProjectForm({ project, onClose }: ProjectFormProps) {
               <DialogTitle>Ajouter une nouvelle compétence</DialogTitle>
             </DialogHeader>
             <SkillForm
-              onClose={() => {
+              onCloseSkillForm={() => {
                 setIsAddingSkill(false);
                 fetchSkills();
               }}
@@ -229,7 +224,7 @@ export default function ProjectForm({ project, onClose }: ProjectFormProps) {
         </Dialog>
       </div>
       <div className="flex justify-end space-x-2">
-        <Button type="button" variant="outline" onClick={onClose}>
+        <Button type="button" variant="outline" onClick={onCloseProjectForm}>
           Annuler
         </Button>
 

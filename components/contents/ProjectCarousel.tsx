@@ -16,7 +16,7 @@ import { type CarouselApi } from '@/components/ui/carousel';
 import useProjectStore from '@/store/useProjectStore';
 
 export default function ProjectCarousel() {
-  const { projects, isLoading, error, fetchProjects } = useProjectStore();
+  const { fetchProjects, projects, isLoading, error } = useProjectStore();
   const [api, setApi] = useState<CarouselApi>();
   const [current, setCurrent] = useState(0);
   const [count, setCount] = useState(0);
@@ -46,11 +46,7 @@ export default function ProjectCarousel() {
   );
 
   if (error) {
-    return (
-      <div className="text-center text-red-500 dark:text-red-400">
-        Erreur de chargement des projets
-      </div>
-    );
+    return <div className="text-center text-red-500 dark:text-red-400">{error}</div>;
   }
 
   if (isLoading) {

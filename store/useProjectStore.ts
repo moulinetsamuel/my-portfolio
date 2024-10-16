@@ -27,9 +27,9 @@ const useProjectStore = create<ProjectStore>((set, get) => ({
       const projects = await getProjects();
       set({ projects, isLoading: false, error: null });
     } catch (error) {
-      // TODO: Ajouter un logger
       console.error(error);
       set({ error: 'Failed to fetch projects', isLoading: false });
+      throw error;
     }
   },
   addProject: async (formData: FormData) => {
@@ -40,6 +40,7 @@ const useProjectStore = create<ProjectStore>((set, get) => ({
     } catch (error) {
       console.error(error);
       set({ error: 'Failed to add project', isLoading: false });
+      throw error;
     }
   },
   updateProject: async (id: number, formData: FormData) => {
@@ -50,6 +51,7 @@ const useProjectStore = create<ProjectStore>((set, get) => ({
     } catch (error) {
       console.error(error);
       set({ error: 'Failed to update project', isLoading: false });
+      throw error;
     }
   },
   deleteProject: async (id: number) => {
@@ -60,6 +62,7 @@ const useProjectStore = create<ProjectStore>((set, get) => ({
     } catch (error) {
       console.error(error);
       set({ error: 'Failed to delete project', isLoading: false });
+      throw error;
     }
   },
 }));

@@ -81,7 +81,7 @@ export default function ProjectCard({ project }: ProjectCardProps) {
               <DialogHeader>
                 <DialogTitle>Modifier le projet</DialogTitle>
               </DialogHeader>
-              <ProjectForm project={project} onClose={handleCloseEditDialog} />
+              <ProjectForm project={project} onCloseProjectForm={handleCloseEditDialog} />
             </DialogContent>
           </Dialog>
 

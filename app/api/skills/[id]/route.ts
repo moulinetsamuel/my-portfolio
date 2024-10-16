@@ -1,114 +1,184 @@
 import { NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
 import { z } from 'zod';
-import { updateSkillSchema, skillApiResponseSchema } from '@/lib/schemas/skillSchema';
-import { writeFile, unlink } from 'fs/promises';
+import prisma from '@/lib/prisma';
+import { Prisma } from '@prisma/client';
+import { updateSkillFormSchema } from '@/lib/schemas/skill/skillFormSchema';
+import {
+  skillApiResponseSchema,
+  skillApiErrorSchema,
+  SkillApiResponse,
+  SkillApiError,
+} from '@/lib/schemas/skill/skillApiResponseSchema';
+import { unlink, writeFile } from 'fs/promises';
 import path from 'path';
 
-// PUT /api/skills/[id] (Modifier une compétence existante)
-export async function PUT(request: Request, { params }: { params: { id: string } }) {
+export async function PUT(
+  request: Request,
+  { params }: { params: { id: string } },
+): Promise<NextResponse<SkillApiResponse | SkillApiError>> {
   try {
-    const id = parseInt(params.id, 10);
+    const id = parseInt(params.id);
+    if (isNaN(id)) {
+      throw new Error('ID invalide');
+    }
+
     const formData = await request.formData();
-    const name = formData.get('name') as string;
-    const icon = formData.get('icon') as File | null;
+    const validatedData = updateSkillFormSchema.parse({
+      name: formData.get('name'),
+      icon: formData.get('icon'),
+    });
+
+    const { name, icon } = validatedData;
 
     const existingSkill = await prisma.skill.findUnique({ where: { id } });
     if (!existingSkill) {
-      return NextResponse.json({ error: 'Compétence non trouvée' }, { status: 404 });
+      throw new Error('Compétence non trouvée');
     }
 
-    // Valider les données de mise à jour
-    const updateData = updateSkillSchema.parse({ name });
+    // Préparer le nouveau fichier
+    const fileName = `${Date.now()}-${name?.toLowerCase().replace(/\s+/g, '_')}.svg`;
+    const filePath = path.join(process.cwd(), 'public', 'icons', 'skills', fileName);
 
-    if (icon) {
-      if (icon.type !== 'image/svg+xml') {
-        return NextResponse.json(
-          { error: "L'icône doit être au format SVG" },
-          { status: 400 },
-        );
+    const updatedSkill = await prisma.$transaction(async (tx) => {
+      if (icon) {
+        // Sauvegarder le nouveau fichier
+        const arrayBuffer = await icon.arrayBuffer();
+        const buffer = Buffer.from(arrayBuffer);
+        await writeFile(filePath, buffer);
       }
 
-      const fileName = `${Date.now()}_${name.toLowerCase().replace(/\s+/g, '_')}.svg`;
-      const filePath = path.join(process.cwd(), 'public', 'icons', 'skills', fileName);
+      try {
+        // Mettre à jour la compétence dans la base de données
+        const skill = await tx.skill.update({
+          where: { id },
+          data: {
+            name: validatedData.name || existingSkill.name,
+            iconPath: icon ? `/icons/skills/${fileName}` : existingSkill.iconPath,
+          },
+        });
 
-      const fileBuffer = await icon.arrayBuffer();
-      await writeFile(filePath, Buffer.from(fileBuffer));
+        return skill;
+      } catch (dbError) {
+        if (icon) {
+          await unlink(filePath).catch(() => {
+            // TODO: Utiliser un logger
+            console.error(
+              'Erreur lors de la suppression du nouveau fichier : ',
+              filePath,
+            );
+          });
+        }
 
-      // Supprimer l'ancienne icône si elle existe
-      if (existingSkill.iconPath) {
-        const oldFilePath = path.join(process.cwd(), 'public', existingSkill.iconPath);
-        await unlink(oldFilePath).catch(console.error);
+        // Vérifier si l'erreur est due à un nom en double
+        if (
+          dbError instanceof Prisma.PrismaClientKnownRequestError &&
+          dbError.code === 'P2002'
+        ) {
+          throw new Error('Une compétence avec ce nom existe déjà');
+        }
+        throw dbError;
       }
-
-      updateData.iconPath = `/icons/skills/${fileName}`;
-    }
-
-    const updatedSkill = await prisma.skill.update({
-      where: { id },
-      data: updateData,
     });
 
-    // Valider la réponse avec le schéma de réponse API
+    // Si la mise à jour réussit et qu'il y avait un ancien fichier, le supprimer
+    if (existingSkill.iconPath && icon) {
+      const fullOldPath = path.join(process.cwd(), 'public', existingSkill.iconPath);
+      await unlink(fullOldPath).catch(() => {
+        // TODO: Utiliser un logger
+        console.error(
+          "Erreur lors de la suppression de l'ancien fichier : ",
+          fullOldPath,
+        );
+      });
+    }
+
     const response = skillApiResponseSchema.parse({
       ...updatedSkill,
       message: 'Compétence mise à jour avec succès',
     });
 
-    // Retourner la réponse validée
     return NextResponse.json(response);
   } catch (error) {
-    if (error instanceof z.ZodError) {
-      // TODO: Utiliser un logger
-      console.error('Erreur de validation Zod:', error.errors);
-      return NextResponse.json(
-        { error: 'Données invalides pour la mise à jour de la compétence' },
-        { status: 400 },
-      );
-    }
-
-    if (error instanceof Error && error.message.includes('Unique constraint failed')) {
-      return NextResponse.json(
-        { error: 'Une compétence avec ce nom existe déjà' },
-        { status: 409 },
-      );
-    }
-
     // TODO: Utiliser un logger
     console.error('Erreur lors de la mise à jour de la compétence:', error);
-    return NextResponse.json(
-      { error: 'Erreur lors de la mise à jour de la compétence' },
-      { status: 500 },
-    );
+
+    if (error instanceof z.ZodError) {
+      const validationError = skillApiErrorSchema.parse({
+        message: 'Erreur de validation des données de la compétence',
+      });
+      return NextResponse.json(validationError, { status: 400 });
+    }
+
+    if (
+      error instanceof Error &&
+      error.message === 'Une compétence avec ce nom existe déjà'
+    ) {
+      const duplicateError = skillApiErrorSchema.parse({
+        message: error.message,
+      });
+      return NextResponse.json(duplicateError, { status: 409 }); // 409 Conflict
+    }
+
+    const serverError = skillApiErrorSchema.parse({
+      message:
+        error instanceof Error
+          ? error.message
+          : 'Erreur lors de la mise à jour de la compétence',
+    });
+    return NextResponse.json(serverError, { status: 500 });
   }
 }
 
-// DELETE /api/skills/[id] (Supprimer une compétence)
-export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(
+  request: Request,
+  { params }: { params: { id: string } },
+): Promise<NextResponse<SkillApiResponse | SkillApiError>> {
   try {
-    const id = parseInt(params.id, 10);
-    const skill = await prisma.skill.findUnique({ where: { id } });
-
-    if (!skill) {
-      return NextResponse.json({ error: 'Compétence non trouvée' }, { status: 404 });
+    const id = parseInt(params.id);
+    if (isNaN(id)) {
+      throw new Error('ID invalide');
     }
 
-    // Supprimer l'icône si elle existe
-    if (skill.iconPath) {
-      const filePath = path.join(process.cwd(), 'public', skill.iconPath);
-      await unlink(filePath).catch(console.error);
-    }
+    const deletedSkill = await prisma.$transaction(async (tx) => {
+      const skill = await tx.skill.findUnique({ where: { id } });
+      if (!skill) {
+        throw new Error('Compétence non trouvée');
+      }
 
-    await prisma.skill.delete({ where: { id } });
+      // Supprimer d'abord de la base de données
+      const deletedSkill = await tx.skill.delete({ where: { id } });
 
-    // Retourner la réponse validée
-    return NextResponse.json({ message: 'Compétence supprimée avec succès' });
+      // Si la suppression de la base de données réussit, supprimer le fichier
+      if (skill.iconPath) {
+        const filePath = path.join(process.cwd(), 'public', skill.iconPath);
+        await unlink(filePath).catch(() => {});
+      }
+
+      return deletedSkill;
+    });
+
+    const response = skillApiResponseSchema.parse({
+      ...deletedSkill,
+      message: 'Compétence supprimée avec succès',
+    });
+
+    return NextResponse.json(response);
   } catch (error) {
-    // TODO: Utiliser un logger
     console.error('Erreur lors de la suppression de la compétence:', error);
-    return NextResponse.json(
-      { error: 'Erreur lors de la suppression de la compétence' },
-      { status: 500 },
-    );
+
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      const dbError = skillApiErrorSchema.parse({
+        message: 'Erreur lors de la suppression de la compétence dans la base de données',
+      });
+      return NextResponse.json(dbError, { status: 500 });
+    }
+
+    const serverError = skillApiErrorSchema.parse({
+      message:
+        error instanceof Error
+          ? error.message
+          : 'Erreur lors de la suppression de la compétence',
+    });
+    return NextResponse.json(serverError, { status: 500 });
   }
 }

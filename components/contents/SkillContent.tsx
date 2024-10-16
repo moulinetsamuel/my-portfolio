@@ -3,13 +3,13 @@
 import { useState, useEffect, useCallback } from 'react';
 import OrbitingCircles from '@/components/magicui/orbiting-circles';
 import Image from 'next/image';
-import type { Skill } from '@/lib/schemas/skillSchema';
+import type { Skill } from '@/lib/schemas/skill/skillSchema';
 import { Info } from 'lucide-react';
 import { RadiusData } from '@/constants';
 import useSkillStore from '@/store/useSkillStore';
 
 export default function SkillContent() {
-  const { skills, isLoading, error, fetchSkills } = useSkillStore();
+  const { fetchSkills, skills, isLoading, error } = useSkillStore();
   const [scale, setScale] = useState(1);
   const [distributedSkills, setDistributedSkills] = useState<
     (Skill & { radiusIndex: number; index: number })[]
@@ -68,11 +68,7 @@ export default function SkillContent() {
   }, [skills]);
 
   if (error) {
-    return (
-      <div className="text-center text-red-500 dark:text-red-400">
-        Erreur de chargement des compétences
-      </div>
-    );
+    return <div className="text-center text-red-500 dark:text-red-400">{error};</div>;
   }
 
   if (isLoading) {

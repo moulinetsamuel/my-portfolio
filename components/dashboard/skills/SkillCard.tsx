@@ -14,7 +14,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import type { Skill } from '@/lib/schemas/skillSchema';
+import type { Skill } from '@/lib/schemas/skill/skillSchema';
 import SkillForm from '@/components/dashboard/skills/SkillForm';
 import useSkillStore from '@/store/useSkillStore';
 import { useToast } from '@/hooks/use-toast';
@@ -70,7 +70,7 @@ export default function SkillCard({ skill }: SkillCardProps) {
               <DialogHeader>
                 <DialogTitle>Modifier la compétence</DialogTitle>
               </DialogHeader>
-              <SkillForm skill={skill} onClose={handleCloseEditDialog} />
+              <SkillForm skill={skill} onCloseSkillForm={handleCloseEditDialog} />
             </DialogContent>
           </Dialog>
 
