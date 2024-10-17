@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { skillSchema } from './skill/skillSchema';
+import { skillSchema } from '@/lib/schemas/skill/skillSchema';
 
 // Schéma pour un projet individuel
 export const projectSchema = z.object({
@@ -54,64 +54,3 @@ export const projectSchema = z.object({
 
 // Type inféré pour un projet
 export type Project = z.infer<typeof projectSchema>;
-
-// Schéma pour la création d'un nouveau projet
-export const createProjectSchema = projectSchema
-  .omit({
-    id: true,
-    imagePath: true,
-    createdAt: true,
-    updatedAt: true,
-  })
-  .extend({
-    skills: z.array(z.number()).min(1, {
-      message: 'Le projet doit avoir au moins une compétence',
-    }),
-  });
-
-// Type inféré pour la création d'un projet
-export type CreateProject = z.infer<typeof createProjectSchema>;
-
-// Schéma pour la mise à jour d'un projet existant
-export const updateProjectSchema = projectSchema
-  .omit({
-    id: true,
-    createdAt: true,
-    updatedAt: true,
-  })
-  .extend({
-    skills: z.array(z.number()).min(1, {
-      message: 'Le projet doit avoir au moins une compétence',
-    }),
-  })
-  .partial();
-
-// Type inféré pour la mise à jour d'un projet
-export type UpdateProject = z.infer<typeof updateProjectSchema>;
-
-// Schéma pour la réponse de l'API après la création ou la mise à jour d'un projet
-export const projectApiResponseSchema = projectSchema.extend({
-  message: z.string({
-    required_error: 'Un message de confirmation est requis',
-    invalid_type_error: 'Le message doit être une chaîne de caractères',
-  }),
-});
-
-// Type inféré pour la réponse de l'API après la création ou la mise à jour d'un projet
-export type ProjectApiResponse = z.infer<typeof projectApiResponseSchema>;
-
-// Schéma pour les données d'un formulaire de projet
-export const projectFormSchema = z.object({
-  title: z
-    .string()
-    .min(1, 'Le titre est requis')
-    .max(100, 'Le titre ne peut pas dépasser 100 caractères'),
-  description: z.string().min(1, 'La description est requise'),
-  siteUrl: z.string().url("L'URL du site doit être valide"),
-  repoUrl: z.string().url("L'URL du dépôt doit être valide"),
-  skillIds: z.array(z.number()).min(1, 'Au moins une compétence doit être sélectionnée'),
-  image: z.instanceof(File).nullable().optional(),
-});
-
-// Type inféré pour les données d'un formulaire de projet
-export type ProjectFormData = z.infer<typeof projectFormSchema>;

@@ -65,7 +65,6 @@ export async function POST(
       await saveFile(icon, filePath);
 
       try {
-        // Création de la compétence dans la base de données
         const skill = await tx.skill.create({
           data: {
             name: name,
@@ -75,13 +74,11 @@ export async function POST(
 
         return skill;
       } catch (dbError) {
-        // Si l'enregistrement en base de données échoue, supprimez le fichier
         await unlink(filePath).catch(() => {
           // TODO: Utiliser un logger
           console.error('Erreur lors de la suppression du fichier : ', filePath);
         });
 
-        // Vérifiez si l'erreur est due à un nom en double
         if (
           dbError instanceof Prisma.PrismaClientKnownRequestError &&
           dbError.code === 'P2002'
@@ -92,7 +89,6 @@ export async function POST(
       }
     });
 
-    // Validation de la réponse
     const response = skillApiResponseSchema.parse({
       ...newSkill,
       message: 'Compétence ajoutée avec succès',

@@ -1,129 +1,191 @@
 import { NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
 import { z } from 'zod';
-import { updateProjectSchema, projectSchema } from '@/lib/schemas/projectSchema';
+import prisma from '@/lib/prisma';
+import { updateProjectFormSchema } from '@/lib/schemas/project/projectFormSchema';
+import {
+  projectApiResponseSchema,
+  projectApiErrorSchema,
+  ProjectApiResponse,
+  ProjectApiError,
+} from '@/lib/schemas/project/projectApiResponseSchema';
+import { unlink } from 'fs/promises';
 import path from 'path';
-import { unlink, writeFile } from 'fs/promises';
+import { generateProjectImageFileName } from '@/lib/utils/naming-utils';
+import { saveFile } from '@/lib/utils/file-utils';
+import { Prisma } from '@prisma/client';
 
-// PUT /api/projects/[id] (Modifier un projet existant)
-export async function PUT(request: Request, { params }: { params: { id: string } }) {
+export async function PUT(
+  request: Request,
+  { params }: { params: { id: string } },
+): Promise<NextResponse<ProjectApiResponse | ProjectApiError>> {
   try {
-    const id = parseInt(params.id, 10);
-    const existingProject = await prisma.project.findUnique({ where: { id } });
-
-    if (!existingProject) {
-      return NextResponse.json({ error: 'Projet non trouvé' }, { status: 404 });
+    const id = parseInt(params.id);
+    if (isNaN(id)) {
+      throw new Error('ID invalide');
     }
 
     const formData = await request.formData();
-    const title = formData.get('title') as string;
-    const description = formData.get('description') as string;
-    const image = formData.get('image') as File | null;
-    const siteUrl = formData.get('siteUrl') as string;
-    const repoUrl = formData.get('repoUrl') as string;
-    const skillIds = JSON.parse(formData.get('skillIds') as string) as number[];
-
-    const updateData = updateProjectSchema.parse({
-      title,
-      description,
-      siteUrl,
-      repoUrl,
-      skills: skillIds,
+    const validatedData = updateProjectFormSchema.parse({
+      title: formData.get('title'),
+      description: formData.get('description'),
+      siteUrl: formData.get('siteUrl'),
+      repoUrl: formData.get('repoUrl'),
+      image: formData.get('image'),
+      skillIds: JSON.parse(formData.get('skillIds') as string),
     });
 
-    if (image) {
-      if (image.type !== 'image/png' && image.type !== 'image/jpeg') {
-        return NextResponse.json(
-          { error: "L'image doit être au format PNG ou JPEG" },
-          { status: 400 },
-        );
-      }
+    const { title, description, siteUrl, repoUrl, image, skillIds } = validatedData;
 
-      const fileName = `${Date.now()}_${title.toLowerCase().replace(/\s+/g, '_')}`;
-      const imagePath = path.join(
-        process.cwd(),
-        'public',
-        'images',
-        'projects',
-        `${fileName}.png`,
-      );
-
-      const fileBuffer = await image.arrayBuffer();
-      await writeFile(imagePath, Buffer.from(fileBuffer));
-
-      if (existingProject.imagePath) {
-        const oldImagePath = path.join(
-          process.cwd(),
-          'public',
-          existingProject.imagePath,
-        );
-        await unlink(oldImagePath).catch(console.error);
-      }
-
-      updateData.imagePath = `/images/projects/${fileName}.png`;
-    }
-
-    const updatedProject = await prisma.project.update({
+    const existingProject = await prisma.project.findUnique({
       where: { id },
-      data: {
-        ...updateData,
-        skills: {
-          set: updateData.skills ? updateData.skills.map((id) => ({ id })) : [],
-        },
-      },
       include: { skills: true },
     });
+    if (!existingProject) {
+      throw new Error('Projet non trouvé');
+    }
 
-    const response = projectSchema.parse(updatedProject);
+    const fileName = generateProjectImageFileName(title);
+    const filePath = path.join(process.cwd(), 'public', 'images', 'projects', fileName);
+
+    const updatedProject = await prisma.$transaction(async (tx) => {
+      if (image) {
+        await saveFile(image, filePath);
+      }
+
+      try {
+        const project = await tx.project.update({
+          where: { id },
+          data: {
+            title,
+            description,
+            siteUrl,
+            repoUrl,
+            imagePath: image ? `/images/projects/${fileName}` : existingProject.imagePath,
+            skills: {
+              set: skillIds.map((id) => ({ id })),
+            },
+          },
+          include: { skills: true },
+        });
+
+        return project;
+      } catch (dbError) {
+        if (image) {
+          await unlink(filePath).catch(() => {
+            // TODO: Utiliser un logger
+            console.error(
+              'Erreur lors de la suppression du nouveau fichier : ',
+              filePath,
+            );
+          });
+        }
+        throw dbError;
+      }
+    });
+
+    if (existingProject.imagePath && image) {
+      const fullOldPath = path.join(process.cwd(), 'public', existingProject.imagePath);
+      await unlink(fullOldPath).catch(() => {
+        // TODO: Utiliser un logger
+        console.error(
+          "Erreur lors de la suppression de l'ancien fichier : ",
+          fullOldPath,
+        );
+      });
+    }
+
+    const response = projectApiResponseSchema.parse({
+      ...updatedProject,
+      message: 'Projet mis à jour avec succès',
+    });
 
     return NextResponse.json(response);
   } catch (error) {
-    if (error instanceof z.ZodError) {
-      console.error('Erreur de validation Zod:', error.errors);
-      return NextResponse.json(
-        { error: 'Données invalides pour la mise à jour du projet' },
-        { status: 400 },
-      );
-    }
-
-    if (error instanceof Error && error.message.includes('Unique constraint failed')) {
-      return NextResponse.json(
-        { error: 'Un projet avec ce titre existe déjà' },
-        { status: 409 },
-      );
-    }
-
+    // TODO: Utiliser un logger
     console.error('Erreur lors de la mise à jour du projet:', error);
-    return NextResponse.json(
-      { error: 'Erreur lors de la mise à jour du projet' },
-      { status: 500 },
-    );
+
+    if (error instanceof z.ZodError) {
+      const validationError = projectApiErrorSchema.parse({
+        message: 'Erreur de validation des données du projet',
+      });
+      return NextResponse.json(validationError, { status: 400 });
+    }
+
+    const serverError = projectApiErrorSchema.parse({
+      message:
+        error instanceof Error
+          ? error.message
+          : 'Erreur lors de la mise à jour du projet',
+    });
+    return NextResponse.json(serverError, { status: 500 });
   }
 }
 
-// DELETE /api/projects/[id] (Supprimer un projet existant)
-export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(
+  request: Request,
+  { params }: { params: { id: string } },
+): Promise<NextResponse<ProjectApiResponse | ProjectApiError>> {
   try {
-    const id = parseInt(params.id, 10);
-    const project = await prisma.project.findUnique({ where: { id } });
-
-    if (!project) {
-      return NextResponse.json({ error: 'Projet non trouvé' }, { status: 404 });
+    const id = parseInt(params.id);
+    if (isNaN(id)) {
+      throw new Error('ID invalide');
     }
 
-    if (project.imagePath) {
-      const imagePath = path.join(process.cwd(), 'public', project.imagePath);
-      await unlink(imagePath).catch(console.error);
-    }
+    const deletedProject = await prisma.$transaction(async (tx) => {
+      const project = await tx.project.findUnique({
+        where: { id },
+        include: { skills: true },
+      });
+      if (!project) {
+        throw new Error('Projet non trouvé');
+      }
 
-    await prisma.project.delete({ where: { id } });
+      const deletedProject = await tx.project.delete({
+        where: { id },
+        include: { skills: true },
+      });
 
-    return NextResponse.json({ message: 'Projet supprimé avec succès' });
+      if (project.imagePath) {
+        const filePath = path.join(process.cwd(), 'public', project.imagePath);
+        await unlink(filePath).catch(() => {
+          // TODO: Utiliser un logger
+          console.error('Erreur lors de la suppression du fichier : ', filePath);
+        });
+      }
+
+      return deletedProject;
+    });
+
+    const response = projectApiResponseSchema.parse({
+      ...deletedProject,
+      message: 'Projet supprimé avec succès',
+    });
+
+    return NextResponse.json(response);
   } catch (error) {
+    // TODO: Utiliser un logger
     console.error('Erreur lors de la suppression du projet:', error);
-    return NextResponse.json(
-      { error: 'Erreur lors de la suppression du projet' },
-      { status: 500 },
-    );
+
+    if (error instanceof z.ZodError) {
+      const validationError = projectApiErrorSchema.parse({
+        message: 'Erreur de validation des données du projet',
+      });
+      return NextResponse.json(validationError, { status: 400 });
+    }
+
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      const dbError = projectApiErrorSchema.parse({
+        message: 'Erreur lors de la suppression du projet',
+      });
+      return NextResponse.json(dbError, { status: 500 });
+    }
+
+    const serverError = projectApiErrorSchema.parse({
+      message:
+        error instanceof Error
+          ? error.message
+          : 'Erreur lors de la suppression du projet',
+    });
+    return NextResponse.json(serverError, { status: 500 });
   }
 }

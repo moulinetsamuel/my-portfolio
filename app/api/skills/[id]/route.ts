@@ -66,7 +66,6 @@ export async function PUT(
           });
         }
 
-        // Vérifier si l'erreur est due à un nom en double
         if (
           dbError instanceof Prisma.PrismaClientKnownRequestError &&
           dbError.code === 'P2002'
@@ -77,7 +76,6 @@ export async function PUT(
       }
     });
 
-    // Si la mise à jour réussit et qu'il y avait un ancien fichier, le supprimer
     if (existingSkill.iconPath && icon) {
       const fullOldPath = path.join(process.cwd(), 'public', existingSkill.iconPath);
       await unlink(fullOldPath).catch(() => {
@@ -142,13 +140,14 @@ export async function DELETE(
         throw new Error('Compétence non trouvée');
       }
 
-      // Supprimer d'abord de la base de données
       const deletedSkill = await tx.skill.delete({ where: { id } });
 
-      // Si la suppression de la base de données réussit, supprimer le fichier
       if (skill.iconPath) {
         const filePath = path.join(process.cwd(), 'public', skill.iconPath);
-        await unlink(filePath).catch(() => {});
+        await unlink(filePath).catch(() => {
+          // TODO: Utiliser un logger
+          console.error('Erreur lors de la suppression du fichier : ', filePath);
+        });
       }
 
       return deletedSkill;
@@ -161,6 +160,7 @@ export async function DELETE(
 
     return NextResponse.json(response);
   } catch (error) {
+    // TODO: Utiliser un logger
     console.error('Erreur lors de la suppression de la compétence:', error);
 
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
