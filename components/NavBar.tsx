@@ -16,7 +16,7 @@ import {
 import NavLink from './NavLink';
 import { navItems } from '@/constants';
 import { getCV } from '@/lib/api/cv';
-import type { CV } from '@/lib/schemas/cvSchemas';
+import type { CV } from '@/lib/schemas/cv/cvSchemas';
 import { useToast } from '@/hooks/use-toast';
 
 export default function NavBar() {

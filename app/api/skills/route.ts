@@ -10,15 +10,20 @@ import prisma from '@/lib/prisma';
 import { z } from 'zod';
 import { skillFormSchema } from '@/lib/schemas/skill/skillFormSchema';
 import path from 'path';
-import { unlink, writeFile } from 'fs/promises';
+import { unlink } from 'fs/promises';
 import { Prisma } from '@prisma/client';
+import { generateSkillIconFileName } from '@/lib/utils/naming-utils';
+import { saveFile } from '@/lib/utils/file-utils';
 
 export async function GET(): Promise<NextResponse<Skill[] | SkillApiError>> {
   try {
     const skills = await prisma.skill.findMany();
 
     if (skills.length === 0) {
-      return NextResponse.json([]);
+      const notFoundError = skillApiErrorSchema.parse({
+        message: 'Aucune compétence trouvée',
+      });
+      return NextResponse.json(notFoundError, { status: 404 });
     }
 
     const validatedSkills = z.array(skillSchema).parse(skills);
@@ -42,7 +47,6 @@ export async function GET(): Promise<NextResponse<Skill[] | SkillApiError>> {
   }
 }
 
-// POST /api/skills (Créer une nouvelle compétence)
 export async function POST(
   request: Request,
 ): Promise<NextResponse<SkillApiResponse | SkillApiError>> {
@@ -54,15 +58,11 @@ export async function POST(
     });
     const { name, icon } = validatedData;
 
-    const fileName = `${Date.now()}-${name.toLowerCase().replace(/\s+/g, '_')}.svg`;
+    const fileName = generateSkillIconFileName(name);
     const filePath = path.join(process.cwd(), 'public', 'icons', 'skills', fileName);
 
-    // Utilisation d'une transaction Prisma
     const newSkill = await prisma.$transaction(async (tx) => {
-      // Écriture du fichier
-      const arrayBuffer = await icon.arrayBuffer();
-      const buffer = Buffer.from(arrayBuffer);
-      await writeFile(filePath, buffer);
+      await saveFile(icon, filePath);
 
       try {
         // Création de la compétence dans la base de données
@@ -76,7 +76,10 @@ export async function POST(
         return skill;
       } catch (dbError) {
         // Si l'enregistrement en base de données échoue, supprimez le fichier
-        await unlink(filePath);
+        await unlink(filePath).catch(() => {
+          // TODO: Utiliser un logger
+          console.error('Erreur lors de la suppression du fichier : ', filePath);
+        });
 
         // Vérifiez si l'erreur est due à un nom en double
         if (

@@ -9,8 +9,10 @@ import {
   SkillApiResponse,
   SkillApiError,
 } from '@/lib/schemas/skill/skillApiResponseSchema';
-import { unlink, writeFile } from 'fs/promises';
+import { unlink } from 'fs/promises';
 import path from 'path';
+import { generateSkillIconFileName } from '@/lib/utils/naming-utils';
+import { saveFile } from '@/lib/utils/file-utils';
 
 export async function PUT(
   request: Request,
@@ -35,24 +37,19 @@ export async function PUT(
       throw new Error('Compétence non trouvée');
     }
 
-    // Préparer le nouveau fichier
-    const fileName = `${Date.now()}-${name?.toLowerCase().replace(/\s+/g, '_')}.svg`;
+    const fileName = generateSkillIconFileName(name);
     const filePath = path.join(process.cwd(), 'public', 'icons', 'skills', fileName);
 
     const updatedSkill = await prisma.$transaction(async (tx) => {
       if (icon) {
-        // Sauvegarder le nouveau fichier
-        const arrayBuffer = await icon.arrayBuffer();
-        const buffer = Buffer.from(arrayBuffer);
-        await writeFile(filePath, buffer);
+        await saveFile(icon, filePath);
       }
 
       try {
-        // Mettre à jour la compétence dans la base de données
         const skill = await tx.skill.update({
           where: { id },
           data: {
-            name: validatedData.name || existingSkill.name,
+            name: validatedData.name,
             iconPath: icon ? `/icons/skills/${fileName}` : existingSkill.iconPath,
           },
         });

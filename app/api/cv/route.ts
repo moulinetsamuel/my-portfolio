@@ -1,131 +1,153 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { cvSchema, cvUploadSchema, cvApiResponseSchema } from '@/lib/schemas/cvSchemas';
 import { z } from 'zod';
-import { writeFile, unlink } from 'fs/promises';
+import { CV, cvSchema } from '@/lib/schemas/cv/cvSchemas';
+import {
+  CVApiError,
+  cvApiErrorSchema,
+  CVApiResponse,
+  cvApiResponseSchema,
+} from '@/lib/schemas/cv/cvApiResponseSchema';
 import path from 'path';
+import { unlink } from 'fs/promises';
+import { cvFormSchema } from '@/lib/schemas/cv/cvFormSchema';
+import { generateCVFileName } from '@/lib/utils/naming-utils';
+import { saveFile } from '@/lib/utils/file-utils';
 
-const CV_STORAGE_PATH = path.join(process.cwd(), 'public', 'cv');
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
-
-// GET /api/cv (Récupération du CV)
-export async function GET() {
+export async function GET(): Promise<NextResponse<CV | CVApiError>> {
   try {
-    // Récupération du CV en base de données
     const cv = await prisma.cV.findFirst();
 
-    // Si aucun CV n'est trouvé, renvoyer une erreur 404
     if (!cv) {
-      return NextResponse.json({ error: 'No CV found' }, { status: 404 });
+      const notFoundError = cvApiErrorSchema.parse({
+        message: 'Aucun CV trouvé',
+      });
+      return NextResponse.json(notFoundError, { status: 404 });
     }
 
-    // Validation du CV récupéré avec le schéma Zod
     const validatedCV = cvSchema.parse(cv);
 
-    // Renvoi du CV validé
     return NextResponse.json(validatedCV);
   } catch (error) {
+    // TODO: Utiliser un logger
+    console.error('Erreur lors de la récupération du CV:', error);
+
     if (error instanceof z.ZodError) {
-      // TODO: Utiliser un logger
-      console.error('Error validating CV:', error.errors);
-      return NextResponse.json({ error: 'Error validating CV' }, { status: 500 });
+      const validationError = cvApiErrorSchema.parse({
+        message: 'Erreur de validation des données du CV',
+      });
+      return NextResponse.json(validationError, { status: 500 });
     }
 
-    // TODO: Utiliser un logger
-    console.error('Error fetching CV:', error);
-    return NextResponse.json({ error: 'Error fetching CV' }, { status: 500 });
+    const serverError = cvApiErrorSchema.parse({
+      message: 'Erreur lors de la récupération du CV',
+    });
+    return NextResponse.json(serverError, { status: 500 });
   }
 }
 
-// POST /api/cv (Création ou mise à jour du CV)
-export async function POST(request: Request) {
+export async function POST(
+  request: Request,
+): Promise<NextResponse<CVApiResponse | CVApiError>> {
   try {
-    // Récupération du fichier uploadé
     const formData = await request.formData();
-    const file = formData.get('file') as File | null;
+    const validatedCV = cvFormSchema.parse({ cv: formData.get('cv') });
+    const cv = validatedCV.cv;
 
-    // Si aucun fichier n'est fourni, renvoyer une erreur 400
-    if (!file) {
-      return NextResponse.json({ error: 'No file provided' }, { status: 400 });
-    }
-
-    // Vérification de la taille du fichier
-    if (file.size > MAX_FILE_SIZE) {
-      return NextResponse.json({ error: 'File size exceeds the limit' }, { status: 400 });
-    }
-
-    // Vérification du type de fichier
-    if (file.type !== 'application/pdf') {
-      return NextResponse.json({ error: 'Only PDF files are allowed' }, { status: 400 });
-    }
-
-    // Validation du fichier uploadé avec le schéma Zod
-    const validatedFile = cvUploadSchema.parse({ file });
-
-    // Récupération du buffer du fichier uploadé et génération du nom de fichier unique avec un timestamp actuel
-    const buffer = await validatedFile.file.arrayBuffer();
-    const fileName = `CV_SAMUEL_MOULINET_${Date.now()}.pdf`;
-    const filePath = path.join(CV_STORAGE_PATH, fileName);
-
-    // Récupération du CV existant en base de données
     const existingCV = await prisma.cV.findFirst();
-
-    // Si un CV existe déjà, supprimer l'ancien fichier et mettre à jour le cv en base de données avec le nouveau fichier uploadé
     if (existingCV) {
-      // Suppression de l'ancien fichier
+      const newFileName = generateCVFileName();
+      const newFilePath = path.join(process.cwd(), 'public', 'cv', newFileName);
+
+      const updatedCV = await prisma.$transaction(async (tx) => {
+        await saveFile(cv, newFilePath);
+
+        try {
+          const newCV = await tx.cV.update({
+            where: { id: existingCV.id },
+            data: {
+              filePath: `/cv/${newFileName}`,
+            },
+          });
+
+          await unlink(path.join(process.cwd(), 'public', existingCV.filePath)).catch(
+            () => {
+              // TODO: Utiliser un logger
+              console.error(
+                "Erreur lors de la suppression de l'ancien fichier : ",
+                existingCV.filePath,
+              );
+            },
+          );
+
+          return newCV;
+        } catch (dbError) {
+          await unlink(newFilePath).catch(() => {
+            // TODO: Utiliser un logger
+            console.error(
+              'Erreur lors de la suppression du nouveau fichier : ',
+              newFilePath,
+            );
+          });
+
+          throw dbError;
+        }
+      });
+      const response = cvApiResponseSchema.parse({
+        ...updatedCV,
+        message: 'CV mis à jour avec succès',
+      });
+
+      return NextResponse.json(response);
+    }
+
+    // sinon je crée un nouveau cv
+    const fileName = generateCVFileName();
+    const filePath = path.join(process.cwd(), 'public', 'cv', fileName);
+
+    const createdCV = await prisma.$transaction(async (tx) => {
+      await saveFile(cv, filePath);
+
       try {
-        await unlink(path.join(CV_STORAGE_PATH, existingCV.filePath.replace('/cv/', '')));
-      } catch (error) {
-        // TODO: Utiliser un logger
-        console.error('Error deleting old CV file:', error);
+        // pas besoin de uploadAt car c'est la date de creation du fichier
+        // et dans prisma il est comme ca uploadedAt DateTime @default(now())
+        const newCV = await tx.cV.create({
+          data: {
+            filePath: `/cv/${fileName}`,
+          },
+        });
+
+        return newCV;
+      } catch (dbError) {
+        await unlink(filePath).catch(() => {
+          // TODO: Utiliser un logger
+          console.error('Erreur lors de la suppression du fichier : ', filePath);
+        });
+
+        throw dbError;
       }
-
-      // Mise à jour du cv en base de données avec le nouveau fichier uploadé
-      await prisma.cV.update({
-        where: { id: existingCV.id },
-        data: {
-          filePath: `/cv/${fileName}`,
-          uploadedAt: new Date().toISOString(),
-        },
-      });
-    } else {
-      // Création d'un nouveau cv en base de données avec le fichier uploadé
-      await prisma.cV.create({
-        data: {
-          filePath: `/cv/${fileName}`,
-          uploadedAt: new Date().toISOString(),
-        },
-      });
-    }
-
-    // Écriture du buffer du fichier uploadé dans le dossier public/cv
-    await writeFile(filePath, Buffer.from(buffer));
-
-    // Récupération du CV mis à jour en base de données
-    const updatedCV = await prisma.cV.findFirst();
-
-    // Si le CV mis à jour n'est pas trouvé, renvoyer une erreur
-    if (!updatedCV) {
-      throw new Error('Failed to retrieve updated CV');
-    }
-
-    // Validation du CV mis à jour avec le schéma Zod
-    const validatedCV = cvApiResponseSchema.parse({
-      ...updatedCV,
-      message: existingCV ? 'CV updated successfully' : 'CV uploaded successfully',
     });
 
-    // Renvoi du CV validé
-    return NextResponse.json(validatedCV);
+    const response = cvApiResponseSchema.parse({
+      ...createdCV,
+      message: 'CV ajouté avec succès',
+    });
+
+    return NextResponse.json(response, { status: 201 });
   } catch (error) {
+    // TODO: Utiliser un logger
+    console.error("Erreur lors de l'ajout du CV:", error);
+
     if (error instanceof z.ZodError) {
-      // TODO: Utiliser un logger
-      console.error('Error validating CV upload:', error.errors);
-      return NextResponse.json({ error: 'Invalid CV data' }, { status: 400 });
+      const validationError = cvApiErrorSchema.parse({
+        message: 'Erreur de validation des données du CV',
+      });
+      return NextResponse.json(validationError, { status: 400 });
     }
 
-    // TODO: Utiliser un logger
-    console.error('Error uploading CV:', error);
-    return NextResponse.json({ error: 'Error uploading CV' }, { status: 500 });
+    const serverError = cvApiErrorSchema.parse({
+      message: "Erreur lors de l'ajout/la mise à jour du CV",
+    });
+    return NextResponse.json(serverError, { status: 500 });
   }
 }

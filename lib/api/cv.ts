@@ -1,4 +1,4 @@
-import type { CV, CVApiResponse } from '@/lib/schemas/cvSchemas';
+import type { CV, CVApiResponse } from '@/lib/schemas/cv/cvSchemas';
 import { fetchWithErrorHandling } from '@/lib/api/fetchWithErrorHandling';
 import { API_URLS } from '@/lib/api/URLs';
 

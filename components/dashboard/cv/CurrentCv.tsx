@@ -1,4 +1,4 @@
-import type { CV } from '@/lib/schemas/cvSchemas';
+import type { CV } from '@/lib/schemas/cv/cvSchemas';
 
 interface CurrentCVProps {
   cv: CV;

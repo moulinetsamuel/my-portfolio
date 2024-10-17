@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import useSWR from 'swr';
 import { getCV, uploadCV } from '@/lib/api/cv';
-import type { CV } from '@/lib/schemas/cvSchemas';
+import type { CV } from '@/lib/schemas/cv/cvSchemas';
 import CVManager from '@/components/dashboard/cv/CvManager';
 import { useToast } from '@/hooks/use-toast';
 

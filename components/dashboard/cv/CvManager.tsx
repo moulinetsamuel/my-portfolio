@@ -1,4 +1,4 @@
-import type { CV } from '@/lib/schemas/cvSchemas';
+import type { CV } from '@/lib/schemas/cv/cvSchemas';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import CurrentCV from '@/components/dashboard/cv/CurrentCv';
 import CVUploader from '@/components/dashboard/cv/CvUploader';

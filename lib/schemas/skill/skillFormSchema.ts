@@ -21,11 +21,10 @@ export const skillFormSchema = z.object({
 export type SkillFormData = z.infer<typeof skillFormSchema>;
 
 // Schéma pour le formulaire de mise à jour de compétence
-export const updateSkillFormSchema = skillFormSchema
-  .partial()
-  .refine((data) => Object.keys(data).length > 0, {
-    message: 'Au moins un champ doit être fourni pour la mise à jour',
-  });
+export const updateSkillFormSchema = z.object({
+  name: skillFormSchema.shape.name,
+  icon: skillFormSchema.shape.icon.optional(),
+});
 
 // Type inféré pour le formulaire de mise à jour de compétence
 export type UpdateSkillFormData = z.infer<typeof updateSkillFormSchema>;
