@@ -1,10 +1,13 @@
-import React, { useState, useCallback } from 'react';
-import { useDropzone } from 'react-dropzone';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { CVFormData, cvFormSchema } from '@/lib/schemas/cv/cvFormSchema';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useCallback } from 'react';
+import { useDropzone } from 'react-dropzone';
+import { useForm } from 'react-hook-form';
 
 interface CVUploaderProps {
-  onUpload: (file: File) => Promise<void>;
+  onUpload: (formData: FormData) => Promise<void>;
   hasExistingCV: boolean;
   isUploading: boolean;
 }
@@ -14,11 +17,21 @@ export default function CVUploader({
   hasExistingCV,
   isUploading,
 }: CVUploaderProps) {
-  const [file, setFile] = useState<File | null>(null);
+  const {
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { errors },
+  } = useForm<CVFormData>({
+    resolver: zodResolver(cvFormSchema),
+  });
 
-  const onDrop = useCallback((acceptedFiles: File[]) => {
-    setFile(acceptedFiles[0]);
-  }, []);
+  const onDrop = useCallback(
+    (acceptedFiles: File[]) => {
+      setValue('cv', acceptedFiles[0], { shouldValidate: true });
+    },
+    [setValue],
+  );
 
   const { getRootProps, getInputProps, isDragActive, open } = useDropzone({
     onDrop,
@@ -26,16 +39,17 @@ export default function CVUploader({
     multiple: false,
   });
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (file) {
-      await onUpload(file);
-      setFile(null);
-    }
+  const watchCv = watch('cv');
+
+  const onSubmit = async (data: CVFormData) => {
+    const formData = new FormData();
+    formData.append('cv', data.cv);
+
+    await onUpload(formData);
   };
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit(onSubmit)}>
       <Card className="mt-4">
         <CardContent>
           <div
@@ -45,8 +59,8 @@ export default function CVUploader({
             }`}
           >
             <input {...getInputProps()} />
-            {file ? (
-              <p>Fichier sélectionné : {file.name}</p>
+            {watchCv ? (
+              <p>Fichier sélectionné : {watchCv.name}</p>
             ) : (
               <p>
                 {hasExistingCV
@@ -55,11 +69,12 @@ export default function CVUploader({
               </p>
             )}
           </div>
+          {errors.cv && <p className="text-red-500 text-sm mt-1">{errors.cv.message}</p>}
           <div className="mt-4 flex justify-between">
             <Button type="button" onClick={open} disabled={isUploading}>
               Sélectionner un fichier
             </Button>
-            <Button type="submit" disabled={!file || isUploading}>
+            <Button type="submit" disabled={isUploading || !watchCv}>
               {isUploading
                 ? 'Téléchargement en cours...'
                 : hasExistingCV

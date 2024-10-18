@@ -36,7 +36,7 @@ export async function GET(): Promise<NextResponse<CV | CVApiError>> {
       const validationError = cvApiErrorSchema.parse({
         message: 'Erreur de validation des données du CV',
       });
-      return NextResponse.json(validationError, { status: 500 });
+      return NextResponse.json(validationError, { status: 400 });
     }
 
     const serverError = cvApiErrorSchema.parse({
@@ -64,7 +64,7 @@ export async function POST(
 
         try {
           const newCV = await tx.cV.update({
-            where: { id: existingCV.id },
+            where: { id: 52 },
             data: {
               filePath: `/cv/${newFileName}`,
             },

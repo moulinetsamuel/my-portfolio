@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/sheet';
 import NavLink from './NavLink';
 import { navItems } from '@/constants';
-import { getCV } from '@/lib/api/cv';
+import { getCV } from '@/lib/api/cvApi';
 import type { CV } from '@/lib/schemas/cv/cvSchemas';
 import { useToast } from '@/hooks/use-toast';
 
