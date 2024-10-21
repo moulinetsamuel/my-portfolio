@@ -88,7 +88,7 @@ export async function PUT(
     }
 
     const response = projectApiResponseSchema.parse({
-      ...updatedProject,
+      data: updatedProject,
       message: 'Projet mis à jour avec succès',
     });
 
@@ -148,7 +148,7 @@ export async function DELETE(
     });
 
     const response = projectApiResponseSchema.parse({
-      ...deletedProject,
+      data: deletedProject,
       message: 'Projet supprimé avec succès',
     });
 

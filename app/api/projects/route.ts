@@ -94,7 +94,7 @@ export async function POST(
     });
 
     const response = projectApiResponseSchema.parse({
-      ...newProject,
+      data: newProject,
       message: 'Projet ajouté avec succès',
     });
 
