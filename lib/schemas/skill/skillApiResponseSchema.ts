@@ -2,7 +2,8 @@ import { z } from 'zod';
 import { skillSchema } from '@/lib/schemas/skill/skillSchema';
 
 // Schéma pour la réponse de l'API
-export const skillApiResponseSchema = skillSchema.extend({
+export const skillApiResponseSchema = z.object({
+  data: skillSchema,
   message: z.string({
     required_error: 'Un message de confirmation est requis',
     invalid_type_error: 'Le message doit être une chaîne de caractères',

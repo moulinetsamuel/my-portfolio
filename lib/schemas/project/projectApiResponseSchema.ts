@@ -2,7 +2,8 @@ import { z } from 'zod';
 import { projectSchema } from '@/lib/schemas/project/projectSchema';
 
 // Schéma pour la réponse de l'API
-export const projectApiResponseSchema = projectSchema.extend({
+export const projectApiResponseSchema = z.object({
+  data: projectSchema,
   message: z.string({
     required_error: 'Un message de confirmation est requis',
     invalid_type_error: 'Le message doit être une chaîne de caractères',
