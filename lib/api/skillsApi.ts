@@ -1,7 +1,10 @@
 import { API_URLS } from '@/lib/api/URLs';
-import { Skill } from '../schemas/skill/skillSchema';
-import { SkillApiError, SkillApiResponse } from '../schemas/skill/skillApiResponseSchema';
-import { ApiError } from '../errors/apiError';
+import { Skill } from '@/lib/schemas/skill/skillSchema';
+import {
+  SkillApiError,
+  SkillApiResponse,
+} from '@/lib/schemas/skill/skillApiResponseSchema';
+import { ApiError } from '@/lib/errors/apiError';
 
 export const fetchSkills = async (): Promise<Skill[]> => {
   const response = await fetch(API_URLS.SKILLS.GET);
