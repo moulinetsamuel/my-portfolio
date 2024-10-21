@@ -89,7 +89,7 @@ export async function POST(
     });
 
     const response = skillApiResponseSchema.parse({
-      ...newSkill,
+      data: newSkill,
       message: 'Compétence ajoutée avec succès',
     });
 

@@ -81,7 +81,7 @@ export async function PUT(
     }
 
     const response = skillApiResponseSchema.parse({
-      ...updatedSkill,
+      data: updatedSkill,
       message: 'Compétence mise à jour avec succès',
     });
 
@@ -145,7 +145,7 @@ export async function DELETE(
     });
 
     const response = skillApiResponseSchema.parse({
-      ...deletedSkill,
+      data: deletedSkill,
       message: 'Compétence supprimée avec succès',
     });
 
