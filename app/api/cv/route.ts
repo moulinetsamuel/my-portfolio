@@ -71,11 +71,8 @@ export async function POST(
           });
 
           await unlink(path.join(process.cwd(), 'public', existingCV.filePath)).catch(
-            () => {
-              logError(
-                "Erreur lors de la suppression de l'ancien fichier : ",
-                existingCV.filePath,
-              );
+            (err) => {
+              logError("Erreur lors de la suppression de l'ancien fichier : ", err);
             },
           );
 
@@ -112,8 +109,8 @@ export async function POST(
 
         return newCV;
       } catch (dbError) {
-        await unlink(filePath).catch(() => {
-          logError('Erreur lors de la suppression du fichier : ', filePath);
+        await unlink(filePath).catch((err) => {
+          logError('Erreur lors de la suppression du fichier : ', err);
         });
 
         throw dbError;
