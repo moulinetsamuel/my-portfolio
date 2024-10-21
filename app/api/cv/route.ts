@@ -13,6 +13,7 @@ import { unlink } from 'fs/promises';
 import { cvFormSchema } from '@/lib/schemas/cv/cvFormSchema';
 import { generateCVFileName } from '@/lib/utils/naming-utils';
 import { saveFile } from '@/lib/utils/file-utils';
+import logError from '@/lib/errors/logger';
 
 export async function GET(): Promise<NextResponse<CV | CVApiError>> {
   try {
@@ -29,8 +30,7 @@ export async function GET(): Promise<NextResponse<CV | CVApiError>> {
 
     return NextResponse.json(validatedCV);
   } catch (error) {
-    // TODO: Utiliser un logger
-    console.error('Erreur lors de la récupération du CV:', error);
+    logError('Erreur lors de la récupération du CV', error);
 
     if (error instanceof z.ZodError) {
       const validationError = cvApiErrorSchema.parse({
@@ -64,7 +64,7 @@ export async function POST(
 
         try {
           const newCV = await tx.cV.update({
-            where: { id: 52 },
+            where: { id: existingCV.id },
             data: {
               filePath: `/cv/${newFileName}`,
             },
@@ -72,8 +72,7 @@ export async function POST(
 
           await unlink(path.join(process.cwd(), 'public', existingCV.filePath)).catch(
             () => {
-              // TODO: Utiliser un logger
-              console.error(
+              logError(
                 "Erreur lors de la suppression de l'ancien fichier : ",
                 existingCV.filePath,
               );
@@ -83,11 +82,7 @@ export async function POST(
           return newCV;
         } catch (dbError) {
           await unlink(newFilePath).catch(() => {
-            // TODO: Utiliser un logger
-            console.error(
-              'Erreur lors de la suppression du nouveau fichier : ',
-              newFilePath,
-            );
+            logError('Erreur lors de la suppression du nouveau fichier : ', newFilePath);
           });
 
           throw dbError;
@@ -109,8 +104,6 @@ export async function POST(
       await saveFile(cv, filePath);
 
       try {
-        // pas besoin de uploadAt car c'est la date de creation du fichier
-        // et dans prisma il est comme ca uploadedAt DateTime @default(now())
         const newCV = await tx.cV.create({
           data: {
             filePath: `/cv/${fileName}`,
@@ -120,8 +113,7 @@ export async function POST(
         return newCV;
       } catch (dbError) {
         await unlink(filePath).catch(() => {
-          // TODO: Utiliser un logger
-          console.error('Erreur lors de la suppression du fichier : ', filePath);
+          logError('Erreur lors de la suppression du fichier : ', filePath);
         });
 
         throw dbError;
@@ -135,8 +127,7 @@ export async function POST(
 
     return NextResponse.json(response, { status: 201 });
   } catch (error) {
-    // TODO: Utiliser un logger
-    console.error("Erreur lors de l'ajout du CV:", error);
+    logError("Erreur lors de l'ajout du CV:", error);
 
     if (error instanceof z.ZodError) {
       const validationError = cvApiErrorSchema.parse({

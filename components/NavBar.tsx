@@ -1,7 +1,6 @@
 'use client';
 
-import { useState, useCallback, useMemo } from 'react';
-import useSWR from 'swr';
+import { useState, useMemo, useEffect } from 'react';
 import ModeToggle from './ModeToggle';
 import { Button } from './ui/button';
 import { DownloadIcon, HamburgerMenuIcon, Cross1Icon } from '@radix-ui/react-icons';
@@ -15,32 +14,38 @@ import {
 } from '@/components/ui/sheet';
 import NavLink from './NavLink';
 import { navItems } from '@/constants';
-import { getCV } from '@/lib/api/cvApi';
-import type { CV } from '@/lib/schemas/cv/cvSchemas';
 import { useToast } from '@/hooks/use-toast';
+import useCvStore from '@/store/useCvStore';
 
 export default function NavBar() {
+  const { cv, fetchCV } = useCvStore();
+  const [fetchError, setFetchError] = useState<string | null>(null);
   const [isOpen, setIsOpen] = useState(false);
-  const { data: cv, error } = useSWR<CV | null>('/api/cv', getCV);
   const { toast } = useToast();
 
-  const handleDownloadCV = useCallback(() => {
-    if (cv && cv.filePath) {
+  useEffect(() => {
+    fetchCV()
+      .then(() => setFetchError(null))
+      .catch((error) => {
+        setFetchError(error.message || 'Une erreur inattendue est survenue');
+      });
+  }, [fetchCV]);
+
+  const handleDownloadCV = () => {
+    if (!cv) {
+      toast({
+        title: fetchError || 'Une erreur est survenue lors de la récupération du CV',
+        variant: 'destructive',
+      });
+    } else {
       const link = document.createElement('a');
       link.href = cv.filePath;
-      link.download = cv.filePath.split('/').pop() || 'CV.pdf';
+      link.download = cv.filePath.split('/').pop() as string;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-    } else {
-      console.error('CV file path not available');
-      toast({
-        title: 'Erreur',
-        description: "Le CV n'est pas disponible pour le téléchargement.",
-        variant: 'destructive',
-      });
     }
-  }, [cv, toast]);
+  };
 
   const mainNavigation = useMemo(
     () => (
@@ -65,7 +70,6 @@ export default function NavBar() {
             variant={'default'}
             className="hidden gap-2 sm:flex"
             onClick={handleDownloadCV}
-            disabled={!cv || error}
             aria-label="Télécharger mon CV"
           >
             Télécharger mon CV
@@ -112,7 +116,6 @@ export default function NavBar() {
                   variant={'default'}
                   className="mt-4 flex gap-2 sm:hidden"
                   onClick={handleDownloadCV}
-                  disabled={!cv || error}
                   aria-label="Télécharger mon CV"
                 >
                   Télécharger mon CV

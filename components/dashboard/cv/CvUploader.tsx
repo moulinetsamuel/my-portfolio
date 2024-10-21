@@ -20,6 +20,7 @@ export default function CVUploader({
   const {
     handleSubmit,
     setValue,
+    reset,
     watch,
     formState: { errors },
   } = useForm<CVFormData>({
@@ -46,6 +47,7 @@ export default function CVUploader({
     formData.append('cv', data.cv);
 
     await onUpload(formData);
+    reset();
   };
 
   return (
