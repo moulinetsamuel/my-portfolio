@@ -34,7 +34,11 @@ const useCvStore = create<CvStore>((set) => ({
     set({ isLoading: true, error: null, successMessage: null });
     try {
       const response = await uploadCV(formData);
-      set({ cv: response, isLoading: false, successMessage: response.message });
+      set({
+        cv: response.data,
+        isLoading: false,
+        successMessage: response.message,
+      });
     } catch (error) {
       if (error instanceof ApiError) {
         set({ error: error.message, isLoading: false });

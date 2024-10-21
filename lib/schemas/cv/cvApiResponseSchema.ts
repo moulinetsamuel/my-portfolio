@@ -2,7 +2,8 @@ import { z } from 'zod';
 import { cvSchema } from '@/lib/schemas/cv/cvSchemas';
 
 // Schéma pour la réponse de l'API après l'upload
-export const cvApiResponseSchema = cvSchema.extend({
+export const cvApiResponseSchema = z.object({
+  data: cvSchema,
   message: z.string({
     required_error: 'Un message de confirmation est requis',
     invalid_type_error: 'Le message doit être une chaîne de caractères',

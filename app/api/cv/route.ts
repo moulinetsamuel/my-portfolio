@@ -86,7 +86,7 @@ export async function POST(
         }
       });
       const response = cvApiResponseSchema.parse({
-        ...updatedCV,
+        data: updatedCV,
         message: 'CV mis à jour avec succès',
       });
 
@@ -118,7 +118,7 @@ export async function POST(
     });
 
     const response = cvApiResponseSchema.parse({
-      ...createdCV,
+      data: createdCV,
       message: 'CV ajouté avec succès',
     });
 
