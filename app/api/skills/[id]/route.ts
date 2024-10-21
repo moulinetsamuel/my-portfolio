@@ -13,6 +13,7 @@ import { unlink } from 'fs/promises';
 import path from 'path';
 import { generateSkillIconFileName } from '@/lib/utils/naming-utils';
 import { saveFile } from '@/lib/utils/file-utils';
+import logError from '@/lib/errors/logger';
 
 export async function PUT(
   request: Request,
@@ -57,12 +58,8 @@ export async function PUT(
         return skill;
       } catch (dbError) {
         if (icon) {
-          await unlink(filePath).catch(() => {
-            // TODO: Utiliser un logger
-            console.error(
-              'Erreur lors de la suppression du nouveau fichier : ',
-              filePath,
-            );
+          await unlink(filePath).catch((err) => {
+            logError('Erreur lors de la suppression du nouveau fichier : ', err);
           });
         }
 
@@ -78,12 +75,8 @@ export async function PUT(
 
     if (existingSkill.iconPath && icon) {
       const fullOldPath = path.join(process.cwd(), 'public', existingSkill.iconPath);
-      await unlink(fullOldPath).catch(() => {
-        // TODO: Utiliser un logger
-        console.error(
-          "Erreur lors de la suppression de l'ancien fichier : ",
-          fullOldPath,
-        );
+      await unlink(fullOldPath).catch((err) => {
+        logError("Erreur lors de la suppression de l'ancien fichier : ", err);
       });
     }
 
@@ -94,8 +87,7 @@ export async function PUT(
 
     return NextResponse.json(response);
   } catch (error) {
-    // TODO: Utiliser un logger
-    console.error('Erreur lors de la mise à jour de la compétence:', error);
+    logError('Erreur lors de la mise à jour de la compétence:', error);
 
     if (error instanceof z.ZodError) {
       const validationError = skillApiErrorSchema.parse({
@@ -144,9 +136,8 @@ export async function DELETE(
 
       if (skill.iconPath) {
         const filePath = path.join(process.cwd(), 'public', skill.iconPath);
-        await unlink(filePath).catch(() => {
-          // TODO: Utiliser un logger
-          console.error('Erreur lors de la suppression du fichier : ', filePath);
+        await unlink(filePath).catch((err) => {
+          logError('Erreur lors de la suppression du fichier : ', err);
         });
       }
 
@@ -160,8 +151,7 @@ export async function DELETE(
 
     return NextResponse.json(response);
   } catch (error) {
-    // TODO: Utiliser un logger
-    console.error('Erreur lors de la suppression de la compétence:', error);
+    logError('Erreur lors de la suppression de la compétence:', error);
 
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       const dbError = skillApiErrorSchema.parse({

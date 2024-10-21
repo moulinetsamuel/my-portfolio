@@ -14,6 +14,7 @@ import { unlink } from 'fs/promises';
 import { Prisma } from '@prisma/client';
 import { generateSkillIconFileName } from '@/lib/utils/naming-utils';
 import { saveFile } from '@/lib/utils/file-utils';
+import logError from '@/lib/errors/logger';
 
 export async function GET(): Promise<NextResponse<Skill[] | SkillApiError>> {
   try {
@@ -30,8 +31,7 @@ export async function GET(): Promise<NextResponse<Skill[] | SkillApiError>> {
 
     return NextResponse.json(validatedSkills);
   } catch (error) {
-    // TODO: Utiliser un logger
-    console.error('Erreur lors de la récupération des compétences:', error);
+    logError('Erreur lors de la récupération des compétences:', error);
 
     if (error instanceof z.ZodError) {
       const validationError = skillApiErrorSchema.parse({
@@ -74,9 +74,8 @@ export async function POST(
 
         return skill;
       } catch (dbError) {
-        await unlink(filePath).catch(() => {
-          // TODO: Utiliser un logger
-          console.error('Erreur lors de la suppression du fichier : ', filePath);
+        await unlink(filePath).catch((err) => {
+          logError('Erreur lors de la suppression du fichier : ', err);
         });
 
         if (
@@ -96,8 +95,7 @@ export async function POST(
 
     return NextResponse.json(response, { status: 201 });
   } catch (error) {
-    // TODO: Utiliser un logger
-    console.error("Erreur lors de l'ajout de la compétence:", error);
+    logError("Erreur lors de l'ajout de la compétence:", error);
 
     if (error instanceof z.ZodError) {
       const validationError = skillApiErrorSchema.parse({
