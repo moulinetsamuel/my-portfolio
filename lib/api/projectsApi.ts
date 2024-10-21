@@ -1,39 +1,69 @@
-import { fetchWithErrorHandling } from '@/lib/api/fetchWithErrorHandling';
 import { API_URLS } from '@/lib/api/URLs';
-import type { Project, ProjectApiResponse } from '@/lib/schemas/projectSchema';
+import { ApiError } from '../errors/apiError';
+import { Project } from '@/lib/schemas/project/projectSchema';
+import {
+  ProjectApiError,
+  ProjectApiResponse,
+} from '@/lib/schemas/project/projectApiResponseSchema';
 
-// Fonction pour récupérer tous les projets
-export const getProjects = (): Promise<Project[]> => {
-  return fetchWithErrorHandling(API_URLS.PROJECTS.GET);
+export const fetchProjects = async (): Promise<Project[]> => {
+  const response = await fetch(API_URLS.PROJECTS.GET);
+  if (!response.ok) {
+    const errorData = (await response.json()) as ProjectApiError;
+    throw new ApiError(
+      errorData.message || 'Erreur lors de la récupération des projets',
+      response.status,
+    );
+  }
+  return response.json();
 };
 
-// Fonction pour récupérer un projet par son ID
-export const getProjectById = (id: number): Promise<Project> => {
-  return fetchWithErrorHandling(API_URLS.PROJECTS.GET_ONE(id));
-};
-
-// Fonction pour créer un nouveau projet
-export const createProject = (formData: FormData): Promise<ProjectApiResponse> => {
-  return fetchWithErrorHandling(API_URLS.PROJECTS.CREATE, {
+export const createProject = async (formData: FormData): Promise<ProjectApiResponse> => {
+  const response = await fetch(API_URLS.PROJECTS.CREATE, {
     method: 'POST',
     body: formData,
   });
+
+  if (!response.ok) {
+    const errorData = (await response.json()) as ProjectApiError;
+    throw new ApiError(
+      errorData.message || 'Erreur lors de la création du projet',
+      response.status,
+    );
+  }
+  return response.json();
 };
 
-// Fonction pour mettre à jour un projet existant
-export const updateProject = (
+export const updateProject = async (
   id: number,
   formData: FormData,
 ): Promise<ProjectApiResponse> => {
-  return fetchWithErrorHandling(API_URLS.PROJECTS.UPDATE(id), {
+  const response = await fetch(API_URLS.PROJECTS.UPDATE(id), {
     method: 'PUT',
     body: formData,
   });
+
+  if (!response.ok) {
+    const errorData = (await response.json()) as ProjectApiError;
+    throw new ApiError(
+      errorData.message || 'Erreur lors de la mise à jour du projet',
+      response.status,
+    );
+  }
+  return response.json();
 };
 
-// Fonction pour supprimer un projet existant
-export const deleteProject = (id: number): Promise<void> => {
-  return fetchWithErrorHandling(API_URLS.PROJECTS.DELETE(id), {
+export const deleteProject = async (id: number): Promise<ProjectApiResponse> => {
+  const response = await fetch(API_URLS.PROJECTS.DELETE(id), {
     method: 'DELETE',
   });
+
+  if (!response.ok) {
+    const errorData = (await response.json()) as ProjectApiError;
+    throw new ApiError(
+      errorData.message || 'Erreur lors de la suppression du projet',
+      response.status,
+    );
+  }
+  return response.json();
 };
