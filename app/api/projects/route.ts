@@ -13,6 +13,7 @@ import { generateProjectImageFileName } from '@/lib/utils/naming-utils';
 import path from 'path';
 import { saveFile } from '@/lib/utils/file-utils';
 import { unlink } from 'fs/promises';
+import logError from '@/lib/errors/logger';
 
 export async function GET(): Promise<NextResponse<Project[] | ProjectApiError>> {
   try {
@@ -31,8 +32,7 @@ export async function GET(): Promise<NextResponse<Project[] | ProjectApiError>> 
 
     return NextResponse.json(validatedProjects);
   } catch (error) {
-    // TODO: Utiliser un logger
-    console.error('Erreur lors de la récupération des projets:', error);
+    logError('Erreur lors de la récupération des projets:', error);
 
     if (error instanceof z.ZodError) {
       const validationError = projectApiErrorSchema.parse({
@@ -85,9 +85,8 @@ export async function POST(
 
         return project;
       } catch (dbError) {
-        await unlink(imagePath).catch(() => {
-          // TODO: Utiliser un logger
-          console.error('Erreur lors de la suppression du fichier : ', imagePath);
+        await unlink(imagePath).catch((err) => {
+          logError('Erreur lors de la suppression du fichier : ', err);
         });
 
         throw dbError;
@@ -101,8 +100,7 @@ export async function POST(
 
     return NextResponse.json(response, { status: 201 });
   } catch (error) {
-    // TODO: Utiliser un logger
-    console.error("Erreur lors de l'ajout du projet:", error);
+    logError("Erreur lors de l'ajout du projet:", error);
 
     if (error instanceof z.ZodError) {
       const validationError = projectApiErrorSchema.parse({
