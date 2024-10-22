@@ -51,7 +51,8 @@ export async function POST(
 ): Promise<NextResponse<CVApiResponse | CVApiError>> {
   try {
     const formData = await request.formData();
-    const validatedCV = cvFormSchema.parse({ cv: formData.get('cv') });
+    const data = Object.fromEntries(formData.entries());
+    const validatedCV = cvFormSchema.parse(data);
     const cv = validatedCV.cv;
 
     const existingCV = await prisma.cV.findFirst();

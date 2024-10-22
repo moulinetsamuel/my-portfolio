@@ -26,14 +26,8 @@ export async function PUT(
     }
 
     const formData = await request.formData();
-    const validatedData = updateProjectFormSchema.parse({
-      title: formData.get('title'),
-      description: formData.get('description'),
-      siteUrl: formData.get('siteUrl'),
-      repoUrl: formData.get('repoUrl'),
-      image: formData.get('image'),
-      skillIds: JSON.parse(formData.get('skillIds') as string),
-    });
+    const data = Object.fromEntries(formData.entries());
+    const validatedData = updateProjectFormSchema.parse(data);
 
     const { title, description, siteUrl, repoUrl, image, skillIds } = validatedData;
 

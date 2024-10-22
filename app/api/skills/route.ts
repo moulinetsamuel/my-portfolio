@@ -52,10 +52,8 @@ export async function POST(
 ): Promise<NextResponse<SkillApiResponse | SkillApiError>> {
   try {
     const formData = await request.formData();
-    const validatedData = skillFormSchema.parse({
-      name: formData.get('name'),
-      icon: formData.get('icon'),
-    });
+    const data = Object.fromEntries(formData.entries());
+    const validatedData = skillFormSchema.parse(data);
     const { name, icon } = validatedData;
 
     const fileName = generateSkillIconFileName(name);

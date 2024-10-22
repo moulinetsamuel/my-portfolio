@@ -26,10 +26,10 @@ export async function PUT(
     }
 
     const formData = await request.formData();
-    const validatedData = updateSkillFormSchema.parse({
-      name: formData.get('name'),
-      icon: formData.get('icon'),
-    });
+    const data = Object.fromEntries(formData.entries());
+    console.log(data);
+
+    const validatedData = updateSkillFormSchema.parse(data);
 
     const { name, icon } = validatedData;
 
