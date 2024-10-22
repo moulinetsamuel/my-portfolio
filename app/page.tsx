@@ -12,7 +12,7 @@ export default function Home() {
         <NavBar />
         <Hero />
         <SectionDivider />
-        {/* <Skills /> */}
+        <Skills />
         <SectionDivider />
         {/* <Projects /> */}
         <SectionDivider />

@@ -1,13 +1,12 @@
-import SkillCard from '@/components/dashboard/skills/SkillCard';
+import SkillItem from '@/components/dashboard/skills/SkillItem';
 import useSkillStore from '@/store/useSkillStore';
 
 export default function SkillList() {
   const { skills } = useSkillStore();
-
   return (
-    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+    <div className="space-y-4 mt-4">
       {skills.map((skill) => (
-        <SkillCard key={skill.id} skill={skill} />
+        <SkillItem key={skill.id} skill={skill} />
       ))}
     </div>
   );

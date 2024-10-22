@@ -1,39 +1,42 @@
-import React, { useCallback } from 'react';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useDropzone } from 'react-dropzone';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent } from '@/components/ui/card';
-import { DialogClose } from '@/components/ui/dialog';
+import {
+  skillFormSchema,
+  updateSkillFormSchema,
+} from '@/lib/schemas/skill/skillFormSchema';
 import useSkillStore from '@/store/useSkillStore';
+import { Skill } from '@/lib/schemas/skill/skillSchema';
+import { useDropzone } from 'react-dropzone';
+import { z } from 'zod';
+import { useCallback } from 'react';
+import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { skillFormSchema, type SkillFormData } from '@/lib/schemas/skill/skillSchema';
-import type { Skill } from '@/lib/schemas/skill/skillSchema';
 
 interface SkillFormProps {
   skill?: Skill;
-  onCloseSkillForm: () => void;
+  onClose: () => void;
 }
 
-export default function SkillForm({ skill, onCloseSkillForm }: SkillFormProps) {
+export default function SkillForm({ skill, onClose }: SkillFormProps) {
+  const { isLoading, addSkill, updateSkill } = useSkillStore();
+  const { toast } = useToast();
+
+  const isUpdate = Boolean(skill);
+  const schema = isUpdate ? updateSkillFormSchema : skillFormSchema;
+  type SkillFormData = z.infer<typeof schema>;
   const {
-    control,
+    register,
     handleSubmit,
     setValue,
+    reset,
     watch,
     formState: { errors },
   } = useForm<SkillFormData>({
-    resolver: zodResolver(skillFormSchema),
-    defaultValues: {
-      name: skill?.name || '',
-      icon: null,
-    },
+    resolver: zodResolver(schema),
+    defaultValues: skill ? { name: skill.name } : {},
   });
-
-  const { addSkill, updateSkill } = useSkillStore();
-  const { toast } = useToast();
 
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
@@ -42,7 +45,7 @@ export default function SkillForm({ skill, onCloseSkillForm }: SkillFormProps) {
     [setValue],
   );
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+  const { getRootProps, getInputProps, isDragActive, open } = useDropzone({
     onDrop,
     accept: { 'image/svg+xml': ['.svg'] },
     multiple: false,
@@ -56,80 +59,56 @@ export default function SkillForm({ skill, onCloseSkillForm }: SkillFormProps) {
     if (data.icon) {
       formData.append('icon', data.icon);
     }
-
     try {
       if (skill) {
-        await updateSkill(skill.id, formData);
-        toast({ title: 'Compétence mise à jour avec succès' });
+        const updateMessage = await updateSkill(skill.id, formData);
+        toast({ title: updateMessage });
       } else {
-        await addSkill(formData);
-        toast({ title: 'Compétence ajoutée avec succès' });
+        const addMessage = await addSkill(formData);
+        toast({ title: addMessage });
       }
-      onCloseSkillForm();
     } catch (error) {
-      console.error("Erreur lors de l'opération sur la compétence:", error);
-      toast({
-        title: `Erreur lors de ${skill ? 'la mise à jour' : "l'ajout"} de la compétence`,
-        variant: 'destructive',
-      });
+      console.error(error);
     }
+
+    reset();
+    onClose();
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      <div>
-        <Label htmlFor="name">Nom de la compétence</Label>
-        <Controller
-          name="name"
-          control={control}
-          render={({ field }) => (
-            <>
-              <Input {...field} id="name" />
-              {errors.name && (
-                <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>
-              )}
-            </>
-          )}
-        />
-      </div>
-      <div>
-        <Label htmlFor="icon">Icône SVG</Label>
-        <Card className="mt-2">
-          <CardContent>
-            <div
-              {...getRootProps()}
-              className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer ${
-                isDragActive ? 'border-primary' : 'border-gray-300'
-              }`}
-            >
-              <input {...getInputProps()} />
-              {watchIcon ? (
-                <p>Fichier sélectionné : {watchIcon.name}</p>
-              ) : (
-                <p>
-                  {skill
-                    ? 'Déposez une nouvelle icône SVG ici ou cliquez pour sélectionner'
-                    : 'Déposez une icône SVG ici ou cliquez pour sélectionner'}
-                </p>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-        {errors.icon && (
-          <p className="text-red-500 text-sm mt-1">{errors.icon.message}</p>
-        )}
-        {skill && !watchIcon && (
-          <p className="mt-2 text-sm text-gray-500">Icône actuelle : {skill.iconPath}</p>
-        )}
-      </div>
-      <div className="flex justify-end space-x-2">
-        <DialogClose asChild>
-          <Button type="button" variant="outline">
-            Annuler
-          </Button>
-        </DialogClose>
-        <Button type="submit">{skill ? 'Mettre à jour' : 'Ajouter'} la compétence</Button>
-      </div>
+    <form onSubmit={handleSubmit(onSubmit)}>
+      <Card className="mt-4">
+        <CardContent className="space-y-4">
+          <div>
+            <Input {...register('name')} placeholder="Nom de la compétence" />
+            {errors.name && <p className="text-red-500">{errors.name.message}</p>}
+          </div>
+          <div
+            {...getRootProps()}
+            className={`border-2 border-dashed rounded-lg p-6 text-center ${isDragActive ? 'border-primary' : 'border-gray-300'}`}
+          >
+            <input {...getInputProps()} />
+            {watchIcon ? (
+              <p>Fichier sélectionné : {watchIcon.name}</p>
+            ) : (
+              <p>
+                {isDragActive
+                  ? 'Déposez le fichier ici...'
+                  : 'Glissez et déposez une icône SVG ici, ou cliquez pour sélectionner un fichier'}
+              </p>
+            )}
+          </div>
+          {errors.icon && <p className="text-red-500">{errors.icon.message}</p>}
+          <div className="mt-4 flex justify-between">
+            <Button type="button" onClick={open} disabled={isLoading}>
+              Sélectionner un fichier
+            </Button>
+            <Button type="submit" disabled={isLoading}>
+              {isLoading ? 'Chargement...' : isUpdate ? 'Modifier' : 'Ajouter'}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
     </form>
   );
 }

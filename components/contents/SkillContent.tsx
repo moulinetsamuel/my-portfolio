@@ -6,10 +6,13 @@ import Image from 'next/image';
 import type { Skill } from '@/lib/schemas/skill/skillSchema';
 import { Info } from 'lucide-react';
 import { RadiusData } from '@/constants';
+import LoadingMessage from '@/components/LoadingMessage';
+import ErrorMessage from '@/components/ErrorMessage';
 import useSkillStore from '@/store/useSkillStore';
 
 export default function SkillContent() {
-  const { fetchSkills, skills, isLoading, error } = useSkillStore();
+  const { skills, isLoading, fetchSkills } = useSkillStore();
+  const [fetchError, setFetchError] = useState<string | null>(null);
   const [scale, setScale] = useState(1);
   const [distributedSkills, setDistributedSkills] = useState<
     (Skill & { radiusIndex: number; index: number })[]
@@ -17,7 +20,9 @@ export default function SkillContent() {
   const [hasMoreSkills, setHasMoreSkills] = useState(false);
 
   useEffect(() => {
-    fetchSkills();
+    fetchSkills().catch((error) => {
+      setFetchError(error.message || 'Une erreur inattendue est survenue');
+    });
   }, [fetchSkills]);
 
   const handleResize = useCallback(() => {
@@ -67,17 +72,8 @@ export default function SkillContent() {
     }
   }, [skills]);
 
-  if (error) {
-    return <div className="text-center text-red-500 dark:text-red-400">{error};</div>;
-  }
-
-  if (isLoading) {
-    return (
-      <div className="text-center text-gray-500 dark:text-gray-400">
-        Chargement des compétences...
-      </div>
-    );
-  }
+  if (isLoading) return <LoadingMessage isLoading={isLoading} />;
+  if (fetchError) return <ErrorMessage errorMessage={fetchError} />;
 
   return (
     <div className="relative flex size-full flex-col items-center justify-center overflow-hidden">

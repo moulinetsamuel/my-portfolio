@@ -11,7 +11,7 @@ export const skillFormSchema = z.object({
       message: 'Le nom de la compétence ne peut pas dépasser 50 caractères',
     }),
   icon: z
-    .instanceof(File, { message: "L'icône doit être un fichier" })
+    .instanceof(File, { message: "L'icône doit être un fichier SVG" })
     .refine((file) => file.type === 'image/svg+xml', {
       message: "L'icône doit être au format SVG",
     }),
