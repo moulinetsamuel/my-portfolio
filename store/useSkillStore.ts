@@ -1,68 +1,87 @@
 import { create } from 'zustand';
-import { getSkills, createSkill, updateSkill, deleteSkill } from '@/lib/api/skills';
-import type { Skill } from '@/lib/schemas/skill/skillSchema';
+import { Skill } from '@/lib/schemas/skill/skillSchema';
+import { fetchSkills, createSkill, updateSkill, deleteSkill } from '@/lib/api/skillsApi';
+import { ApiError } from '@/lib/errors/apiError';
 
 interface SkillStore {
   skills: Skill[];
   isLoading: boolean;
   error: string | null;
+  successMessage: string | null;
   fetchSkills: () => Promise<void>;
   addSkill: (formData: FormData) => Promise<void>;
   updateSkill: (id: number, formData: FormData) => Promise<void>;
   deleteSkill: (id: number) => Promise<void>;
 }
 
-const useSkillStore = create<SkillStore>((set, get) => ({
+const useSkillStore = create<SkillStore>((set) => ({
   skills: [],
   isLoading: false,
   error: null,
+  successMessage: null,
+
   fetchSkills: async () => {
-    set({ isLoading: true });
+    set({ isLoading: true, error: null, successMessage: null });
     try {
-      const skills = await getSkills();
-      set({ skills, isLoading: false, error: null });
+      const skills = await fetchSkills();
+      set({ skills, isLoading: false });
     } catch (error) {
-      set({ error: 'Failed to fetch skills', isLoading: false });
+      set({ isLoading: false });
       throw error;
     }
   },
+
   addSkill: async (formData: FormData) => {
-    set({ isLoading: true });
+    set({ isLoading: true, error: null, successMessage: null });
     try {
-      const newSkill = await createSkill(formData);
+      const response = await createSkill(formData);
       set((state) => ({
-        skills: [...state.skills, newSkill],
+        skills: [...state.skills, response.data],
         isLoading: false,
+        successMessage: response.message,
       }));
     } catch (error) {
-      set({ error: 'Failed to add skill', isLoading: false });
-      throw error;
+      if (error instanceof ApiError) {
+        set({ error: error.message, isLoading: false });
+      } else {
+        set({ error: 'Une erreur inattendue est survenue', isLoading: false });
+      }
     }
   },
+
   updateSkill: async (id: number, formData: FormData) => {
-    set({ isLoading: true });
+    set({ isLoading: true, error: null, successMessage: null });
     try {
-      const updatedSkill = await updateSkill(id, formData);
+      const response = await updateSkill(id, formData);
       set((state) => ({
-        skills: state.skills.map((skill) =>
-          skill.id === updatedSkill.id ? updatedSkill : skill,
-        ),
+        skills: state.skills.map((skill) => (skill.id === id ? response.data : skill)),
         isLoading: false,
+        successMessage: response.message,
       }));
     } catch (error) {
-      set({ error: 'Failed to update skill', isLoading: false });
-      throw error;
+      if (error instanceof ApiError) {
+        set({ error: error.message, isLoading: false });
+      } else {
+        set({ error: 'Une erreur inattendue est survenue', isLoading: false });
+      }
     }
   },
+
   deleteSkill: async (id: number) => {
-    set({ isLoading: true });
+    set({ isLoading: true, error: null, successMessage: null });
     try {
       await deleteSkill(id);
-      get().fetchSkills();
+      set((state) => ({
+        skills: state.skills.filter((skill) => skill.id !== id),
+        isLoading: false,
+        successMessage: 'La compétence a été supprimée avec succès',
+      }));
     } catch (error) {
-      console.error(error);
-      set({ error: error.error, isLoading: false });
-      throw error;
+      if (error instanceof ApiError) {
+        set({ error: error.message, isLoading: false });
+      } else {
+        set({ error: 'Une erreur inattendue est survenue', isLoading: false });
+      }
     }
   },
 }));
