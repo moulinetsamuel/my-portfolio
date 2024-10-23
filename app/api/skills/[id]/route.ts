@@ -27,8 +27,6 @@ export async function PUT(
 
     const formData = await request.formData();
     const data = Object.fromEntries(formData.entries());
-    console.log(data);
-
     const validatedData = updateSkillFormSchema.parse(data);
 
     const { name, icon } = validatedData;

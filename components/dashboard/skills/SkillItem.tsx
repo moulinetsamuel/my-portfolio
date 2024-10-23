@@ -5,6 +5,7 @@ import SkillForm from '@/components/dashboard/skills/SkillForm';
 import useSkillStore from '@/store/useSkillStore';
 import Image from 'next/image';
 import { useToast } from '@/hooks/use-toast';
+import { handleError } from '@/lib/utils/handleError';
 
 interface SkillItemProps {
   skill: Skill;
@@ -12,15 +13,19 @@ interface SkillItemProps {
 
 export default function SkillItem({ skill }: SkillItemProps) {
   const [isEditing, setIsEditing] = useState(false);
-  const { deleteSkill } = useSkillStore();
+  const deleteSkill = useSkillStore((state) => state.deleteSkill);
   const { toast } = useToast();
 
   const handleDelete = async () => {
     try {
-      const deleteMessage = await deleteSkill(skill.id);
-      toast({ title: deleteMessage || 'Compétence supprimée' });
+      const response = await deleteSkill(skill.id);
+      toast({
+        title: `Succès`,
+        description: response,
+      });
     } catch (error) {
-      console.error(error);
+      const { title, description } = handleError(error);
+      toast({ title, description, variant: 'destructive' });
     }
   };
 

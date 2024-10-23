@@ -13,6 +13,7 @@ import { z } from 'zod';
 import { useCallback } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
+import { handleError } from '@/lib/utils/handleError';
 
 interface SkillFormProps {
   skill?: Skill;
@@ -20,7 +21,9 @@ interface SkillFormProps {
 }
 
 export default function SkillForm({ skill, onClose }: SkillFormProps) {
-  const { isLoading, addSkill, updateSkill } = useSkillStore();
+  const isLoading = useSkillStore((state) => state.isLoading);
+  const addSkill = useSkillStore((state) => state.addSkill);
+  const updateSkill = useSkillStore((state) => state.updateSkill);
   const { toast } = useToast();
 
   const isUpdate = Boolean(skill);
@@ -30,7 +33,6 @@ export default function SkillForm({ skill, onClose }: SkillFormProps) {
     register,
     handleSubmit,
     setValue,
-    reset,
     watch,
     formState: { errors },
   } = useForm<SkillFormData>({
@@ -63,16 +65,16 @@ export default function SkillForm({ skill, onClose }: SkillFormProps) {
       if (skill) {
         const updateMessage = await updateSkill(skill.id, formData);
         toast({ title: updateMessage });
+        onClose();
       } else {
         const addMessage = await addSkill(formData);
         toast({ title: addMessage });
+        onClose();
       }
     } catch (error) {
-      console.error(error);
+      const { title, description } = handleError(error);
+      toast({ title, description, variant: 'destructive' });
     }
-
-    reset();
-    onClose();
   };
 
   return (

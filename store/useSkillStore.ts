@@ -14,6 +14,7 @@ interface SkillStore {
 const useSkillStore = create<SkillStore>((set) => ({
   skills: [],
   isLoading: false,
+  statusMessage: null,
 
   fetchSkills: async () => {
     set({ isLoading: true });

@@ -43,6 +43,7 @@ export async function GET(): Promise<NextResponse<Skill[] | SkillApiError>> {
     const serverError = skillApiErrorSchema.parse({
       message: 'Erreur lors de la récupération des compétences',
     });
+
     return NextResponse.json(serverError, { status: 500 });
   }
 }
