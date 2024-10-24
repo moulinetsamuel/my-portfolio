@@ -1,22 +1,19 @@
+'use client';
+
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { CVFormData, cvFormSchema } from '@/lib/schemas/cv/cvFormSchema';
+import useCvStore from '@/store/useCvStore';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { useForm } from 'react-hook-form';
+import { useToast } from '@/hooks/use-toast';
 
-interface CVUploaderProps {
-  onUpload: (formData: FormData) => Promise<void>;
-  hasExistingCV: boolean;
-  isUploading: boolean;
-}
-
-export default function CVUploader({
-  onUpload,
-  hasExistingCV,
-  isUploading,
-}: CVUploaderProps) {
+export default function CVUploader() {
+  const uploadCV = useCvStore((state) => state.uploadCV);
+  const isLoading = useCvStore((state) => state.isLoading);
+  const { toast } = useToast();
   const {
     handleSubmit,
     setValue,
@@ -46,7 +43,13 @@ export default function CVUploader({
     const formData = new FormData();
     formData.append('cv', data.cv);
 
-    await onUpload(formData);
+    const response = await uploadCV(formData);
+    if (response) {
+      toast({
+        title: response,
+      });
+    }
+
     reset();
   };
 
@@ -65,23 +68,19 @@ export default function CVUploader({
               <p>Fichier sélectionné : {watchCv.name}</p>
             ) : (
               <p>
-                {hasExistingCV
-                  ? 'Déposez un nouveau CV ici ou cliquez pour sélectionner'
-                  : 'Déposez votre CV ici ou cliquez pour sélectionner'}
+                {isDragActive
+                  ? 'Déposez le fichier ici...'
+                  : 'Glissez et déposez votre CV ici, ou cliquez pour le sélectionner'}
               </p>
             )}
           </div>
           {errors.cv && <p className="text-red-500 text-sm mt-1">{errors.cv.message}</p>}
           <div className="mt-4 flex justify-between">
-            <Button type="button" onClick={open} disabled={isUploading}>
+            <Button type="button" onClick={open} disabled={isLoading}>
               Sélectionner un fichier
             </Button>
-            <Button type="submit" disabled={isUploading || !watchCv}>
-              {isUploading
-                ? 'Téléchargement en cours...'
-                : hasExistingCV
-                  ? 'Remplacer le CV'
-                  : 'Télécharger le CV'}
+            <Button type="submit" disabled={isLoading || !watchCv}>
+              {isLoading ? 'Téléchargement en cours...' : 'Télécharger le CV'}
             </Button>
           </div>
         </CardContent>

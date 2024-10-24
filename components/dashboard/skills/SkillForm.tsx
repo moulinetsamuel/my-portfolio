@@ -64,11 +64,11 @@ export default function SkillForm({ skill, onClose }: SkillFormProps) {
     try {
       if (skill) {
         const updateMessage = await updateSkill(skill.id, formData);
-        toast({ title: updateMessage });
+        toast({ title: 'Succès', description: updateMessage });
         onClose();
       } else {
         const addMessage = await addSkill(formData);
-        toast({ title: addMessage });
+        toast({ title: 'Succès', description: addMessage });
         onClose();
       }
     } catch (error) {

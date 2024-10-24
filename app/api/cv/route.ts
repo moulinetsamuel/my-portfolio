@@ -135,7 +135,7 @@ export async function POST(
     }
 
     const serverError = cvApiErrorSchema.parse({
-      message: "Erreur lors de l'ajout/la mise à jour du CV",
+      message: "Erreur lors de l'ajout ou la mise à jour du CV",
     });
     return NextResponse.json(serverError, { status: 500 });
   }

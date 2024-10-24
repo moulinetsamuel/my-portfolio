@@ -1,30 +1,25 @@
 'use client';
 
 import useSkillStore from '@/store/useSkillStore';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import LoadingMessage from '@/components/LoadingMessage';
 import SkillManager from '@/components/dashboard/skills/SkillManager';
-import { useToast } from '@/hooks/use-toast';
-import { handleError } from '@/lib/utils/handleError';
 
 export default function SkillsPage() {
-  const { toast } = useToast();
   const fetchSkills = useSkillStore((state) => state.fetchSkills);
+  const [message, setMesage] = useState<string | null>(null);
 
   useEffect(() => {
-    try {
-      fetchSkills();
-    } catch (error) {
-      const { title, description } = handleError(error);
-      toast({ title, description, variant: 'destructive' });
-    }
-  }, [fetchSkills, toast]);
+    fetchSkills().catch((error) => {
+      setMesage(error.message || 'Une erreur inattendue est survenue');
+    });
+  }, [fetchSkills]);
 
   return (
     <div className="container mx-auto p-4">
       <h1 className="mb-6 text-3xl font-bold">Gestion des compétences</h1>
       <LoadingMessage store="skill" />
-      <SkillManager />
+      <SkillManager message={message} />
     </div>
   );
 }

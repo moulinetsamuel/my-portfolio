@@ -1,5 +1,9 @@
+import { ExclamationTriangleIcon } from '@radix-ui/react-icons';
+
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+
 interface ErrorMessageProps {
-  errorMessage: string | null;
+  errorMessage: string | undefined;
 }
 
 export default function ErrorMessage({ errorMessage }: ErrorMessageProps) {
@@ -7,5 +11,11 @@ export default function ErrorMessage({ errorMessage }: ErrorMessageProps) {
     return null;
   }
 
-  return <div className="text-center text-red-500 dark:text-red-400">{errorMessage}</div>;
+  return (
+    <Alert className="mt-4" variant="destructive">
+      <ExclamationTriangleIcon className="h-4 w-4" />
+      <AlertTitle>Error</AlertTitle>
+      <AlertDescription>{errorMessage}</AlertDescription>
+    </Alert>
+  );
 }

@@ -1,3 +1,5 @@
+'use client';
+
 import useCvStore from '@/store/useCvStore';
 import useSkillStore from '@/store/useSkillStore';
 import useProjectStore from '@/store/useProjectStore';

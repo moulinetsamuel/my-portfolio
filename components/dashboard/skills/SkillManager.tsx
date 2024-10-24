@@ -4,7 +4,11 @@ import SkillForm from '@/components/dashboard/skills/SkillForm';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 
-export default function SkillManager() {
+interface SkillManagerProps {
+  message: string | null;
+}
+
+export default function SkillManager({ message }: SkillManagerProps) {
   const [isFormVisible, setIsFormVisible] = useState(false);
 
   return (
@@ -18,7 +22,7 @@ export default function SkillManager() {
         </Button>
         {isFormVisible && <SkillForm onClose={() => setIsFormVisible(false)} />}
 
-        <SkillList />
+        <SkillList message={message} />
       </CardContent>
     </Card>
   );

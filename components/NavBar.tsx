@@ -18,23 +18,20 @@ import { useToast } from '@/hooks/use-toast';
 import useCvStore from '@/store/useCvStore';
 
 export default function NavBar() {
-  const { cv, fetchCV } = useCvStore();
-  const [fetchError, setFetchError] = useState<string | null>(null);
+  const cv = useCvStore((state) => state.cv);
+  const fetchCV = useCvStore((state) => state.fetchCV);
+  const error = useCvStore((state) => state.error);
   const [isOpen, setIsOpen] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
-    fetchCV()
-      .then(() => setFetchError(null))
-      .catch((error) => {
-        setFetchError(error.message || 'Une erreur inattendue est survenue');
-      });
+    fetchCV();
   }, [fetchCV]);
 
   const handleDownloadCV = () => {
     if (!cv) {
       toast({
-        title: fetchError || 'Une erreur est survenue lors de la récupération du CV',
+        title: error?.message,
         variant: 'destructive',
       });
     } else {
