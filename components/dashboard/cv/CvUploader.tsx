@@ -13,6 +13,7 @@ import { useToast } from '@/hooks/use-toast';
 export default function CVUploader() {
   const uploadCV = useCvStore((state) => state.uploadCV);
   const isLoading = useCvStore((state) => state.isLoading);
+  const error = useCvStore((state) => state.error);
   const { toast } = useToast();
   const {
     handleSubmit,
@@ -47,6 +48,11 @@ export default function CVUploader() {
     if (response) {
       toast({
         title: response,
+      });
+    } else if (error) {
+      toast({
+        title: error.message || 'Une erreur est survenue lors du téléchargement du CV',
+        variant: 'destructive',
       });
     }
 

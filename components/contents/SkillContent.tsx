@@ -8,12 +8,12 @@ import { Info } from 'lucide-react';
 import { RadiusData } from '@/constants';
 import ErrorMessage from '@/components/ErrorMessage';
 import useSkillStore from '@/store/useSkillStore';
-import LoadingMessage from '../LoadingMessage';
+import LoadingMessage from '@/components/LoadingMessage';
 
 export default function SkillContent() {
   const fetchSkills = useSkillStore((state) => state.fetchSkills);
   const skills = useSkillStore((state) => state.skills);
-  const [fetchError, setFetchError] = useState<string | null>(null);
+  const error = useSkillStore((state) => state.error);
   const [scale, setScale] = useState(1);
   const [distributedSkills, setDistributedSkills] = useState<
     (Skill & { radiusIndex: number; index: number })[]
@@ -21,12 +21,7 @@ export default function SkillContent() {
   const [hasMoreSkills, setHasMoreSkills] = useState(false);
 
   useEffect(() => {
-    fetchSkills().catch((error) => {
-      setFetchError(
-        error.message ||
-          'Une erreur inattendue est survenue lors de la récupération des compétences',
-      );
-    });
+    fetchSkills();
   }, [fetchSkills]);
 
   const handleResize = useCallback(() => {
@@ -79,7 +74,7 @@ export default function SkillContent() {
   return (
     <div className="relative flex size-full flex-col items-center justify-center overflow-hidden">
       <LoadingMessage store="skill" />
-      <ErrorMessage errorMessage={fetchError} />
+      <ErrorMessage errorMessage={error?.message} />
       {distributedSkills.map((skill) => {
         const { radius, duration, reverse, size } = RadiusData[skill.radiusIndex];
         const totalIconsInRadius = distributedSkills.filter(

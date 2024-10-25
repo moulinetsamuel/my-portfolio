@@ -1,16 +1,25 @@
+'use client';
+
 import SkillItem from '@/components/dashboard/skills/SkillItem';
 import useSkillStore from '@/store/useSkillStore';
 import ErrorMessage from '@/components/ErrorMessage';
+import { useEffect } from 'react';
 
-interface SkillListProps {
-  message: string | null;
-}
-
-export default function SkillList({ message }: SkillListProps) {
+export default function SkillList() {
+  const fetchSkills = useSkillStore((state) => state.fetchSkills);
   const skills = useSkillStore((state) => state.skills);
+  const error = useSkillStore((state) => state.error);
 
-  if (message) {
-    return <ErrorMessage errorMessage={message} />;
+  useEffect(() => {
+    fetchSkills();
+  }, [fetchSkills]);
+
+  if (error && error.fetch) {
+    return <ErrorMessage errorMessage={error.message} />;
+  }
+
+  if (skills.length === 0) {
+    return <ErrorMessage errorMessage="Aucune compétence trouvée" />;
   }
 
   return (

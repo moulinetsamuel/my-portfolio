@@ -12,7 +12,7 @@ import {
   SheetTitle,
   SheetDescription,
 } from '@/components/ui/sheet';
-import NavLink from './NavLink';
+import NavLink from '@/components/NavLink';
 import { navItems } from '@/constants';
 import { useToast } from '@/hooks/use-toast';
 import useCvStore from '@/store/useCvStore';
@@ -29,12 +29,13 @@ export default function NavBar() {
   }, [fetchCV]);
 
   const handleDownloadCV = () => {
-    if (!cv) {
+    if (error) {
       toast({
-        title: error?.message,
+        title: error.message,
         variant: 'destructive',
       });
-    } else {
+    }
+    if (cv) {
       const link = document.createElement('a');
       link.href = cv.filePath;
       link.download = cv.filePath.split('/').pop() as string;

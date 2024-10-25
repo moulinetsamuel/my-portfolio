@@ -5,7 +5,7 @@ import { ApiError } from '@/lib/errors/apiError';
 
 interface ApiErrorShape {
   message: string;
-  status: number;
+  fetch?: boolean;
 }
 
 interface CvStore {
@@ -30,12 +30,12 @@ const useCvStore = create<CvStore>((set) => ({
       if (error instanceof ApiError) {
         set({
           isLoading: false,
-          error: { message: error.message, status: error.status },
+          error: { message: error.message, fetch: true },
         });
       } else {
         set({
           isLoading: false,
-          error: { message: 'Une erreur inattendue est survenue', status: 500 },
+          error: { message: 'Une erreur inattendue est survenue', fetch: true },
         });
       }
     }
@@ -54,12 +54,12 @@ const useCvStore = create<CvStore>((set) => ({
       if (error instanceof ApiError) {
         set({
           isLoading: false,
-          error: { message: error.message, status: error.status },
+          error: { message: error.message },
         });
       } else {
         set({
           isLoading: false,
-          error: { message: 'Une erreur inattendue est survenue', status: 500 },
+          error: { message: 'Une erreur inattendue est survenue' },
         });
       }
     }

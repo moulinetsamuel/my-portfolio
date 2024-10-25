@@ -31,8 +31,12 @@ export default function CurrentCV() {
     return () => window.removeEventListener('resize', updatePageWidth);
   }, []);
 
-  if (error?.status === 404 || !cv) {
+  if (error && error.fetch) {
     return <ErrorMessage errorMessage={error?.message} />;
+  }
+
+  if (!cv) {
+    return <ErrorMessage errorMessage="Aucun CV trouvé" />;
   }
 
   return (
