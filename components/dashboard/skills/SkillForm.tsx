@@ -49,7 +49,6 @@ export default function SkillForm({ skill }: SkillFormProps) {
     formState: { errors },
   } = useForm<SkillFormData>({
     resolver: zodResolver(schema),
-    defaultValues: skill ? { name: skill.name } : {},
   });
 
   const onDrop = useCallback(
@@ -96,8 +95,10 @@ export default function SkillForm({ skill }: SkillFormProps) {
 
   const handleOpenChange = (newOpen: boolean) => {
     setIsDialogOpen(newOpen);
-    if (!newOpen) {
-      reset();
+    if (newOpen) {
+      reset({
+        name: skill ? skill.name : '',
+      });
     }
   };
 
@@ -191,7 +192,9 @@ export default function SkillForm({ skill }: SkillFormProps) {
                   Annuler
                 </Button>
               </DialogClose>
-              <Button type="submit">{isUpdate ? 'Modifier' : 'Ajouter'}</Button>
+              <Button type="button" onClick={handleSubmit(onSubmit)}>
+                {isUpdate ? 'Modifier' : 'Ajouter'}
+              </Button>
             </div>
           </DialogFooter>
         </form>

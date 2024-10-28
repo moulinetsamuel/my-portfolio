@@ -1,16 +1,16 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import SkillList from '@/components/dashboard/skills/SkillList';
-import SkillForm from '@/components/dashboard/skills/SkillForm';
+import ProjectList from '@/components/dashboard/projects/ProjectList';
+import ProjectForm from '@/components/dashboard/projects/ProjectForm';
 
-export default function SkillManager() {
+export default function ProjectManager() {
   return (
     <Card className="mb-8">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle>Liste des compétences</CardTitle>
-        <SkillForm />
+        <CardTitle>Liste des projets</CardTitle>
+        <ProjectForm />
       </CardHeader>
       <CardContent>
-        <SkillList />
+        <ProjectList />
       </CardContent>
     </Card>
   );

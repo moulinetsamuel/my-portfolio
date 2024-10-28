@@ -3,13 +3,7 @@
 import { useState } from 'react';
 import { Skill } from '@/lib/schemas/skill/skillSchema';
 import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import SkillForm from '@/components/dashboard/skills/SkillForm';
 import useSkillStore from '@/store/useSkillStore';
 import Image from 'next/image';
@@ -50,8 +44,8 @@ export default function SkillItem({ skill }: SkillItemProps) {
   };
 
   return (
-    <Card className="w-full max-w-sm">
-      <CardHeader>
+    <Card className="flex flex-col">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="flex items-center gap-2">
           <Image
             src={skill.iconPath}
@@ -60,27 +54,14 @@ export default function SkillItem({ skill }: SkillItemProps) {
             height={24}
             className="rounded-sm"
           />
-          {skill.name}
+          <span className="truncate">{skill.name}</span>
         </CardTitle>
-      </CardHeader>
-      <CardContent>
-        {/* Si je veux ajouter les noms des projets liés */}
-        {/* {skill.projects && (
-          <div className="mt-2">
-            <h4 className="text-sm font-semibold">Projets liés :</h4>
-            <ul className="list-disc list-inside">
-              {skill.projects.map(project => (
-                <li key={project.id} className="text-sm">{project.name}</li>
-              ))}
-            </ul>
-          </div>
-        )} */}
-      </CardContent>
-      <CardFooter className="flex justify-end gap-2">
         <SkillForm skill={skill} />
+      </CardHeader>
+      <CardFooter className="pt-2">
         <AlertDialog>
           <AlertDialogTrigger asChild>
-            <Button variant="destructive" size="sm">
+            <Button variant="destructive" size="sm" className="w-full">
               <Trash2 className="w-4 h-4 mr-2" />
               Supprimer
             </Button>

@@ -53,7 +53,16 @@ export async function POST(
 ): Promise<NextResponse<ProjectApiResponse | ProjectApiError>> {
   try {
     const formData = await request.formData();
-    const data = Object.fromEntries(formData.entries());
+
+    const data = {
+      title: formData.get('title'),
+      description: formData.get('description'),
+      siteUrl: formData.get('siteUrl'),
+      repoUrl: formData.get('repoUrl'),
+      image: formData.get('image'),
+      skillIds: formData.getAll('skillIds').map(Number),
+    };
+
     const validatedData = projectFormSchema.parse(data);
 
     const { title, description, siteUrl, repoUrl, image, skillIds } = validatedData;

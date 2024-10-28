@@ -1,51 +1,59 @@
 'use client';
 
-import React, { useCallback } from 'react';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useDropzone } from 'react-dropzone';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent } from '@/components/ui/card';
-import SkillSelector from '@/components/dashboard/projects/SkillSelector';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import SkillForm from '@/components/dashboard/skills/SkillForm';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogTrigger,
+  DialogClose,
+  DialogDescription,
+} from '@/components/ui/dialog';
+import {
+  projectFormSchema,
+  updateProjectFormSchema,
+  ProjectFormData,
+  UpdateProjectFormData,
+} from '@/lib/schemas/project/projectFormSchema';
+import { Project } from '@/lib/schemas/project/projectSchema';
 import useProjectStore from '@/store/useProjectStore';
-import useSkillStore from '@/store/useSkillStore';
+import { useCallback, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { projectFormSchema, type ProjectFormData } from '@/lib/schemas/projectSchema';
-import type { Project } from '@/lib/schemas/projectSchema';
+import { Pencil } from 'lucide-react';
+import SkillForm from '@/components/dashboard/skills/SkillForm';
+import SkillSelector from '@/components/dashboard/projects/SkillSelector';
+import ImageUploader from '@/components/dashboard/projects/ImageUploader';
 
 interface ProjectFormProps {
   project?: Project;
-  onCloseProjectForm: () => void;
 }
 
-export default function ProjectForm({ project, onCloseProjectForm }: ProjectFormProps) {
+export default function ProjectForm({ project }: ProjectFormProps) {
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const addProject = useProjectStore((state) => state.addProject);
+  const updateProject = useProjectStore((state) => state.updateProject);
+  const error = useProjectStore((state) => state.error);
+  const { toast } = useToast();
+
+  const isUpdate = Boolean(project);
+  const schema = isUpdate ? updateProjectFormSchema : projectFormSchema;
   const {
-    control,
+    register,
     handleSubmit,
+    control,
     setValue,
     watch,
+    reset,
     formState: { errors },
-  } = useForm<ProjectFormData>({
-    resolver: zodResolver(projectFormSchema),
-    defaultValues: {
-      title: project?.title || '',
-      description: project?.description || '',
-      siteUrl: project?.siteUrl || '',
-      repoUrl: project?.repoUrl || '',
-      skillIds: project?.skills?.map((s) => s.id) || [],
-      image: null,
-    },
+  } = useForm<ProjectFormData | UpdateProjectFormData>({
+    resolver: zodResolver(schema),
   });
-
-  const [isAddingSkill, setIsAddingSkill] = React.useState(false);
-  const { addProject, updateProject } = useProjectStore();
-  const { fetchSkills } = useSkillStore();
-  const { toast } = useToast();
 
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
@@ -54,182 +62,151 @@ export default function ProjectForm({ project, onCloseProjectForm }: ProjectForm
     [setValue],
   );
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    onDrop,
-    accept: { 'image/*': [] },
-    multiple: false,
-  });
-
   const watchImage = watch('image');
 
-  const onSubmit = async (data: ProjectFormData) => {
+  const onSubmit = async (data: ProjectFormData | UpdateProjectFormData) => {
     const formData = new FormData();
     formData.append('title', data.title);
     formData.append('description', data.description);
     formData.append('siteUrl', data.siteUrl);
     formData.append('repoUrl', data.repoUrl);
-    formData.append('skillIds', JSON.stringify(data.skillIds));
     if (data.image) {
       formData.append('image', data.image);
     }
+    data.skillIds.forEach((skillId) => formData.append('skillIds', skillId.toString()));
 
-    try {
-      if (project) {
-        await updateProject(project.id, formData);
-        toast({
-          title: 'Succès',
-          description: 'Le projet a été mis à jour avec succès.',
-        });
-      } else {
-        await addProject(formData);
-        toast({
-          title: 'Succès',
-          description: 'Le projet a été ajouté avec succès.',
-        });
-      }
-      onCloseProjectForm();
-    } catch (error) {
-      console.error('Error saving project:', error);
+    let response;
+    if (project) {
+      response = await updateProject(project.id, formData);
+    } else {
+      response = await addProject(formData);
+    }
+
+    if (response) {
       toast({
-        title: 'Erreur',
-        description: `Impossible de ${project ? 'mettre à jour' : 'ajouter'} le projet.`,
+        title: response,
+      });
+      handleOpenChange(false);
+    } else if (error) {
+      toast({
+        title: error.message,
         variant: 'destructive',
       });
     }
   };
 
+  const handleOpenChange = (newOpen: boolean) => {
+    setIsDialogOpen(newOpen);
+    if (newOpen) {
+      reset({
+        title: project ? project.title : '',
+        description: project ? project.description : '',
+        siteUrl: project ? project.siteUrl : '',
+        repoUrl: project ? project.repoUrl : '',
+        skillIds: project ? project.skills.map((skill) => skill.id) : [],
+      });
+    }
+  };
+
+  const removeImage = () => {
+    setValue('image', undefined);
+  };
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      <div>
-        <Label htmlFor="title">Titre</Label>
-        <Controller
-          name="title"
-          control={control}
-          render={({ field }) => (
+    <Dialog open={isDialogOpen} onOpenChange={handleOpenChange}>
+      <DialogTrigger asChild>
+        <Button type="button">
+          {isUpdate ? (
             <>
-              <Input {...field} id="title" />
-              {errors.title && (
-                <p className="text-red-500 text-sm mt-1">{errors.title.message}</p>
-              )}
+              <Pencil className="mr-2 h-4 w-4" />
+              Modifier
             </>
+          ) : (
+            'Ajouter un projet'
           )}
-        />
-      </div>
-      <div>
-        <Label htmlFor="description">Description</Label>
-        <Controller
-          name="description"
-          control={control}
-          render={({ field }) => (
-            <>
-              <Textarea {...field} id="description" />
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[600px]">
+        <DialogHeader>
+          <DialogTitle>
+            {isUpdate ? 'Modifier le projet' : 'Ajouter un projet'}
+          </DialogTitle>
+          <DialogDescription>
+            Remplissez le formulaire ci-dessous pour {isUpdate ? 'modifier' : 'ajouter'}{' '}
+            un projet.
+          </DialogDescription>
+        </DialogHeader>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <div className="grid gap-4 py-4">
+            <div className="grid items-center gap-4">
+              <Input
+                id="title"
+                className="w-full"
+                {...register('title')}
+                placeholder="Titre du projet"
+              />
+              {errors.title && <p className="text-red-500">{errors.title.message}</p>}
+            </div>
+            <div className="grid items-center gap-4">
+              <Textarea
+                id="description"
+                className="w-full"
+                {...register('description')}
+                placeholder="Description du projet"
+              />
               {errors.description && (
-                <p className="text-red-500 text-sm mt-1">{errors.description.message}</p>
-              )}
-            </>
-          )}
-        />
-      </div>
-      <div>
-        <Label htmlFor="siteUrl">URL du site</Label>
-        <Controller
-          name="siteUrl"
-          control={control}
-          render={({ field }) => (
-            <>
-              <Input {...field} id="siteUrl" type="url" />
-              {errors.siteUrl && (
-                <p className="text-red-500 text-sm mt-1">{errors.siteUrl.message}</p>
-              )}
-            </>
-          )}
-        />
-      </div>
-      <div>
-        <Label htmlFor="repoUrl">URL du dépôt GitHub</Label>
-        <Controller
-          name="repoUrl"
-          control={control}
-          render={({ field }) => (
-            <>
-              <Input {...field} id="repoUrl" type="url" />
-              {errors.repoUrl && (
-                <p className="text-red-500 text-sm mt-1">{errors.repoUrl.message}</p>
-              )}
-            </>
-          )}
-        />
-      </div>
-      <div>
-        <Label>Image du projet</Label>
-        <Card className="mt-2">
-          <CardContent>
-            <div
-              {...getRootProps()}
-              className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer ${
-                isDragActive ? 'border-primary' : 'border-gray-300'
-              }`}
-            >
-              <input {...getInputProps()} />
-              {watchImage ? (
-                <p>Fichier sélectionné : {watchImage.name}</p>
-              ) : (
-                <p>
-                  {project
-                    ? 'Déposez une nouvelle image ici ou cliquez pour sélectionner'
-                    : 'Déposez une image ici ou cliquez pour sélectionner'}
-                </p>
+                <p className="text-red-500">{errors.description.message}</p>
               )}
             </div>
-          </CardContent>
-        </Card>
-        {errors.image && (
-          <p className="text-red-500 text-sm mt-1">{errors.image.message}</p>
-        )}
-        {project && !watchImage && (
-          <p className="mt-2 text-sm text-gray-500">
-            Image actuelle : {project.imagePath}
-          </p>
-        )}
-      </div>
-      <div>
-        <Controller
-          name="skillIds"
-          control={control}
-          render={({ field }) => (
+            <div className="grid items-center gap-4">
+              <Input
+                id="siteUrl"
+                className="w-full"
+                {...register('siteUrl')}
+                placeholder="URL du site"
+              />
+              {errors.siteUrl && <p className="text-red-500">{errors.siteUrl.message}</p>}
+            </div>
+            <div className="grid items-center gap-4">
+              <Input
+                id="repoUrl"
+                className="w-full"
+                {...register('repoUrl')}
+                placeholder="URL du dépôt"
+              />
+              {errors.repoUrl && <p className="text-red-500">{errors.repoUrl.message}</p>}
+            </div>
             <SkillSelector
-              selectedSkills={field.value}
-              onSkillsChange={(skills) => field.onChange(skills)}
+              control={control}
+              errors={errors}
+              defaultSkills={project?.skills.map((skill) => skill.id)}
             />
-          )}
-        />
-        {errors.skillIds && (
-          <p className="text-red-500 text-sm mt-1">{errors.skillIds.message}</p>
-        )}
-        <Button variant="outline" onClick={() => setIsAddingSkill(true)} className="mt-2">
-          Ajouter une nouvelle compétence
-        </Button>
-        <Dialog open={isAddingSkill} onOpenChange={setIsAddingSkill}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Ajouter une nouvelle compétence</DialogTitle>
-            </DialogHeader>
-            <SkillForm
-              onCloseSkillForm={() => {
-                setIsAddingSkill(false);
-                fetchSkills();
-              }}
+            <div className="flex items-center gap-4">
+              <SkillForm />
+              <p className="text-sm text-muted-foreground">
+                Vous pouvez ajouter une nouvelle compétence si elle n&apos;existe pas dans
+                la liste.
+              </p>
+            </div>
+            <ImageUploader
+              onDrop={onDrop}
+              onRemove={removeImage}
+              currentImage={project?.imagePath}
+              watchImage={watchImage}
+              projectTitle={project?.title}
             />
-          </DialogContent>
-        </Dialog>
-      </div>
-      <div className="flex justify-end space-x-2">
-        <Button type="button" variant="outline" onClick={onCloseProjectForm}>
-          Annuler
-        </Button>
-
-        <Button type="submit">{project ? 'Mettre à jour' : 'Ajouter'} le projet</Button>
-      </div>
-    </form>
+            {errors.image && <p className="text-red-500">{errors.image.message}</p>}
+          </div>
+          <DialogFooter className="flex justify-end items-center mt-6">
+            <DialogClose asChild>
+              <Button type="button" variant="outline" className="mr-2">
+                Annuler
+              </Button>
+            </DialogClose>
+            <Button type="submit">{isUpdate ? 'Modifier' : 'Ajouter'}</Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 }

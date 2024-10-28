@@ -23,7 +23,7 @@ export default function SkillList() {
   }
 
   return (
-    <div className="space-y-4 mt-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {skills.map((skill) => (
         <SkillItem key={skill.id} skill={skill} />
       ))}

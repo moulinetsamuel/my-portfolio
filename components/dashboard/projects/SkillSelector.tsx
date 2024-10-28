@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-import React from 'react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import {
@@ -11,17 +12,21 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import useSkillStore from '@/store/useSkillStore';
+import { Controller } from 'react-hook-form';
 
 interface SkillSelectorProps {
-  selectedSkills: number[];
-  onSkillsChange: (selectedSkills: number[]) => void;
+  control: any;
+  errors: any;
+  defaultSkills?: number[];
 }
 
 export default function SkillSelector({
-  selectedSkills,
-  onSkillsChange,
+  control,
+  errors,
+  defaultSkills = [],
 }: SkillSelectorProps) {
-  const { skills } = useSkillStore();
+  const skills = useSkillStore((state) => state.skills);
+  const [selectedSkills, setSelectedSkills] = useState<number[]>(defaultSkills);
 
   return (
     <div>
@@ -34,33 +39,47 @@ export default function SkillSelector({
               key={skill.id}
               type="button"
               variant="secondary"
-              onClick={() =>
-                onSkillsChange(selectedSkills.filter((id) => id !== skill.id))
-              }
+              onClick={() => {
+                const newSelectedSkills = selectedSkills.filter((id) => id !== skill.id);
+                setSelectedSkills(newSelectedSkills);
+                control.setValue('skillIds', newSelectedSkills);
+              }}
             >
               {skill.name} ✕
             </Button>
           ) : null;
         })}
       </div>
-      <Select
-        onValueChange={(value) =>
-          onSkillsChange([...selectedSkills, parseInt(value, 10)])
-        }
-      >
-        <SelectTrigger>
-          <SelectValue placeholder="Sélectionner une compétence" />
-        </SelectTrigger>
-        <SelectContent>
-          {skills
-            .filter((skill) => !selectedSkills.includes(skill.id))
-            .map((skill) => (
-              <SelectItem key={skill.id} value={skill.id.toString()}>
-                {skill.name}
-              </SelectItem>
-            ))}
-        </SelectContent>
-      </Select>
+      <Controller
+        name="skillIds"
+        control={control}
+        render={({ field }) => (
+          <Select
+            onValueChange={(value) => {
+              const newSkillId = parseInt(value, 10);
+              if (!selectedSkills.includes(newSkillId)) {
+                const newSelectedSkills = [...selectedSkills, newSkillId];
+                setSelectedSkills(newSelectedSkills);
+                field.onChange(newSelectedSkills);
+              }
+            }}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Sélectionner une compétence" />
+            </SelectTrigger>
+            <SelectContent>
+              {skills
+                .filter((skill) => !selectedSkills.includes(skill.id))
+                .map((skill) => (
+                  <SelectItem key={skill.id} value={skill.id.toString()}>
+                    {skill.name}
+                  </SelectItem>
+                ))}
+            </SelectContent>
+          </Select>
+        )}
+      />
+      {errors.skillIds && <p className="text-red-500">{errors.skillIds.message}</p>}
     </div>
   );
 }
