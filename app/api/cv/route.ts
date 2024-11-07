@@ -14,6 +14,7 @@ import { cvFormSchema } from '@/lib/schemas/cv/cvFormSchema';
 import { generateCVFileName } from '@/lib/utils/naming-utils';
 import { saveFile } from '@/lib/utils/file-utils';
 import logError from '@/lib/errors/logger';
+import { Prisma } from '@prisma/client';
 
 export async function GET(): Promise<NextResponse<CV | CVApiError>> {
   try {
@@ -60,32 +61,37 @@ export async function POST(
       const newFileName = generateCVFileName();
       const newFilePath = path.join(process.cwd(), 'public', 'cv', newFileName);
 
-      const updatedCV = await prisma.$transaction(async (tx) => {
-        await saveFile(cv, newFilePath);
+      const updatedCV = await prisma.$transaction(
+        async (tx: Prisma.TransactionClient) => {
+          await saveFile(cv, newFilePath);
 
-        try {
-          const newCV = await tx.cV.update({
-            where: { id: existingCV.id },
-            data: {
-              filePath: `/cv/${newFileName}`,
-            },
-          });
+          try {
+            const newCV = await tx.cV.update({
+              where: { id: existingCV.id },
+              data: {
+                filePath: `/cv/${newFileName}`,
+              },
+            });
 
-          await unlink(path.join(process.cwd(), 'public', existingCV.filePath)).catch(
-            (err) => {
-              logError("Erreur lors de la suppression de l'ancien fichier : ", err);
-            },
-          );
+            await unlink(path.join(process.cwd(), 'public', existingCV.filePath)).catch(
+              (err) => {
+                logError("Erreur lors de la suppression de l'ancien fichier : ", err);
+              },
+            );
 
-          return newCV;
-        } catch (dbError) {
-          await unlink(newFilePath).catch(() => {
-            logError('Erreur lors de la suppression du nouveau fichier : ', newFilePath);
-          });
+            return newCV;
+          } catch (dbError) {
+            await unlink(newFilePath).catch(() => {
+              logError(
+                'Erreur lors de la suppression du nouveau fichier : ',
+                newFilePath,
+              );
+            });
 
-          throw dbError;
-        }
-      });
+            throw dbError;
+          }
+        },
+      );
       const response = cvApiResponseSchema.parse({
         data: updatedCV,
         message: 'CV mis à jour avec succès',
