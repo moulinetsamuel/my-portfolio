@@ -1,96 +1,114 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import OrbitingCircles from "../magicui/orbiting-circles";
-import Image from "next/image";
-import { SkillIcons, RadiusData } from "@/constants";
+import { useState, useEffect, useCallback } from 'react';
+import OrbitingCircles from '@/components/magicui/orbiting-circles';
+import Image from 'next/image';
+import type { Skill } from '@/lib/schemas/skill/skillSchema';
+import { Info } from 'lucide-react';
+import { RadiusData } from '@/constants';
+import ErrorMessage from '@/components/ErrorMessage';
+import useSkillStore from '@/store/useSkillStore';
+import LoadingMessage from '@/components/LoadingMessage';
 
 export default function SkillContent() {
+  const fetchSkills = useSkillStore((state) => state.fetchSkills);
+  const skills = useSkillStore((state) => state.skills);
+  const error = useSkillStore((state) => state.error);
   const [scale, setScale] = useState(1);
+  const [distributedSkills, setDistributedSkills] = useState<
+    (Skill & { radiusIndex: number; index: number })[]
+  >([]);
+  const [hasMoreSkills, setHasMoreSkills] = useState(false);
 
   useEffect(() => {
-    const handleResize = () => {
-      const width = window.innerWidth;
-      if (width < 640) {
-        setScale(0.5);
-      } else if (width < 768) {
-        setScale(0.6);
-      } else if (width < 1024) {
-        setScale(0.62);
-      } else {
-        setScale(0.8);
-      }
-    };
+    fetchSkills();
+  }, [fetchSkills]);
 
-    handleResize();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+  const handleResize = useCallback(() => {
+    const width = window.innerWidth;
+    if (width < 640) setScale(0.5);
+    else if (width < 768) setScale(0.6);
+    else if (width < 1024) setScale(0.62);
+    else setScale(0.8);
   }, []);
 
-  const totalMaxIcons = RadiusData.reduce((acc, radius) => acc + radius.max, 0);
-  let shuffledSkills = [...SkillIcons].sort(() => Math.random() - 0.5);
+  useEffect(() => {
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [handleResize]);
 
-  if (shuffledSkills.length > totalMaxIcons) {
-    shuffledSkills = shuffledSkills.slice(0, totalMaxIcons);
-  }
+  useEffect(() => {
+    if (skills) {
+      const shuffled = [...skills].sort(() => Math.random() - 0.5);
+      const totalMaxIcons = RadiusData.reduce((acc, radius) => acc + radius.max, 0);
+      setHasMoreSkills(shuffled.length > totalMaxIcons);
 
-  const skillWithRadius: {
-    radiusIndex: number;
-    id: number;
-    name: string;
-    icon_url: string;
-    index: number;
-  }[] = [];
+      const distributed = shuffled.reduce(
+        (acc, skill, index) => {
+          if (acc.length >= totalMaxIcons) return acc;
 
-  const skillCountPerRadius = RadiusData.map(() => 0);
-  let currentRadiusIndex = 0;
+          let radiusIndex = index % RadiusData.length;
+          while (
+            acc.filter((s) => s.radiusIndex === radiusIndex).length >=
+            RadiusData[radiusIndex].max
+          ) {
+            radiusIndex = (radiusIndex + 1) % RadiusData.length;
+          }
 
-  shuffledSkills.forEach((skill) => {
-    while (
-      skillCountPerRadius[currentRadiusIndex] >=
-      RadiusData[currentRadiusIndex].max
-    ) {
-      currentRadiusIndex = (currentRadiusIndex + 1) % RadiusData.length;
+          acc.push({
+            ...skill,
+            radiusIndex,
+            index: acc.filter((s) => s.radiusIndex === radiusIndex).length,
+          });
+
+          return acc;
+        },
+        [] as (Skill & { radiusIndex: number; index: number })[],
+      );
+
+      setDistributedSkills(distributed);
     }
-
-    skillWithRadius.push({
-      ...skill,
-      radiusIndex: currentRadiusIndex,
-      index: skillCountPerRadius[currentRadiusIndex],
-    });
-
-    skillCountPerRadius[currentRadiusIndex]++;
-    currentRadiusIndex = (currentRadiusIndex + 1) % RadiusData.length;
-  });
+  }, [skills]);
 
   return (
-    <div className="relative flex h-full w-full flex-col items-center justify-center overflow-hidden">
-      {skillWithRadius.map((skill) => {
-        const totalIconsInRadius = skillCountPerRadius[skill.radiusIndex];
+    <div className="relative flex size-full flex-col items-center justify-center overflow-hidden">
+      <LoadingMessage store="skill" />
+      <ErrorMessage errorMessage={error?.message} />
+      {distributedSkills.map((skill) => {
+        const { radius, duration, reverse, size } = RadiusData[skill.radiusIndex];
+        const totalIconsInRadius = distributedSkills.filter(
+          (s) => s.radiusIndex === skill.radiusIndex,
+        ).length;
         const angle = (360 / totalIconsInRadius) * skill.index;
-        const delay =
-          (skill.index / totalIconsInRadius) *
-          RadiusData[skill.radiusIndex].duration;
+        const delay = (skill.index / totalIconsInRadius) * duration;
 
         return (
           <OrbitingCircles
             key={skill.id}
             className="border-none bg-transparent"
-            radius={RadiusData[skill.radiusIndex].radius * scale}
-            duration={RadiusData[skill.radiusIndex].duration}
+            radius={radius * scale}
+            duration={duration}
             delay={delay}
-            reverse={RadiusData[skill.radiusIndex].reverse}
+            reverse={reverse}
             angle={angle}
           >
             <Image
-              src={`icons/skills${skill.icon_url}`}
+              src={skill.iconPath}
               alt={skill.name}
-              width={RadiusData[skill.radiusIndex].size * scale}
-              height={RadiusData[skill.radiusIndex].size * scale}
+              width={size * scale}
+              height={size * scale}
+              className="object-contain"
             />
           </OrbitingCircles>
         );
       })}
+      {hasMoreSkills && (
+        <div className="absolute bottom-4 left-4 flex items-center text-sm text-gray-500 dark:text-gray-400">
+          <Info className="mr-2 h-4 w-4" />
+          Plus de compétences disponibles
+        </div>
+      )}
     </div>
   );
 }

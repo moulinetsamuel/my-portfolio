@@ -1,11 +1,11 @@
 export default function SectionDivider() {
   return (
-    <div className="py-16 md:py-24 lg:py-32 flex justify-center items-center overflow-hidden">
-      <div className="w-full max-w-7xl px-4 flex items-center">
-        <div className="flex-grow h-px bg-gradient-to-r from-transparent via-primary to-transparent"></div>
+    <div className="flex items-center justify-center overflow-hidden py-16 md:py-24 lg:py-32">
+      <div className="flex w-full max-w-7xl items-center px-4">
+        <div className="h-px grow bg-gradient-to-r from-transparent via-primary to-transparent"></div>
         <div className="mx-4">
           <svg
-            className="w-6 h-6 text-primary"
+            className="size-6 text-primary"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -19,7 +19,7 @@ export default function SectionDivider() {
             />
           </svg>
         </div>
-        <div className="flex-grow h-px bg-gradient-to-r from-transparent via-primary to-transparent"></div>
+        <div className="h-px grow bg-gradient-to-r from-transparent via-primary to-transparent"></div>
       </div>
     </div>
   );

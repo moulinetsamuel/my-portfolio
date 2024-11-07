@@ -1,20 +1,22 @@
-import type { Metadata } from "next";
-import { GeistSans } from "geist/font/sans";
-import "./globals.css";
-import { cn } from "../lib/utils";
-import { Anek_Telugu } from "next/font/google";
-import { ThemeProvider } from "../providers/theme-provider";
-import Meteors from "@/components/magicui/meteors";
-import { Toaster } from "@/components/ui/toaster";
+import type { Metadata } from 'next';
+import { GeistSans } from 'geist/font/sans';
+import './globals.css';
+import { cn } from '@/lib/utils';
+import { Anek_Telugu } from 'next/font/google';
+import { ThemeProvider } from '@/providers/theme-provider';
+import Meteors from '@/components/magicui/meteors';
+import { Toaster } from '@/components/ui/toaster';
+import { NextAuthProvider } from '@/providers/next-auth-provider';
+import { SWRProvider } from '@/providers/swr-provider';
 
 const AnekTelugu = Anek_Telugu({
-  subsets: ["latin"],
-  variable: "--font-caption",
+  subsets: ['latin'],
+  variable: '--font-caption',
 });
 
 export const metadata: Metadata = {
-  title: "Portfolio | Moulinet Samuel",
-  description: "Portfolio de Moulinet Samuel",
+  title: 'Portfolio | Moulinet Samuel',
+  description: 'Portfolio de Moulinet Samuel',
 };
 
 export default function RootLayout({
@@ -28,21 +30,25 @@ export default function RootLayout({
         className={cn(
           GeistSans.variable,
           AnekTelugu.variable,
-          "font-sans overflow-x-hidden relative min-h-screen flex flex-col"
+          'font-sans overflow-x-hidden relative min-h-screen flex flex-col',
         )}
       >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="dark"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <div className="flex-grow">
-            <Meteors number={75} />
-            {children}
-          </div>
-          <Toaster />
-        </ThemeProvider>
+        <NextAuthProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="dark"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <SWRProvider>
+              <div className="grow">
+                <Meteors number={75} />
+                {children}
+              </div>
+              <Toaster />
+            </SWRProvider>
+          </ThemeProvider>
+        </NextAuthProvider>
       </body>
     </html>
   );

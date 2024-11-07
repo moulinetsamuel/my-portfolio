@@ -1,14 +1,11 @@
-import ContactForm from "../contents/ContactForm";
-import Footer from "../Footer";
+import ContactForm from '@/components/contents/ContactForm';
+import Footer from '@/components/Footer';
 
 export default function Contact() {
   return (
-    <section
-      id="contact"
-      className="min-h-screen w-full flex flex-col justify-between"
-    >
-      <div className="flex-grow flex flex-col items-center pt-16 px-4">
-        <h2 className="text-4xl font-bold py-12 text-center">Contactez-moi</h2>
+    <section id="contact" className="flex min-h-screen w-full flex-col justify-between">
+      <div className="flex grow flex-col items-center px-4 pt-16">
+        <h2 className="py-12 text-center text-4xl font-bold">Contactez-moi</h2>
         <div className="w-full max-w-md">
           <ContactForm />
         </div>

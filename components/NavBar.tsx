@@ -1,13 +1,9 @@
-"use client";
+'use client';
 
-import { useState, useCallback, useMemo } from "react";
-import ModeToggle from "./ModeToggle";
-import { Button } from "./ui/button";
-import {
-  DownloadIcon,
-  HamburgerMenuIcon,
-  Cross1Icon,
-} from "@radix-ui/react-icons";
+import { useState, useMemo, useEffect } from 'react';
+import ModeToggle from './ModeToggle';
+import { Button } from './ui/button';
+import { DownloadIcon, HamburgerMenuIcon, Cross1Icon } from '@radix-ui/react-icons';
 import {
   Sheet,
   SheetContent,
@@ -15,69 +11,84 @@ import {
   SheetHeader,
   SheetTitle,
   SheetDescription,
-} from "@/components/ui/sheet";
-import NavLink from "./NavLink";
-import { navItems } from "@/constants";
+} from '@/components/ui/sheet';
+import NavLink from '@/components/NavLink';
+import { navItems } from '@/constants';
+import { useToast } from '@/hooks/use-toast';
+import useCvStore from '@/store/useCvStore';
 
 export default function NavBar() {
+  const cv = useCvStore((state) => state.cv);
+  const fetchCV = useCvStore((state) => state.fetchCV);
+  const error = useCvStore((state) => state.error);
   const [isOpen, setIsOpen] = useState(false);
+  const { toast } = useToast();
 
-  const handleDownloadCV = useCallback(() => {
-    const link = document.createElement("a");
-    link.href = "/Cv/CV_SAMUEL_MOULINET_2024.pdf";
-    link.download = "CV_SAMUEL_MOULINET_2024.pdf";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  }, []);
+  useEffect(() => {
+    fetchCV();
+  }, [fetchCV]);
+
+  const handleDownloadCV = () => {
+    if (error) {
+      toast({
+        title: error.message,
+        variant: 'destructive',
+      });
+    }
+    if (cv) {
+      const link = document.createElement('a');
+      link.href = cv.filePath;
+      link.download = cv.filePath.split('/').pop() as string;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  };
 
   const mainNavigation = useMemo(
     () => (
-      <nav className="hidden md:flex items-center gap-6 lg:gap-10">
+      <nav className="hidden items-center gap-6 md:flex lg:gap-10">
         {navItems.map((item) => (
           <NavLink key={item.href} href={item.href} label={item.label} />
         ))}
       </nav>
     ),
-    []
+    [],
   );
 
   return (
-    <header className="w-full h-[65px] fixed top-0 shadow-theme flex backdrop-blur-md items-center z-50 px-4 sm:px-10">
-      <div className="w-full h-full flex flex-row items-center justify-between m-auto">
-        <div className="flex justify-between h-full items-center gap-5">
+    <header className="shadow-theme fixed top-0 z-50 flex h-[65px] w-full items-center px-4 backdrop-blur-md sm:px-10">
+      <div className="m-auto flex size-full flex-row items-center justify-between">
+        <div className="flex h-full items-center justify-between gap-5">
           <ModeToggle />
           {mainNavigation}
         </div>
         <div className="flex items-center gap-4">
           <Button
-            variant={"default"}
-            className="hidden sm:flex gap-2"
+            variant={'default'}
+            className="hidden gap-2 sm:flex"
             onClick={handleDownloadCV}
             aria-label="Télécharger mon CV"
           >
             Télécharger mon CV
-            <DownloadIcon className="h-4 w-4" />
+            <DownloadIcon className="size-4" />
           </Button>
-          <Sheet
-            open={isOpen}
-            onOpenChange={(open: boolean) => setIsOpen(open)}
-          >
+          <Sheet open={isOpen} onOpenChange={(open: boolean) => setIsOpen(open)}>
             <SheetTrigger asChild>
               <Button
                 variant="outline"
                 size="icon"
                 className="md:hidden"
-                aria-label={isOpen ? "Fermer le menu" : "Ouvrir le menu"}
+                aria-label={isOpen ? 'Fermer le menu' : 'Ouvrir le menu'}
               >
                 <HamburgerMenuIcon
-                  className={`h-[1.2rem] w-[1.2rem] transition-all ${
-                    isOpen ? "rotate-90 scale-0" : "rotate-0 scale-100"
+                  className={`size-[1.2rem] transition-all ${
+                    isOpen ? 'rotate-90 scale-0' : 'rotate-0 scale-100'
                   }`}
                 />
                 <Cross1Icon
-                  className={`absolute h-[1.2rem] w-[1.2rem] transition-all ${
-                    isOpen ? "rotate-0 scale-100" : "rotate-90 scale-0"
+                  className={`absolute size-[1.2rem] transition-all ${
+                    isOpen ? 'rotate-0 scale-100' : 'rotate-90 scale-0'
                   }`}
                 />
               </Button>
@@ -86,11 +97,11 @@ export default function NavBar() {
               <SheetHeader>
                 <SheetTitle className="sr-only">Menu de navigation</SheetTitle>
                 <SheetDescription className="sr-only">
-                  Retrouvez ici les différentes sections de mon portfolio.
-                  Cliquez sur une section pour y accéder.
+                  Retrouvez ici les différentes sections de mon portfolio. Cliquez sur une
+                  section pour y accéder.
                 </SheetDescription>
               </SheetHeader>
-              <nav className="flex flex-col gap-4 mt-8">
+              <nav className="mt-8 flex flex-col gap-4">
                 {navItems.map((item) => (
                   <NavLink
                     key={item.href}
@@ -100,13 +111,13 @@ export default function NavBar() {
                   />
                 ))}
                 <Button
-                  variant={"default"}
-                  className="flex gap-2 mt-4 sm:hidden"
+                  variant={'default'}
+                  className="mt-4 flex gap-2 sm:hidden"
                   onClick={handleDownloadCV}
                   aria-label="Télécharger mon CV"
                 >
                   Télécharger mon CV
-                  <DownloadIcon className="h-4 w-4" />
+                  <DownloadIcon className="size-4" />
                 </Button>
               </nav>
             </SheetContent>
