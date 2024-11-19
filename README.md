@@ -1,36 +1,71 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# My Portfolio
 
-## Getting Started
+Welcome to my personal portfolio website! Here, I showcase my skills, projects, and experience as a developer. This portfolio highlights the various technologies I've worked with and provides details on some of the projects I've contributed to.
 
-First, run the development server:
+## 🚀 Technologies & Tools
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+This portfolio was built using the following technologies and tools:
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- **Frontend:**
+  - Next.js (React)
+  - Shadcn UI for components
+  - Tailwind CSS
+  - Prisma (ORM for database management)
+- **Backend:**
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+  - Node.js
+  - PostgreSQL for database
+  - Prisma ORM for database interaction
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+- **Deployment:**
+  - Docker for containerization
+  - Coolify for automatic deployment
+  - My portfolio is deployed on my Raspberry Pi locally
 
-## Learn More
+## 💻 Features
 
-To learn more about Next.js, take a look at the following resources:
+- **Responsive Design**: Fully responsive design for both mobile and desktop views.
+- **Dynamic Projects Section**: Showcases my work with detailed descriptions, tech stack, and links to live projects and GitHub repositories.
+- **Skills & Technologies**: Display of the technologies I have experience with, dynamically loaded from the database.
+- **Interactive UI**: A smooth, interactive user interface using modern web technologies.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## ⚙️ Setup Instructions
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+To get this portfolio running locally, follow these steps:
 
-## Deploy on Vercel
+1. **Clone the repository**:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+   ```bash
+   git clone https://github.com/moulinetsamuel/my-portfolio.git
+   ```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+2. **Install dependencies: Make sure you have Node.js and pnpm installed. If not, install them first.**:
+
+   ```bash
+   pnpm install
+   ```
+
+3. **Set up the environment variables: Copy the .env.local.exemple file in the root directory**:
+
+   ```bash
+   cp .env.local.example .env.local
+   ```
+
+4. **Run the development server**:
+
+   ```bash
+   pnpm dev
+   ```
+
+   This will start the Next.js development server at <http://localhost:3000>.
+
+## 🧑‍💻 About Me
+
+I am a passionate developer with experience in building full-stack web applications. I specialize in creating modern, user-friendly websites and applications using the latest technologies. Always looking for opportunities to learn and grow as a developer.
+
+## 📬 Contact
+
+Feel free to reach out to me via email at [moulinet.samuel@gmail.com](mailto:moulinet.samuel@gmail.com)
+.
+
+Thanks for visiting my portfolio! Check out my projects and don't hesitate to contact me for any collaboration or inquiries
