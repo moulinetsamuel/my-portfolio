@@ -8,12 +8,10 @@ import {
   ProjectApiResponse,
   ProjectApiError,
 } from '@/lib/schemas/project/projectApiResponseSchema';
-import { unlink } from 'fs/promises';
-import path from 'path';
 import { generateProjectImageFileName } from '@/lib/utils/naming-utils';
-import { saveFile } from '@/lib/utils/file-utils';
 import { Prisma } from '@prisma/client';
 import logError from '@/lib/errors/logger';
+import { deleteFromR2, uploadToR2 } from '@/lib/utils/r2Client';
 
 export async function PUT(
   request: Request,
@@ -46,12 +44,13 @@ export async function PUT(
       throw new Error('Projet non trouvé');
     }
 
-    const fileName = generateProjectImageFileName(title);
-    const filePath = path.join(process.cwd(), 'public', 'images', 'projects', fileName);
-
     const updatedProject = await prisma.$transaction(async (tx) => {
+      let newImagePath = existingProject.imagePath;
+
       if (image) {
-        await saveFile(image, filePath);
+        const fileName = generateProjectImageFileName(title);
+        const buffer = await image.arrayBuffer();
+        newImagePath = await uploadToR2(fileName, Buffer.from(buffer), image.type);
       }
 
       try {
@@ -62,7 +61,7 @@ export async function PUT(
             description,
             siteUrl,
             repoUrl,
-            imagePath: image ? `/images/projects/${fileName}` : existingProject.imagePath,
+            imagePath: newImagePath,
             skills: {
               set: skillIds.map((id) => ({ id })),
             },
@@ -70,23 +69,34 @@ export async function PUT(
           include: { skills: true },
         });
 
+        if (image && existingProject.imagePath) {
+          const oldFileName = existingProject.imagePath.split('/').pop();
+          if (oldFileName) {
+            await deleteFromR2(oldFileName).catch((err) => {
+              logError(
+                "Erreur lors de la suppression de l'ancien fichier dans R2 : ",
+                err,
+              );
+            });
+          }
+        }
+
         return project;
       } catch (dbError) {
-        if (image) {
-          await unlink(filePath).catch((err) => {
-            logError('Erreur lors de la suppression du nouveau fichier : ', err);
-          });
+        if (image && newImagePath !== existingProject.imagePath) {
+          const newFileName = newImagePath.split('/').pop();
+          if (newFileName) {
+            await deleteFromR2(newFileName).catch((err) => {
+              logError(
+                'Erreur lors de la suppression du nouveau fichier dans R2 : ',
+                err,
+              );
+            });
+          }
         }
         throw dbError;
       }
     });
-
-    if (existingProject.imagePath && image) {
-      const fullOldPath = path.join(process.cwd(), 'public', existingProject.imagePath);
-      await unlink(fullOldPath).catch((err) => {
-        logError("Erreur lors de la suppression de l'ancien fichier : ", err);
-      });
-    }
 
     const response = projectApiResponseSchema.parse({
       data: updatedProject,
@@ -139,10 +149,12 @@ export async function DELETE(
       });
 
       if (project.imagePath) {
-        const filePath = path.join(process.cwd(), 'public', project.imagePath);
-        await unlink(filePath).catch((err) => {
-          logError('Erreur lors de la suppression du fichier : ', err);
-        });
+        const fileName = project.imagePath.split('/').pop();
+        if (fileName) {
+          await deleteFromR2(fileName).catch((err) => {
+            logError('Erreur lors de la suppression du fichier dans R2 : ', err);
+          });
+        }
       }
 
       return deletedProject;
