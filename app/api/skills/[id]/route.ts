@@ -9,11 +9,9 @@ import {
   SkillApiResponse,
   SkillApiError,
 } from '@/lib/schemas/skill/skillApiResponseSchema';
-import { unlink } from 'fs/promises';
-import path from 'path';
 import { generateSkillIconFileName } from '@/lib/utils/naming-utils';
-import { saveFile } from '@/lib/utils/file-utils';
 import logError from '@/lib/errors/logger';
+import { deleteFromR2, uploadToR2 } from '@/lib/utils/r2Client';
 
 export async function PUT(
   request: Request,
@@ -36,12 +34,13 @@ export async function PUT(
       throw new Error('Compétence non trouvée');
     }
 
-    const fileName = generateSkillIconFileName(name);
-    const filePath = path.join(process.cwd(), 'public', 'icons', 'skills', fileName);
-
     const updatedSkill = await prisma.$transaction(async (tx) => {
+      let newFilePath = existingSkill.iconPath;
+
       if (icon) {
-        await saveFile(icon, filePath);
+        const fileName = generateSkillIconFileName(name);
+        const buffer = await icon.arrayBuffer();
+        newFilePath = await uploadToR2(fileName, Buffer.from(buffer), icon.type);
       }
 
       try {
@@ -49,16 +48,34 @@ export async function PUT(
           where: { id },
           data: {
             name: validatedData.name,
-            iconPath: icon ? `/icons/skills/${fileName}` : existingSkill.iconPath,
+            iconPath: newFilePath,
           },
         });
 
+        if (icon && existingSkill.iconPath) {
+          const oldFileName = existingSkill.iconPath.split('/').pop();
+          if (oldFileName) {
+            await deleteFromR2(oldFileName).catch((err) => {
+              logError(
+                "Erreur lors de la suppression de l'ancien fichier dans R2 : ",
+                err,
+              );
+            });
+          }
+        }
+
         return skill;
       } catch (dbError) {
-        if (icon) {
-          await unlink(filePath).catch((err) => {
-            logError('Erreur lors de la suppression du nouveau fichier : ', err);
-          });
+        if (icon && newFilePath !== existingSkill.iconPath) {
+          const newFileName = newFilePath.split('/').pop();
+          if (newFileName) {
+            await deleteFromR2(newFileName).catch((err) => {
+              logError(
+                'Erreur lors de la suppression du nouveau fichier dans R2 : ',
+                err,
+              );
+            });
+          }
         }
 
         if (
@@ -70,13 +87,6 @@ export async function PUT(
         throw dbError;
       }
     });
-
-    if (existingSkill.iconPath && icon) {
-      const fullOldPath = path.join(process.cwd(), 'public', existingSkill.iconPath);
-      await unlink(fullOldPath).catch((err) => {
-        logError("Erreur lors de la suppression de l'ancien fichier : ", err);
-      });
-    }
 
     const response = skillApiResponseSchema.parse({
       data: updatedSkill,
@@ -133,10 +143,12 @@ export async function DELETE(
       const deletedSkill = await tx.skill.delete({ where: { id } });
 
       if (skill.iconPath) {
-        const filePath = path.join(process.cwd(), 'public', skill.iconPath);
-        await unlink(filePath).catch((err) => {
-          logError('Erreur lors de la suppression du fichier : ', err);
-        });
+        const fileName = skill.iconPath.split('/').pop();
+        if (fileName) {
+          await deleteFromR2(fileName).catch((err) => {
+            logError('Erreur lors de la suppression du fichier dans R2 : ', err);
+          });
+        }
       }
 
       return deletedSkill;

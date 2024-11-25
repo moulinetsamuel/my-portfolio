@@ -9,12 +9,10 @@ import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { z } from 'zod';
 import { skillFormSchema } from '@/lib/schemas/skill/skillFormSchema';
-import path from 'path';
-import { unlink } from 'fs/promises';
 import { Prisma } from '@prisma/client';
 import { generateSkillIconFileName } from '@/lib/utils/naming-utils';
-import { saveFile } from '@/lib/utils/file-utils';
 import logError from '@/lib/errors/logger';
+import { deleteFromR2, uploadToR2 } from '@/lib/utils/r2Client';
 
 export async function GET(): Promise<NextResponse<Skill[] | SkillApiError>> {
   try {
@@ -58,23 +56,23 @@ export async function POST(
     const { name, icon } = validatedData;
 
     const fileName = generateSkillIconFileName(name);
-    const filePath = path.join(process.cwd(), 'public', 'icons', 'skills', fileName);
 
     const newSkill = await prisma.$transaction(async (tx) => {
-      await saveFile(icon, filePath);
+      const buffer = await icon.arrayBuffer();
+      const filePath = await uploadToR2(fileName, Buffer.from(buffer), icon.type);
 
       try {
         const skill = await tx.skill.create({
           data: {
             name: name,
-            iconPath: `/icons/skills/${fileName}`,
+            iconPath: filePath,
           },
         });
 
         return skill;
       } catch (dbError) {
-        await unlink(filePath).catch((err) => {
-          logError('Erreur lors de la suppression du fichier : ', err);
+        await deleteFromR2(fileName).catch((err) => {
+          logError('Erreur lors de la suppression du fichier:', err);
         });
 
         if (
