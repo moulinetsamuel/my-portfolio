@@ -16,6 +16,7 @@ import NavLink from '@/components/NavLink';
 import { navItems } from '@/constants';
 import { useToast } from '@/hooks/use-toast';
 import useCvStore from '@/store/useCvStore';
+import { saveAs } from 'file-saver';
 
 export default function NavBar() {
   const cv = useCvStore((state) => state.cv);
@@ -34,14 +35,10 @@ export default function NavBar() {
         title: error.message,
         variant: 'destructive',
       });
+      return;
     }
     if (cv) {
-      const link = document.createElement('a');
-      link.href = cv.filePath;
-      link.download = cv.filePath.split('/').pop() as string;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      saveAs(cv.filePath, cv.filePath.split('/').pop() as string);
     }
   };
 

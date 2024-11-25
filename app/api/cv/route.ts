@@ -8,12 +8,10 @@ import {
   CVApiResponse,
   cvApiResponseSchema,
 } from '@/lib/schemas/cv/cvApiResponseSchema';
-import path from 'path';
-import { unlink } from 'fs/promises';
 import { cvFormSchema } from '@/lib/schemas/cv/cvFormSchema';
 import { generateCVFileName } from '@/lib/utils/naming-utils';
-import { saveFile } from '@/lib/utils/file-utils';
 import logError from '@/lib/errors/logger';
+import { deleteFromR2, uploadToR2 } from '@/lib/utils/r2Client';
 
 export async function GET(): Promise<NextResponse<CV | CVApiError>> {
   try {
@@ -53,39 +51,49 @@ export async function POST(
     const formData = await request.formData();
     const data = Object.fromEntries(formData.entries());
     const validatedCV = cvFormSchema.parse(data);
-    const cv = validatedCV.cv;
+    const cv = validatedCV.cv as File;
 
     const existingCV = await prisma.cV.findFirst();
     if (existingCV) {
       const newFileName = generateCVFileName();
-      const newFilePath = path.join(process.cwd(), 'public', 'cv', newFileName);
 
       const updatedCV = await prisma.$transaction(async (tx) => {
-        await saveFile(cv, newFilePath);
+        const buffer = await cv.arrayBuffer();
+        const fileUrl = await uploadToR2(newFileName, Buffer.from(buffer), cv.type);
 
         try {
           const newCV = await tx.cV.update({
             where: { id: existingCV.id },
             data: {
-              filePath: `/cv/${newFileName}`,
+              filePath: fileUrl,
             },
           });
 
-          await unlink(path.join(process.cwd(), 'public', existingCV.filePath)).catch(
-            (err) => {
-              logError("Erreur lors de la suppression de l'ancien fichier : ", err);
-            },
-          );
+          // Suppression de l'ancien fichier dans R2
+          const oldFileName = existingCV.filePath.split('/').pop();
+          if (oldFileName) {
+            await deleteFromR2(oldFileName).catch((err) => {
+              logError(
+                "Erreur lors de la suppression de l'ancien fichier dans R2 : ",
+                err,
+              );
+            });
+          }
 
           return newCV;
         } catch (dbError) {
-          await unlink(newFilePath).catch(() => {
-            logError('Erreur lors de la suppression du nouveau fichier : ', newFilePath);
+          // En cas d'erreur, on supprime le nouveau fichier de R2
+          await deleteFromR2(newFileName).catch(() => {
+            logError(
+              'Erreur lors de la suppression du nouveau fichier dans R2 : ',
+              newFileName,
+            );
           });
 
           throw dbError;
         }
       });
+
       const response = cvApiResponseSchema.parse({
         data: updatedCV,
         message: 'CV mis à jour avec succès',
@@ -94,24 +102,25 @@ export async function POST(
       return NextResponse.json(response);
     }
 
-    // sinon je crée un nouveau cv
+    // Création d'un nouveau CV
     const fileName = generateCVFileName();
-    const filePath = path.join(process.cwd(), 'public', 'cv', fileName);
 
     const createdCV = await prisma.$transaction(async (tx) => {
-      await saveFile(cv, filePath);
+      const buffer = await cv.arrayBuffer();
+      const fileUrl = await uploadToR2(fileName, Buffer.from(buffer), cv.type);
 
       try {
         const newCV = await tx.cV.create({
           data: {
-            filePath: `/cv/${fileName}`,
+            filePath: fileUrl,
           },
         });
 
         return newCV;
       } catch (dbError) {
-        await unlink(filePath).catch((err) => {
-          logError('Erreur lors de la suppression du fichier : ', err);
+        // En cas d'erreur, on supprime le fichier de R2
+        await deleteFromR2(fileName).catch((err) => {
+          logError('Erreur lors de la suppression du fichier dans R2 : ', err);
         });
 
         throw dbError;
