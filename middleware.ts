@@ -10,7 +10,7 @@ export default withAuth(
     // Sécurisation du dashboard
     if (path.startsWith('/dashboard')) {
       if (token?.role !== 'admin') {
-        return NextResponse.redirect(new URL('/access-denied', req.url));
+        return NextResponse.redirect(new URL('/', req.url));
       }
     }
 
