@@ -9,6 +9,7 @@ import { Toaster } from '@/components/ui/toaster';
 import { NextAuthProvider } from '@/providers/next-auth-provider';
 import { SWRProvider } from '@/providers/swr-provider';
 import StructuredData from '@/components/StructuredData';
+import { GoogleAnalytics } from '@next/third-parties/google';
 
 const AnekTelugu = Anek_Telugu({
   subsets: ['latin'],
@@ -52,6 +53,7 @@ export default function RootLayout({
           </ThemeProvider>
         </NextAuthProvider>
         <StructuredData />
+        <GoogleAnalytics gaId="G-HXL7989643" />
       </body>
     </html>
   );
