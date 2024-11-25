@@ -8,6 +8,7 @@ import Meteors from '@/components/magicui/meteors';
 import { Toaster } from '@/components/ui/toaster';
 import { NextAuthProvider } from '@/providers/next-auth-provider';
 import { SWRProvider } from '@/providers/swr-provider';
+import StructuredData from '@/components/StructuredData';
 
 const AnekTelugu = Anek_Telugu({
   subsets: ['latin'],
@@ -15,8 +16,9 @@ const AnekTelugu = Anek_Telugu({
 });
 
 export const metadata: Metadata = {
-  title: 'Portfolio | Moulinet Samuel',
-  description: 'Portfolio de Moulinet Samuel',
+  title: 'Samuel Moulinet | Développeur Full Stack',
+  description:
+    'Portfolio de Samuel Moulinet, développeur web full stack spécialisé en Next.js, React et TypeScript. Découvrez mes projets et compétences en développement web moderne.',
 };
 
 export default function RootLayout({
@@ -49,6 +51,7 @@ export default function RootLayout({
             </SWRProvider>
           </ThemeProvider>
         </NextAuthProvider>
+        <StructuredData />
       </body>
     </html>
   );
