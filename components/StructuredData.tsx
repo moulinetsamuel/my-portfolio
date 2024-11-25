@@ -7,7 +7,7 @@ export default function StructuredData() {
     jobTitle: 'Développeur Web Full Stack',
     sameAs: [
       'https://github.com/moulinetsamuel',
-      'https://www.linkedin.com/in/samuel-moulinet/',
+      'www.linkedin.com/in/samuel-moulinet-a48576305',
     ],
   };
 
