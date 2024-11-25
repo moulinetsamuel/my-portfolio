@@ -10,10 +10,8 @@ import {
 } from '@/lib/schemas/project/projectApiResponseSchema';
 import { projectFormSchema } from '@/lib/schemas/project/projectFormSchema';
 import { generateProjectImageFileName } from '@/lib/utils/naming-utils';
-import path from 'path';
-import { saveFile } from '@/lib/utils/file-utils';
-import { unlink } from 'fs/promises';
 import logError from '@/lib/errors/logger';
+import { deleteFromR2, uploadToR2 } from '@/lib/utils/r2Client';
 
 export async function GET(): Promise<NextResponse<Project[] | ProjectApiError>> {
   try {
@@ -68,17 +66,17 @@ export async function POST(
     const { title, description, siteUrl, repoUrl, image, skillIds } = validatedData;
 
     const fileName = generateProjectImageFileName(title);
-    const imagePath = path.join('public', 'images', 'projects', fileName);
 
     const newProject = await prisma.$transaction(async (tx) => {
-      await saveFile(image, imagePath);
+      const buffer = await image.arrayBuffer();
+      const imagePath = await uploadToR2(fileName, Buffer.from(buffer), image.type);
 
       try {
         const project = await tx.project.create({
           data: {
             title,
             description,
-            imagePath: `/images/projects/${fileName}`,
+            imagePath,
             siteUrl,
             repoUrl,
             skills: { connect: skillIds.map((id) => ({ id })) },
@@ -88,8 +86,8 @@ export async function POST(
 
         return project;
       } catch (dbError) {
-        await unlink(imagePath).catch((err) => {
-          logError('Erreur lors de la suppression du fichier : ', err);
+        await deleteFromR2(fileName).catch((err) => {
+          logError('Erreur lors de la suppression du fichier dans R2 : ', err);
         });
 
         throw dbError;
