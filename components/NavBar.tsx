@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
-import ModeToggle from './ModeToggle';
 import { Button } from './ui/button';
 import { DownloadIcon, HamburgerMenuIcon, Cross1Icon } from '@radix-ui/react-icons';
 import {
@@ -57,7 +56,6 @@ export default function NavBar() {
     <header className="shadow-theme fixed top-0 z-50 flex h-[65px] w-full items-center px-4 backdrop-blur-md sm:px-10">
       <div className="m-auto flex size-full flex-row items-center justify-between">
         <div className="flex h-full items-center justify-between gap-5">
-          <ModeToggle />
           {mainNavigation}
         </div>
         <div className="flex items-center gap-4">

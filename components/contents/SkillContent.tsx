@@ -104,7 +104,7 @@ export default function SkillContent() {
         );
       })}
       {hasMoreSkills && (
-        <div className="absolute bottom-4 left-4 flex items-center text-sm text-gray-500 dark:text-gray-400">
+        <div className="absolute bottom-4 left-4 flex items-center text-sm text-gray-400 ">
           <Info className="mr-2 h-4 w-4" />
           Plus de compétences disponibles
         </div>
