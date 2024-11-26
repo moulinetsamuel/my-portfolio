@@ -67,4 +67,4 @@ I am a passionate developer with experience in building full-stack web applicati
 
 Feel free to reach out to me via email at [moulinet.samuel@gmail.com](mailto:moulinet.samuel@gmail.com).
 
-Thanks for visiting my portfolio! Check out my projects and don't hesitate to contact me for any collaboration or inquiries
+Thanks for visiting my portfolio! Check out my projects and don't hesitate to contact me for any collaboration or inquiries.
