@@ -1,8 +1,8 @@
 export const navItems = [
   { href: '#about-me', label: 'Qui suis-je ?' },
   { href: '#skills', label: 'Compétences' },
-  { href: '#projects', label: 'Projets' },
-  { href: '#contact', label: 'Contact' },
+  { href: '#projects', label: 'Réalisations' },
+  { href: '#contact', label: 'Contactez-moi' },
 ];
 
 export const RadiusData = [

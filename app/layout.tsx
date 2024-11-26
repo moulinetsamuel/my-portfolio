@@ -3,11 +3,9 @@ import { GeistSans } from 'geist/font/sans';
 import './globals.css';
 import { cn } from '@/lib/utils';
 import { Anek_Telugu } from 'next/font/google';
-import { ThemeProvider } from '@/providers/theme-provider';
 import Meteors from '@/components/magicui/meteors';
 import { Toaster } from '@/components/ui/toaster';
 import { NextAuthProvider } from '@/providers/next-auth-provider';
-import { SWRProvider } from '@/providers/swr-provider';
 import StructuredData from '@/components/StructuredData';
 import { GoogleAnalytics } from '@next/third-parties/google';
 
@@ -37,20 +35,11 @@ export default function RootLayout({
         )}
       >
         <NextAuthProvider>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="dark"
-            enableSystem
-            disableTransitionOnChange
-          >
-            <SWRProvider>
-              <div className="grow">
-                <Meteors number={75} />
-                {children}
-              </div>
-              <Toaster />
-            </SWRProvider>
-          </ThemeProvider>
+          <div className="grow">
+            <Meteors number={75} />
+            {children}
+          </div>
+          <Toaster />
         </NextAuthProvider>
         <StructuredData />
         <GoogleAnalytics gaId="G-HXL7989643" />
