@@ -66,6 +66,7 @@ export async function POST(
             where: { id: existingCV.id },
             data: {
               filePath: fileUrl,
+              uploadedAt: new Date(),
             },
           });
 
