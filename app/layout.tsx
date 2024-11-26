@@ -7,7 +7,6 @@ import { ThemeProvider } from '@/providers/theme-provider';
 import Meteors from '@/components/magicui/meteors';
 import { Toaster } from '@/components/ui/toaster';
 import { NextAuthProvider } from '@/providers/next-auth-provider';
-import { SWRProvider } from '@/providers/swr-provider';
 import StructuredData from '@/components/StructuredData';
 import { GoogleAnalytics } from '@next/third-parties/google';
 
@@ -43,13 +42,11 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            <SWRProvider>
-              <div className="grow">
-                <Meteors number={75} />
-                {children}
-              </div>
-              <Toaster />
-            </SWRProvider>
+            <div className="grow">
+              <Meteors number={75} />
+              {children}
+            </div>
+            <Toaster />
           </ThemeProvider>
         </NextAuthProvider>
         <StructuredData />
